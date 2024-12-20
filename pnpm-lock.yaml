@@ -141,7 +141,10 @@ importers:
       '@elizaos/plugin-aptos':
         specifier: workspace:*
         version: link:../packages/plugin-aptos
-      '@elizaos/plugin-bootstrap':
+      '@ai16zaos/plugin-birdeye':
+        specifier: workspace:*
+        version: link:../packages/plugin-birdeye
+      '@ai16z/plugin-bootstrap':
         specifier: workspace:*
         version: link:../packages/plugin-bootstrap
       '@elizaos/plugin-coinbase':
