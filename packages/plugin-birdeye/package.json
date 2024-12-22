@@ -15,9 +15,5 @@
         "dev": "tsup --format esm --dts --watch",
         "lint": "eslint --fix  --cache .",
         "test": "vitest run"
-    },
-    "peerDependencies": {
-        "form-data": "4.0.1",
-        "whatwg-url": "7.1.0"
     }
 }

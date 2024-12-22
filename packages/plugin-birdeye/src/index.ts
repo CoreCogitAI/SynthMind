@@ -1,4 +1,4 @@
-import { Plugin } from "@elizaos/eliza";
+import { Plugin } from "@elizaos/core";
 
 import { birdeyeProvider, BirdeyeProvider } from "./providers/birdeye";
 

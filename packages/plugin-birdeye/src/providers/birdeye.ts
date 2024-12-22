@@ -1,7 +1,7 @@
 import NodeCache from "node-cache";
 import * as path from "path";
-import { ICacheManager, settings } from "@elizaos/eliza";
-import { IAgentRuntime, Memory, Provider, State } from "@elizaos/eliza";
+import { ICacheManager, settings } from "@elizaos/core";
+import { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
 
 const DEFAULT_MAX_RETRIES = 3;
 
