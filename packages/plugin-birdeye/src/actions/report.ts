@@ -19,11 +19,11 @@ Extract the 1 latest information about the requested token report:
 - Input token symbol
 - Extra about this symbol
 
-When to symbol is specified in all lower case, such as btc, eth, sol..., we should convert it into wellknown symbol.
+When the symbol is specified in all lower case, such as btc, eth, sol..., we should convert it into wellknown symbol.
 E.g. btc instead of BTC, sol instead of SOL.
 
-But when we see them in mix form, such as SOl, DOl, we should keep the original and notice user instead.
-When in doubt, specify in the message field.
+But when we see them in mixed form, such as SOl, DOl, eTH we should keep the original and notice user instead.
+When in doubt, specify the concern in the message field.
 
 Respond exactly a JSON object containing only the extracted values, no extra description or message needed.
 Use null for any values that cannot be determined. The result should be a valid JSON object with the following schema:
