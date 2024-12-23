@@ -15,7 +15,7 @@ const extractTokenSymbolTemplate = `Given the recent message below:
 
 {{recentMessages}}
 
-Extract the following information about the requested token report:
+Extract the 1 latest information about the requested token report:
 - Input token symbol
 - Extra about this symbol
 
@@ -50,6 +50,7 @@ Examples:
 
 const formatTokenReport = (data) => {
     let output = `**Token Security and Trade Report**\n`;
+    output += `Token symbol: ${data.symbol}\n`
     output += `Token Address: ${data.tokenAddress}\n\n`;
 
     output += `**Ownership Distribution:**\n`;
@@ -136,13 +137,19 @@ export const reportToken = {
             elizaLogger.log('Fetching birdeye data', symbol)
             const provider = new BirdeyeProvider(runtime.cacheManager)
 
-            const [security, volume] = await Promise.all([
+            const [tokenAddress, security, volume] = await Promise.all([
+                provider.getTokenAddress(symbol),
                 provider.fetchTokenSecurityBySymbol(symbol),
                 provider.fetchTokenTradeDataBySymbol(symbol),
             ]);
 
             elizaLogger.log('Fetching birdeye done')
-            const msg = formatTokenReport({security: security.data, volume: volume.data})
+            const msg = formatTokenReport({
+                symbol,
+                tokenAddress,
+                security: security.data,
+                volume: volume.data
+            })
             callback?.({text: msg})
             return true
         } catch (error) {

@@ -84,7 +84,7 @@ export class BirdeyeProvider extends BaseCachedProvider {
         this.maxRetries = maxRetries || DEFAULT_MAX_RETRIES;
     }
 
-    private getTokenAddress(symbol: string) {
+    public getTokenAddress(symbol: string) {
         const addr = this.symbolMap[symbol];
 
         if (!addr) {
