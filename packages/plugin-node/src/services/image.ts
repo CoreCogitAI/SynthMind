@@ -21,6 +21,7 @@ import fs from "fs";
 import gifFrames from "gif-frames";
 import os from "os";
 import path from "path";
+import { resizeImageBuffer } from "./imageUtils";
 
 export class ImageDescriptionService
     extends Service
@@ -97,11 +98,13 @@ export class ImageDescriptionService
 
             if (model === models[ModelProviderName.LLAMALOCAL]) {
                 await this.initializeLocalModel();
+            } else if (model === models[ModelProviderName.ANTHROPIC]) {
+                this.modelId = "claude-3-haiku-20240307";
+                this.device = "cloud";
             } else {
                 this.modelId = "gpt-4o-mini";
                 this.device = "cloud";
             }
-
             this.initialized = true;
         }
 
@@ -111,7 +114,7 @@ export class ImageDescriptionService
                     "Runtime is required for OpenAI image recognition"
                 );
             }
-            return this.recognizeWithOpenAI(imageUrl);
+            return this.recognizeWithCloud(imageUrl);
         }
 
         this.queue.push(imageUrl);
@@ -130,7 +133,7 @@ export class ImageDescriptionService
         });
     }
 
-    private async recognizeWithOpenAI(
+    private async recognizeWithCloud(
         imageUrl: string
     ): Promise<{ title: string; description: string }> {
         const isGif = imageUrl.toLowerCase().endsWith(".gif");
@@ -157,12 +160,15 @@ export class ImageDescriptionService
 
             const prompt =
                 "Describe this image and give it a title. The first line should be the title, and then a line break, then a detailed description of the image. Respond with the format 'title\ndescription'";
-            const text = await this.requestOpenAI(
-                imageUrl,
-                imageData,
-                prompt,
-                isGif
-            );
+            const text =
+                this.runtime.imageModelProvider === ModelProviderName.ANTHROPIC
+                    ? await this.requestAnthropic(imageData, prompt)
+                    : await this.requestOpenAI(
+                          imageUrl,
+                          imageData,
+                          prompt,
+                          isGif
+                      );
 
             const [title, ...descriptionParts] = text.split("\n");
             return {
@@ -206,7 +212,7 @@ export class ImageDescriptionService
                         Authorization: `Bearer ${this.runtime.getSetting("OPENAI_API_KEY")}`,
                     },
                     body: JSON.stringify({
-                        model: "gpt-4o-mini",
+                        model: this.modelId,
                         messages: [{ role: "user", content }],
                         max_tokens: isGif ? 500 : 300,
                     }),
@@ -228,6 +234,78 @@ export class ImageDescriptionService
         }
         throw new Error(
             "Failed to recognize image with OpenAI after 3 attempts"
+        );
+    }
+
+    private async requestAnthropic(
+        imageData: Buffer,
+        prompt: string
+    ): Promise<string> {
+        for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+                const endpoint =
+                    models[this.runtime.imageModelProvider].endpoint ??
+                    "https://api.anthropic.com/v1";
+
+                // Resize image to 400x400 max, keeping the token count ~ 213
+                const resizedImage = await resizeImageBuffer(
+                    imageData,
+                    400,
+                    400
+                );
+
+                const response = await fetch(endpoint + "/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": `${this.runtime.getSetting("ANTHROPIC_API_KEY")}`,
+                        "anthropic-version": "2023-06-01",
+                    },
+                    body: JSON.stringify({
+                        model: this.modelId,
+                        max_tokens: 300,
+                        messages: [
+                            {
+                                role: "user",
+                                content: [
+                                    {
+                                        type: "image",
+                                        source: {
+                                            type: "base64",
+                                            media_type: resizedImage.mimeType,
+                                            data: resizedImage.buffer.toString(
+                                                "base64"
+                                            ),
+                                        },
+                                    },
+                                    {
+                                        type: "text",
+                                        text: prompt,
+                                    },
+                                ],
+                            },
+                        ],
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP error! status: ${await response.text()}`
+                    );
+                }
+
+                const data = await response.json();
+                return data.content[0].text;
+            } catch (error) {
+                elizaLogger.error(
+                    `Anthropic request failed (attempt ${attempt + 1}):`,
+                    error
+                );
+                if (attempt === 2) throw error;
+            }
+        }
+        throw new Error(
+            "Failed to recognize image with Anthropic after 3 attempts"
         );
     }
 
