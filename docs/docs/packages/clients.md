@@ -2,7 +2,8 @@
 
 ## Overview
 
-Eliza's client packages enable integration with various platforms and services. Each client provides a standardized interface for sending and receiving messages, handling media, and interacting with platform-specific features.
+Eliza's client packages enable integration with various platforms and services. Each client provides a standardized
+interface for sending and receiving messages, handling media, and interacting with platform-specific features.
 
 ### Architecture Overview
 
@@ -18,6 +19,7 @@ graph TD
     CI --> TC["Telegram Client"]
     CI --> TWC["Twitter Client"]
     CI --> AC["Auto Client"]
+    CI --> DEVA["Deva Client"]
 
     %% Key Features - one per client for clarity
     DC --> |"REST API"| DC1["Messages & Images"]
@@ -25,6 +27,7 @@ graph TD
     TC --> |"Bot API"| TC1["Commands & Media"]
     TWC --> |"Social"| TWC1["Posts & Interactions"]
     AC --> |"Trading"| AC1["Analysis & Execution"]
+    DEVA --> |"Social"| DEVA1["Messages & Execution"]
 
     %% Simple styling with better contrast and black text
     classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px,color:black
@@ -40,6 +43,7 @@ graph TD
 - **Telegram** (`@eliza/client-telegram`) - Telegram bot integration
 - **Direct** (`@eliza/client-direct`) - Direct API interface for custom integrations
 - **Auto** (`@eliza/client-auto`) - Automated trading and interaction client
+- **Deva** (`@eliza/client-deva`) - Client for integrating with Deva.me
 
 ---
 
@@ -60,6 +64,9 @@ pnpm add @eliza/client-direct
 
 # Auto Client
 pnpm add @eliza/client-auto
+
+# Deva Client
+pnpm add @eliza/client-deva
 ```
 
 ---
@@ -134,6 +141,7 @@ The Twitter client enables posting, searching, and interacting with Twitter user
 
 ```typescript
 import { TwitterClientInterface } from "@eliza/client-twitter";
+
 // Initialize client
 const client = await TwitterClientInterface.start(runtime);
 
@@ -272,12 +280,9 @@ class AutoClient {
     this.runtime = runtime;
 
     // Start trading loop
-    this.interval = setInterval(
-      () => {
-        this.makeTrades();
-      },
-      60 * 60 * 1000,
-    ); // 1 hour interval
+    this.interval = setInterval(() => {
+      this.makeTrades();
+    }, 60 * 60 * 1000); // 1 hour interval
   }
 
   async makeTrades() {
@@ -293,6 +298,81 @@ class AutoClient {
 }
 ```
 
+## Deva Client
+
+The Deva client allows fetching user-related data and making posts based on it.
+
+### Client setup
+
+```typescript
+export const DevaClientInterface: Client = {
+  async start(runtime: IAgentRuntime) {
+    await validateDevaConfig(runtime);
+
+    const deva = new DevaClient(
+      runtime,
+      runtime.getSetting("DEVA_API_KEY"),
+      runtime.getSetting("DEVA_API_BASE_URL"),
+    );
+
+    await deva.start();
+
+    elizaLogger.success(
+      `✅ Deva client successfully started for character ${runtime.character.name}`,
+    );
+
+    return deva;
+  },
+};
+```
+
+### Fetch personal user data
+
+```typescript
+public async getMe(): Promise<DevaPersona | null> {
+  return await fetch(`${this.apiBaseUrl}/persona`, {
+    headers: { ...this.defaultHeaders },
+  })
+    .then((res) => res.json())
+    .catch(() => null);
+}
+```
+
+### Fetch user posts
+
+```typescript
+public async getPersonaPosts(personaId: string): Promise<DevaPost[]> {
+  const res = await fetch(
+    `${this.apiBaseUrl}/post?filter_persona_id=${personaId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
+      },
+    }
+  ).then((res) => res.json());
+  return res.items;
+}
+```
+
+### Create and publish a post on behalf of the user
+
+```typescript
+public async makePost({ text, in_reply_to_id }: { text: string; in_reply_to_id: string }): Promise<DevaPost> {
+  const res = await fetch(`${this.apiBaseUrl}/post`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${this.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text, in_reply_to_id, author_type: "BOT" }),
+  }).then((res) => res.json());
+
+  console.log(res);
+  return res;
+}
+```
+
 ## Common Features
 
 ### Message Handling
@@ -302,7 +382,9 @@ All clients implement standard message handling:
 ```typescript
 interface ClientInterface {
   async handleMessage(message: Message): Promise<void>;
+
   async generateResponse(context: Context): Promise<Response>;
+
   async sendMessage(destination: string, content: Content): Promise<void>;
 }
 ```
@@ -312,7 +394,9 @@ interface ClientInterface {
 ```typescript
 interface MediaProcessor {
   async processImage(image: Image): Promise<ProcessedImage>;
+
   async processVideo(video: Video): Promise<ProcessedVideo>;
+
   async processAudio(audio: Audio): Promise<ProcessedAudio>;
 }
 ```
@@ -339,26 +423,27 @@ class BaseClient {
 
 1. **Authentication**
 
-   - Store credentials securely in environment variables
-   - Implement token refresh mechanisms
-   - Handle authentication errors gracefully
+- Store credentials securely in environment variables
+- Implement token refresh mechanisms
+- Handle authentication errors gracefully
 
 2. **Rate Limiting**
 
-   - Implement exponential backoff
-   - Track API usage
-   - Queue messages during rate limits
+- Implement exponential backoff
+- Track API usage
+- Queue messages during rate limits
 
 3. **Error Handling**
 
-   - Log errors with context
-   - Implement retry logic
-   - Handle platform-specific errors
+- Log errors with context
+- Implement retry logic
+- Handle platform-specific errors
 
 4. **Media Processing**
-   - Validate media before processing
-   - Handle different file formats
-   - Implement size limits
+
+- Validate media before processing
+- Handle different file formats
+- Implement size limits
 
 ### Error Handling
 
@@ -418,7 +503,10 @@ class RateLimiter {
   }
 
   private calculateBackoff(error: RateLimitError): number {
-    return Math.min(this.baseDelay * Math.pow(2, this.attempts), this.maxDelay);
+    return Math.min(
+      this.baseDelay * Math.pow(2, this.attempts),
+      this.maxDelay,
+    );
   }
 }
 ```
@@ -443,10 +531,10 @@ class ClientManager {
 
 ```typescript
 class MessageQueue {
-  async queueMessage(message: Message) {
-    await this.queue.push(message);
-    this.processQueue();
-  }
+	async queueMessage(message: Message) {
+		await this.queue.push(message);
+		this.processQueue();
+	}
 }
 ```
 
@@ -459,8 +547,8 @@ class MessageQueue {
 ```typescript
 // Implement token refresh
 async refreshAuth() {
-  const newToken = await this.requestNewToken();
-  await this.updateToken(newToken);
+	const newToken = await this.requestNewToken();
+	await this.updateToken(newToken);
 }
 ```
 
@@ -469,9 +557,9 @@ async refreshAuth() {
 ```typescript
 // Handle rate limiting
 async handleRateLimit(error) {
-  const delay = this.calculateBackoff(error);
-  await wait(delay);
-  return this.retryRequest();
+	const delay = this.calculateBackoff(error);
+	await wait(delay);
+	return this.retryRequest();
 }
 ```
 
@@ -480,10 +568,10 @@ async handleRateLimit(error) {
 ```typescript
 // Implement reconnection logic
 async handleDisconnect() {
-  await this.reconnect({
-    maxAttempts: 5,
-    backoff: 'exponential'
-  });
+	await this.reconnect({
+		maxAttempts: 5,
+		backoff: "exponential",
+	});
 }
 ```
 
@@ -491,14 +579,14 @@ async handleDisconnect() {
 
 ```typescript
 async processMessage(message) {
-  try {
-    return await this.messageProcessor(message);
-  } catch (error) {
-    if (error.code === "INVALID_FORMAT") {
-      return this.handleInvalidFormat(message);
-    }
-    throw error;
-  }
+	try {
+		return await this.messageProcessor(message);
+	} catch (error) {
+		if (error.code === "INVALID_FORMAT") {
+			return this.handleInvalidFormat(message);
+		}
+		throw error;
+	}
 }
 ```
 
