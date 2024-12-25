@@ -1,6 +1,6 @@
 import NodeCache from "node-cache";
 import * as path from "path";
-import { ICacheManager, settings } from "@elizaos/core";
+import { elizaLogger, ICacheManager, settings } from "@elizaos/core";
 import { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
 
 const DEFAULT_MAX_RETRIES = 3;
@@ -18,6 +18,7 @@ const ENDPOINT_MAP = {
     security: "/defi/token_security?address=",
     volume: "/defi/v3/token/trade-data/single?address=",
     portfolio: "/v1/wallet/token_list?wallet=",
+    tokens: '/defi/tokenlist'
 };
 const RETRY_DELAY_MS = 2_000;
 
@@ -94,14 +95,14 @@ export class BirdeyeProvider extends BaseCachedProvider {
         return addr;
     }
 
-    private getUrlByType(type: string, address: string) {
+    private getUrlByType(type: string, address?: string) {
         const path = ENDPOINT_MAP[type];
 
         if (!path) {
             throw new Error(`Unsupported symbol ${type} in Birdeye provider`);
         }
 
-        return `${API_BASE_URL}${path}${address}`;
+        return `${API_BASE_URL}${path}${address||''}`;
     }
 
     private async fetchWithRetry(
@@ -144,7 +145,7 @@ export class BirdeyeProvider extends BaseCachedProvider {
 
     private async fetchWithCacheAndRetry(
         type: string,
-        address: string
+        address?: string
     ): Promise<any> {
         const key = `${type}/${address}`
         const val = await this.readFromCache(key)
@@ -158,6 +159,10 @@ export class BirdeyeProvider extends BaseCachedProvider {
 
         await this.writeToCache(key, data)
         return data
+    }
+
+    public async fetchTokenList() {
+        return this.fetchWithCacheAndRetry("tokens")
     }
 
     public async fetchPriceBySymbol(symbol: string) {
@@ -197,16 +202,25 @@ export const birdeyeProvider: Provider = {
 
             const walletAddr = runtime.getSetting("BIRDEYE_WALLET_ADDR");
 
+            const resp = await provider.fetchTokenList().catch((err) => {
+                elizaLogger.warn("Couldn't update symbol map", err)
+            })
+
+            resp?.data?.tokens?.forEach(item => {
+                DEFAULT_SUPPORTED_SYMBOLS[item.symbol] = item.address
+            })
+
+            const supportedTokens = Object.keys(DEFAULT_SUPPORTED_SYMBOLS).join(', ')
+
             if (!walletAddr) {
                 console.warn("No Birdeye wallet was specified");
 
-                return `Birdeye enabled, no wallet found`;
+                return `Birdeye enabled, no wallet found, supported tokens: [${supportedTokens}]`;
             }
-
             const response = await provider.fetchWalletPortfolio(walletAddr);
             const portfolio = response?.data.items.map(e => e.symbol).join(', ')
 
-            return `Birdeye enabled, wallet addr: ${walletAddr}, portfolio: [${portfolio}]`;
+            return `Birdeye enabled, wallet addr: ${walletAddr}, portfolio: [${portfolio}], supported tokens: [${supportedTokens}]`;
         } catch (error) {
             console.error("Error fetching token data:", error);
             return "Unable to fetch token information. Please try again later.";
