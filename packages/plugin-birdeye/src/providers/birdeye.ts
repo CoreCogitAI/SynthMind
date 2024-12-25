@@ -200,12 +200,13 @@ export const birdeyeProvider: Provider = {
             if (!walletAddr) {
                 console.warn("No Birdeye wallet was specified");
 
-                return `Birdeye provider initiated with no wallet found`;
+                return `Birdeye enabled, no wallet found`;
             }
 
-            const portfolio = await provider.fetchWalletPortfolio(walletAddr);
+            const response = await provider.fetchWalletPortfolio(walletAddr);
+            const portfolio = response?.data.items.map(e => e.symbol).join(', ')
 
-            return `Birdeye wallet addr: ${walletAddr}, portfolio: ${portfolio}`;
+            return `Birdeye enabled, wallet addr: ${walletAddr}, portfolio: [${portfolio}]`;
         } catch (error) {
             console.error("Error fetching token data:", error);
             return "Unable to fetch token information. Please try again later.";

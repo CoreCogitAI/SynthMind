@@ -19,11 +19,11 @@ Extract the 1 latest information about the requested token report:
 - Input token symbol
 - Extra about this symbol
 
-When the symbol is specified in all lower case, such as btc, eth, sol..., we should convert it into wellknown symbol.
+When the symbol is specified in all lowered case, such as btc, eth, sol..., we should convert it into wellknown symbol.
 E.g. btc instead of BTC, sol instead of SOL.
 
-But when we see them in mixed form, such as SOl, DOl, eTH we should keep the original and notice user instead.
-When in doubt, specify the concern in the message field.
+But when we see them in mixed form, such as SOl, DOl, eTH, except the case they're quoted (e.g. 'wEth', 'SOl',...)
+When in doubt, specify the concern in the message field, include your suggested value with it.
 
 Respond exactly a JSON object containing only the extracted values, no extra description or message needed.
 Use null for any values that cannot be determined. The result should be a valid JSON object with the following schema:
@@ -33,27 +33,20 @@ Use null for any values that cannot be determined. The result should be a valid 
 }
 
 Examples:
-  Message: "Tell me about BTC"
-  Response: {
-      "symbol": "BTC",
-      "message": null
-  }
+  Message: 'Tell me about BTC'
+  Response: '{ "symbol": "BTC", "message": null}'
 
-  Message: "Do you know about SOl."
-  Response:
-  {
-      "symbol": "SOl",
-      "message": "Please note that the symbol is not in the standard format."
-  }
+  Message: 'Do you know about SOl.'
+  Response: '{ "symbol": "SOl", "message": "We've found SOL seems match, is that what you want?"}'
 `;
 
 
 const formatTokenReport = (data) => {
-    let output = `**Token Security and Trade Report**\n`;
+    let output = `*Token Security and Trade Report*\n`;
     output += `Token symbol: ${data.symbol}\n`
     output += `Token Address: ${data.tokenAddress}\n\n`;
 
-    output += `**Ownership Distribution:**\n`;
+    output += `*Ownership Distribution:*\n`;
     output += `- Owner Balance: ${data.security.ownerBalance}\n`;
     output += `- Creator Balance: ${data.security.creatorBalance}\n`;
     output += `- Owner Percentage: ${data.security.ownerPercentage}%\n`;
@@ -62,7 +55,7 @@ const formatTokenReport = (data) => {
     output += `- Top 10 Holders Percentage: ${data.security.top10HolderPercent}%\n\n`;
 
     // Trade Data
-    output += `**Trade Data:**\n`;
+    output += `*Trade Data:*\n`;
     output += `- Holders: ${data.volume.holder}\n`;
     output += `- Unique Wallets (24h): ${data.volume.unique_wallet_24h}\n`;
     output += `- Price Change (24h): ${data.volume.price_change_24h_percent}%\n`;
@@ -89,6 +82,8 @@ const extractTokenSymbol = async (
         context,
         modelClass: ModelClass.LARGE,
     })
+
+    elizaLogger.log('Response', response)
 
     try {
         const regex = new RegExp(/\{(.+)\}/gms);
@@ -129,8 +124,8 @@ export const reportToken = {
             }
 
             if(params?.message) {
-                callback?.({text: `I need more clarification to continue, ${params.message}`})
-                return true
+                // show concern message
+                callback?.({text: `*Warning*: ${params.message}`})
             }
 
             const symbol = params?.symbol
