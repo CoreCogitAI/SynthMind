@@ -7,6 +7,7 @@ import {
     ModelClass,
     stringToUuid,
     parseBooleanFromText,
+    TemplateType,
 } from "@elizaos/core";
 import { elizaLogger } from "@elizaos/core";
 import { ClientBase } from "./base.ts";
@@ -432,7 +433,7 @@ export class TwitterPostClient {
     private async generateTweetContent(
         tweetState: any,
         options?: {
-            template?: string;
+            template?: TemplateType;
             context?: string;
         }
     ): Promise<string> {
