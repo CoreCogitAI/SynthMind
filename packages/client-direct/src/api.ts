@@ -12,6 +12,12 @@ import {
 import { REST, Routes } from "discord.js";
 import { DirectClient } from ".";
 
+/**
+ * Creates and configures a new API router for handling API endpoints related to agents.
+ * @param {Map<string, AgentRuntime>} agents - A map of AgentRuntime instances keyed by agent ID.
+ * @param {DirectClient} directClient - The DirectClient used to interact with the agents.
+ * @returns {Router} The configured Express router for the API endpoints.
+ */
 export function createApiRouter(
     agents: Map<string, AgentRuntime>,
     directClient: DirectClient

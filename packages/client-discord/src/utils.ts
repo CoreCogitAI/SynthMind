@@ -14,6 +14,14 @@ import {
     ThreadChannel,
 } from "discord.js";
 
+/**
+ * Generates a WAV header for audio data based on the provided parameters.
+ * @param {number} audioLength The length of the audio data in bytes.
+ * @param {number} sampleRate The sample rate of the audio data.
+ * @param {number} [channelCount=1] The number of channels (default is 1).
+ * @param {number} [bitsPerSample=16] The number of bits per sample (default is 16).
+ * @returns {Buffer} The generated WAV header as a Buffer.
+ */
 export function getWavHeader(
     audioLength: number,
     sampleRate: number,
@@ -42,6 +50,13 @@ export function getWavHeader(
 
 const MAX_MESSAGE_LENGTH = 1900;
 
+/**
+ * Generates a concise summary for the given text using a GPT-4 model.
+ * 
+ * @param {IAgentRuntime} runtime - The IAgentRuntime instance.
+ * @param {string} text - The text to generate a summary for.
+ * @returns {Promise<{ title: string; description: string }>} An object containing the generated title and description.
+ */
 export async function generateSummary(
     runtime: IAgentRuntime,
     text: string
@@ -84,6 +99,14 @@ export async function generateSummary(
     };
 }
 
+/**
+ * Sends a message in chunks to a Discord TextChannel with optional files and inReplyTo reference.
+ * @param {TextChannel} channel - The Discord TextChannel to send the message to.
+ * @param {string} content - The content of the message to send.
+ * @param {string} inReplyTo - The id of the message to reply to.
+ * @param {any[]} files - An array of files to attach to the message.
+ * @returns {Promise<DiscordMessage[]>} - A Promise that resolves with an array of DiscordMessage objects representing the sent messages.
+ */
 export async function sendMessageInChunks(
     channel: TextChannel,
     content: string,
@@ -126,6 +149,12 @@ export async function sendMessageInChunks(
     return sentMessages;
 }
 
+/**
+ * Splits a given message content into an array of string messages, ensuring each message does not exceed the maximum message length specified. 
+ * 
+ * @param {string} content - The message content to be split into separate messages.
+ * @returns {string[]} An array of string messages after splitting the original content based on the maximum message length.
+ */
 function splitMessage(content: string): string[] {
     const messages: string[] = [];
     let currentMessage = "";
@@ -159,6 +188,11 @@ function splitMessage(content: string): string[] {
     return messages;
 }
 
+/**
+ * Checks if a message can be sent to a given channel by the bot user.
+ * @param {Channel} channel - The channel to check if message can be sent.
+ * @returns {Object} Object with information about whether a message can be sent and the reason if not.
+ */
 export function canSendMessage(channel) {
     // validate input
     if (!channel) {
@@ -222,6 +256,14 @@ export function canSendMessage(channel) {
     };
 }
 
+/**
+ * Calculates the cosine similarity between two or three texts based on the frequency of the words.
+ *
+ * @param {string} text1 - The first text for comparison.
+ * @param {string} text2 - The second text for comparison.
+ * @param {string} [text3] - Optional third text for comparison in three-way cosine similarity.
+ * @returns {number} The cosine similarity value between the texts.
+ */
 export function cosineSimilarity(
     text1: string,
     text2: string,

@@ -31,6 +31,9 @@ export const DEFAULT_CHAIN_CONFIGS: Record<SupportedChain, ChainMetadata> = {
     },
 } as const;
 
+/**
+ * WalletProvider class for interacting with StoryClient, PublicClient, and WalletClient.
+ */
 export class WalletProvider {
     private storyClient: StoryClient;
     private publicClient: PublicClient<
@@ -42,6 +45,11 @@ export class WalletProvider {
     private address: Address;
     runtime: IAgentRuntime;
 
+/**
+ * Constructor for Story instance
+ * @param {IAgentRuntime} runtime - The Agent Runtime
+ * @throws {Error} STORY_PRIVATE_KEY not configured
+ */
     constructor(runtime: IAgentRuntime) {
         const privateKey = runtime.getSetting("STORY_PRIVATE_KEY");
         if (!privateKey) throw new Error("STORY_PRIVATE_KEY not configured");
@@ -73,10 +81,19 @@ export class WalletProvider {
         });
     }
 
+/**
+ * Retrieve the address of the object.
+ * @returns {Address} The address of the object.
+ */
     getAddress(): Address {
         return this.address;
     }
 
+/**
+ * Asynchronously retrieves the balance of the wallet associated with the current address.
+ * @returns A Promise that resolves to a string representing the balance in units of Ether,
+ * or null if there was an error retrieving the balance.
+ */
     async getWalletBalance(): Promise<string | null> {
         try {
             const balance = await this.publicClient.getBalance({
@@ -89,19 +106,38 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Asynchronously connects and returns a Promise with the private key for the story.
+ * @returns {Promise<`0x${string}`>} The private key for the story in the format 0x followed by a string.
+ */
     async connect(): Promise<`0x${string}`> {
         return this.runtime.getSetting("STORY_PRIVATE_KEY") as `0x${string}`;
     }
 
+/**
+ * Returns the public client associated with this instance.
+ * 
+ * @returns {PublicClient<HttpTransport, Chain, Account | undefined>} The public client associated with this instance.
+ */
     getPublicClient(): PublicClient<HttpTransport, Chain, Account | undefined> {
         return this.publicClient;
     }
 
+/**
+ * Retrieves the wallet client, throws an error if wallet is not connected
+ * @returns {WalletClient} The wallet client object
+ */
     getWalletClient(): WalletClient {
         if (!this.walletClient) throw new Error("Wallet not connected");
         return this.walletClient;
     }
 
+/**
+ * Gets the StoryClient instance.
+ * 
+ * @returns {StoryClient} The StoryClient instance.
+ * @throws {Error} If StoryClient is not connected.
+ */
     getStoryClient(): StoryClient {
         if (!this.storyClient) throw new Error("StoryClient not connected");
         return this.storyClient;

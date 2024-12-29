@@ -11,7 +11,19 @@ import * as Portfolios from './portfolios';
 import * as Products from './products';
 import * as Public from './public';
 
+/**
+ * RESTClient class that extends RESTBase and provides methods for various API endpoints.
+ * @constructor
+ * @param {string} [key] - Optional API key
+ * @param {string} [secret] - Optional API secret
+ */
 export class RESTClient extends RESTBase {
+/**
+ * Constructor for initializing a new instance.
+ *
+ * @param {string} [key] - The API key (optional).
+ * @param {string} [secret] - The API secret (optional).
+ */
   constructor(key?: string | undefined, secret?: string | undefined) {
     super(key, secret);
   }

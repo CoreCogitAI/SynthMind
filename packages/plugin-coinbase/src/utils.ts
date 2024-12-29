@@ -22,6 +22,15 @@ const tradeCsvFilePath = path.join(baseDir, "trades.csv");
 const transactionCsvFilePath = path.join(baseDir, "transactions.csv");
 const webhookCsvFilePath = path.join(baseDir, "webhooks.csv");
 
+/**
+ * Initializes a wallet for the user with the specified network ID or defaults to Ethereum Mainnet.
+ * If no stored seed or wallet ID is found, a new wallet is created and stored.
+ * If a stored seed and wallet ID are found, an existing wallet is imported.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime environment for the agent.
+ * @param {string} networkId - The network ID for the wallet (default is Ethereum Mainnet).
+ * @returns {Promise<Wallet>} The initialized or imported Wallet object.
+ */
 export async function initializeWallet(
     runtime: IAgentRuntime,
     networkId: string = Coinbase.networks.EthereumMainnet
@@ -101,6 +110,16 @@ export async function initializeWallet(
  * @param {number} amount - The amount to trade and transfer.
  * @param {string} sourceAsset - The source asset to trade.
  * @param {string} targetAsset - The target asset to trade.
+ */
+/**
+ * Executes a trade and charity transfer using the provided parameters.
+ * 
+ * @param {IAgentRuntime} runtime The IAgentRuntime instance.
+ * @param {string} network The network to perform the trade on.
+ * @param {number} amount The amount to trade.
+ * @param {string} sourceAsset The asset to trade from.
+ * @param {string} targetAsset The asset to trade to.
+ * @returns {Object} An object containing the trade and transfer information.
  */
 export async function executeTradeAndCharityTransfer(
     runtime: IAgentRuntime,

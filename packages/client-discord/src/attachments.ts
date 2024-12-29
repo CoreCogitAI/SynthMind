@@ -14,6 +14,13 @@ import { Attachment, Collection } from "discord.js";
 import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 
+/**
+ * Generates a summary for a given text using a text generation model.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @param {string} text - The text to generate a summary for.
+ * @returns {Promise<{ title: string; description: string }>} The generated summary with a title and description.
+ */
 async function generateSummary(
     runtime: IAgentRuntime,
     text: string
@@ -56,14 +63,44 @@ async function generateSummary(
     };
 }
 
+/**
+ * Class representing the AttachmentManager.
+ */
+ *//**
+ * Create an AttachmentManager object to manage attachments.
+ * @constructor
+ * @param {IAgentRuntime} runtime - The agent runtime.
+ */
+ *//**
+ * Process a batch of attachments asynchronously and return the processed media.
+ * @param {Collection<string, Attachment> | Attachment[]} attachments - The attachments to process.
+ * @returns {Promise<Media[]>} The processed media.
+ */
+ *//**
+ * Process a single attachment asynchronously and return the processed media or null if it failed.
+ * @param {Attachment} attachment - The attachment to process.
+ * @returns {Promise<Media | null>} The processed media or null.
+ */
 export class AttachmentManager {
     private attachmentCache: Map<string, Media> = new Map();
     private runtime: IAgentRuntime;
+
+/**
+ * Constructor for creating a new instance of the class.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime object to be assigned to the instance.
+ */ 
 
     constructor(runtime: IAgentRuntime) {
         this.runtime = runtime;
     }
 
+/**
+ * Processes attachments to generate media objects.
+ * 
+ * @param {Collection<string, Attachment> | Attachment[]} attachments - The attachments to process, either as a Collection or Array.
+ * @returns {Promise<Media[]>} The processed media objects.
+ */
     async processAttachments(
         attachments: Collection<string, Attachment> | Attachment[]
     ): Promise<Media[]> {
@@ -83,6 +120,11 @@ export class AttachmentManager {
         return processedAttachments;
     }
 
+/**
+ * Processes the given attachment to generate a media representation.
+ * @param {Attachment} attachment - The attachment to process.
+ * @returns {Promise<Media | null>} A promise that resolves with the generated media representation, or null if no media is generated.
+ */
     async processAttachment(attachment: Attachment): Promise<Media | null> {
         if (this.attachmentCache.has(attachment.url)) {
             return this.attachmentCache.get(attachment.url)!;
@@ -117,6 +159,16 @@ export class AttachmentManager {
         return media;
     }
 
+/**
+ * Processes the audio or video attachment using the provided Attachment object.
+ * It fetches the attachment URL, extracts audio if it's an audio attachment, transcribes the audio using the transcription service,
+ * and generates a summary with the title and description.
+ * If any error occurs during the process, it logs the error and returns a default object.
+ *
+ * @param {Attachment} attachment - The attachment object containing information about the audio or video file.
+ * @returns {Promise<Media>} The processed Media object with the transcribed text, title, description, and source.
+ * @throws {Error} Throws an error if the audio/video format is unsupported or if the transcription service is not found.
+ */
     private async processAudioVideoAttachment(
         attachment: Attachment
     ): Promise<Media> {
@@ -179,6 +231,12 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Extracts the audio stream from MP4 data and converts it to MP3 format.
+ * 
+ * @param {ArrayBuffer} mp4Data - The MP4 data containing the audio stream to extract.
+ * @returns {Promise<Buffer>} The audio stream in MP3 format as a Buffer.
+ */
     private async extractAudioFromMP4(mp4Data: ArrayBuffer): Promise<Buffer> {
         // Use a library like 'fluent-ffmpeg' or 'ffmpeg-static' to extract the audio stream from the MP4 data
         // and convert it to MP3 or WAV format
@@ -219,6 +277,12 @@ export class AttachmentManager {
         }
     }
 
+/**
+     * Processes a PDF attachment by converting it to text and generating a summary.
+     *
+     * @param {Attachment} attachment - The PDF attachment to process.
+     * @returns {Promise<Media>} A promise that resolves with the processed media item.
+     */
     private async processPdfAttachment(attachment: Attachment): Promise<Media> {
         try {
             const response = await fetch(attachment.url);
@@ -253,6 +317,13 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Process a plaintext attachment by fetching the content from the provided URL,
+ * generating a summary using the runtime, and returning a Media object.
+ *
+ * @param {Attachment} attachment - The attachment object to process
+ * @returns {Promise<Media>} A Promise that resolves to a Media object representing the processed plaintext attachment
+ */
     private async processPlaintextAttachment(
         attachment: Attachment
     ): Promise<Media> {
@@ -287,6 +358,14 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Processes an image attachment by retrieving its description and title from a service, 
+ * or creating a fallback media object in case of an error.
+ * 
+ * @param {Attachment} attachment - The image attachment to process.
+ * @returns {Promise<Media>} A promise that resolves to a Media object representing 
+ * the processed image attachment.
+ */
     private async processImageAttachment(
         attachment: Attachment
     ): Promise<Media> {
@@ -312,6 +391,12 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Create a fallback image media object based on the given attachment.
+ * 
+ * @param {Attachment} attachment - The attachment to create the fallback image media from.
+ * @returns {Media} Fallback image media object with id, url, title, source, description, and text properties.
+ */
     private createFallbackImageMedia(attachment: Attachment): Media {
         return {
             id: attachment.id,
@@ -323,6 +408,14 @@ export class AttachmentManager {
         };
     }
 
+/**
+ * Process a video attachment by checking if it is a valid video URL, then retrieving video information
+ * using the video service. If the URL is valid, it returns a Media object with information about the video,
+ * otherwise it returns a default Media object for a video attachment.
+ *
+ * @param {Attachment} attachment - The attachment object containing information about the video attachment
+ * @returns {Promise<Media>} - A promise that resolves to a Media object representing the video attachment
+ */
     private async processVideoAttachment(
         attachment: Attachment
     ): Promise<Media> {
@@ -359,6 +452,11 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Processes a generic attachment and returns a media object with specific properties.
+ * @param {Attachment} attachment - The attachment to be processed.
+ * @returns {Promise<Media>} The processed generic media object.
+ */
     private async processGenericAttachment(
         attachment: Attachment
     ): Promise<Media> {

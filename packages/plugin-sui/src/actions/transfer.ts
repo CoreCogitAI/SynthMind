@@ -20,13 +20,29 @@ import { SUI_DECIMALS } from "@mysten/sui/utils";
 
 import { walletProvider } from "../providers/wallet";
 
+/**
+ * Represents different types of blockchain networks.
+ * Possible values are "mainnet", "testnet", "devnet", "localnet".
+ */
 type SuiNetwork = "mainnet" | "testnet" | "devnet" | "localnet";
 
+/**
+ * Interface representing the content for a transfer.
+ * @interface
+ * @extends {Content}
+ */
+ */
 export interface TransferContent extends Content {
     recipient: string;
     amount: string | number;
 }
 
+/**
+ * Check if the given content is a TransferContent by evaluating the recipient and amount properties.
+ * 
+ * @param {Content} content - The content to check for transfer eligibility.
+ * @returns {boolean} - Returns true if the content is a TransferContent, false otherwise.
+ */
 function isTransferContent(content: Content): content is TransferContent {
     console.log("Content for transfer", content);
     return (

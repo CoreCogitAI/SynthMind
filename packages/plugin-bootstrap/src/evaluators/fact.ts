@@ -51,6 +51,13 @@ Response should be a JSON object array inside a JSON markdown block. Correct res
 ]
 \`\`\``;
 
+/**
+ * Handles the processing and storage of facts in the memory of an agent.
+ *
+ * @param {IAgentRuntime} runtime - The agent runtime environment.
+ * @param {Memory} message - The incoming message containing the memory details.
+ * @returns {Promise<Array<string>>} - An array of filtered facts.
+ */
 async function handler(runtime: IAgentRuntime, message: Memory) {
     const state = await runtime.composeState(message);
 

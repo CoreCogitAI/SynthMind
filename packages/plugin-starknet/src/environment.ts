@@ -9,8 +9,19 @@ export const starknetEnvSchema = z.object({
     STARKNET_RPC_URL: z.string().min(1, "Starknet RPC URL is required"),
 });
 
+/**
+ * Type definition representing the configuration for Starknet.
+ */
 export type StarknetConfig = z.infer<typeof starknetEnvSchema>;
 
+/**
+ * Validates the Starknet configuration by retrieving necessary settings from the runtime or environment variables,
+ * and then parsing the configuration against the Starknet schema.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime for accessing settings.
+ * @returns {Promise<StarknetConfig>} The parsed Starknet configuration.
+ * @throws {Error} If Starknet configuration validation fails, with detailed error messages.
+ */
 export async function validateStarknetConfig(
     runtime: IAgentRuntime
 ): Promise<StarknetConfig> {

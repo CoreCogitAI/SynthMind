@@ -16,8 +16,19 @@ export const flowEnvSchema = z.object({
     FLOW_ENDPOINT_URL: z.string().optional().default(FLOW_MAINNET_PUBLIC_RPC),
 });
 
+/**
+ * Type definition for FlowConfig which is inferred from the flowEnvSchema.
+ */
 export type FlowConfig = z.infer<typeof flowEnvSchema>;
 
+/**
+ * Validates the Flow blockchain configuration by retrieving settings from the runtime or environment variables
+ * and parsing them through a schema.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime providing access to settings
+ * @returns {Promise<FlowConfig>} - The validated Flow configuration object
+ * @throws {Error} If the validation fails, with detailed error messages
+ */
 export async function validateFlowConfig(
     runtime: IAgentRuntime
 ): Promise<FlowConfig> {

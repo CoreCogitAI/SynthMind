@@ -3,6 +3,9 @@ import { Readable } from "stream";
 /**
  * Represents a UUID string in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
  */
+/**
+ * Defines a type for UUID that must follow the format `${string}-${string}-${string}-${string}-${string}`.
+ */
 export type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
 /**

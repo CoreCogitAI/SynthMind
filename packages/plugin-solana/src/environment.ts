@@ -32,8 +32,17 @@ export const solanaEnvSchema = z
         })
     );
 
+/**
+ * Represents the inferred type of the Solana configuration based on the schema defined in `solanaEnvSchema`.
+ */
 export type SolanaConfig = z.infer<typeof solanaEnvSchema>;
 
+/**
+ * Validates the Solana configuration based on settings provided by the runtime and environment variables.
+ *
+ * @param {IAgentRuntime} runtime - The Agent Runtime interface.
+ * @returns {Promise<SolanaConfig>} The validated Solana configuration object.
+ */
 export async function validateSolanaConfig(
     runtime: IAgentRuntime
 ): Promise<SolanaConfig> {

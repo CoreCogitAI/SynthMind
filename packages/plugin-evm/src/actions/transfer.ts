@@ -16,9 +16,30 @@ import { transferTemplate } from "../templates";
 export { transferTemplate };
 
 // Exported for tests
+/**
+ * Class representing a transfer action.
+ */
+ * @constructor
+ * @param {WalletProvider} walletProvider - The wallet provider used for the transfer.
+ */
+ * @method transfer
+ * @param {TransferParams} params - The parameters for the transfer.
+ * @returns {Promise<Transaction>} - A promise that resolves to a transaction object. 
+ */
 export class TransferAction {
+/**
+ * Constructor for creating an instance of the class with a specified wallet provider.
+ * 
+ * @param {WalletProvider} walletProvider - The wallet provider used for this instance.
+ */
+```
     constructor(private walletProvider: WalletProvider) {}
 
+/**
+* Transfers tokens from the sender's account to the specified address on the specified blockchain.
+* @param {TransferParams} params - The parameters needed for the transfer including amount, address, and blockchain.
+* @returns {Promise<Transaction>} - A promise that resolves to the transaction details after the transfer is complete.
+*/
     async transfer(params: TransferParams): Promise<Transaction> {
         console.log(
             `Transferring: ${params.amount} tokens to (${params.toAddress} on ${params.fromChain})`

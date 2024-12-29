@@ -1,3 +1,12 @@
+/**
+ * Generates a WAV file header based on the provided parameters.
+ * 
+ * @param {number} audioLength - The length of the audio data in bytes.
+ * @param {number} sampleRate - The sample rate of the audio.
+ * @param {number} [channelCount=1] - The number of audio channels (default is 1).
+ * @param {number} [bitsPerSample=16] - The number of bits per sample (default is 16).
+ * @returns {Buffer} A Buffer containing the WAV file header.
+ */
 export function getWavHeader(
     audioLength: number,
     sampleRate: number,

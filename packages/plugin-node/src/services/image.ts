@@ -22,6 +22,10 @@ import gifFrames from "gif-frames";
 import os from "os";
 import path from "path";
 
+/**
+ * Service for generating descriptions for images using OpenAI models.
+ * Extends Service class and implements IImageDescriptionService interface.
+ */
 export class ImageDescriptionService
     extends Service
     implements IImageDescriptionService
@@ -38,15 +42,30 @@ export class ImageDescriptionService
     private queue: string[] = [];
     private processing: boolean = false;
 
+/**
+ * Retrieves an instance of the ImageDescriptionService.
+ * 
+ * @returns {IImageDescriptionService} The instance of the ImageDescriptionService.
+ */
     getInstance(): IImageDescriptionService {
         return ImageDescriptionService.getInstance();
     }
 
+/**
+ * Initializes the ImageDescriptionService with the given runtime.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime to be initialized with
+ * @returns {Promise<void>}
+ */
     async initialize(runtime: IAgentRuntime): Promise<void> {
         elizaLogger.log("Initializing ImageDescriptionService");
         this.runtime = runtime;
     }
 
+/**
+ * Initialize local model by setting up environment variables and downloading necessary components like model, processor, and tokenizer.
+ * @returns A Promise that resolves once the initialization is complete
+ */
     private async initializeLocalModel(): Promise<void> {
         env.allowLocalModels = false;
         env.allowRemoteModels = true;
@@ -89,6 +108,12 @@ export class ImageDescriptionService
         elizaLogger.success("Image service initialization complete");
     }
 
+/**
+ * Asynchronously describes an image by providing the title and description.
+ * 
+ * @param {string} imageUrl - The URL of the image to describe.
+ * @returns {Promise<{ title: string, description: string }>} The title and description of the image.
+ */
     async describeImage(
         imageUrl: string
     ): Promise<{ title: string; description: string }> {
@@ -130,6 +155,12 @@ export class ImageDescriptionService
         });
     }
 
+/**
+ * Fetches image data and processes it using OpenAI to generate a title and description.
+ *
+ * @param {string} imageUrl - The URL or local file path of the image to process.
+ * @returns {Promise<{ title: string; description: string }>} The generated title and description of the image.
+ */
     private async recognizeWithOpenAI(
         imageUrl: string
     ): Promise<{ title: string; description: string }> {
@@ -178,6 +209,15 @@ export class ImageDescriptionService
         }
     }
 
+/**
+ * Makes a request to OpenAI API with provided parameters.
+ * @param {string} imageUrl - The URL of the image to be processed.
+ * @param {Buffer} imageData - The image data in Buffer format.
+ * @param {string} prompt - The prompt for the AI model.
+ * @param {boolean} isGif - Flag indicating if the image is a GIF.
+ * @param {boolean} isLocalFile - Flag indicating if the image is a local file.
+ * @returns {Promise<string>} The response from the OpenAI API.
+ */
     private async requestOpenAI(
         imageUrl: string,
         imageData: Buffer,
@@ -252,6 +292,11 @@ export class ImageDescriptionService
         );
     }
 
+/**
+ * Process the queue by processing each image URL asynchronously.
+ * 
+ * @returns A Promise that resolves when all images in the queue have been processed.
+ */
     private async processQueue(): Promise<void> {
         if (this.processing || this.queue.length === 0) return;
 
@@ -263,6 +308,13 @@ export class ImageDescriptionService
         this.processing = false;
     }
 
+/**
+ * Process an image by generating a title and description based on the content.
+ * 
+ * @param {string} imageUrl - The URL of the image to process.
+ * @returns {Promise<{title: string, description: string}>} A promise that resolves with the generated title and description for the image.
+ * @throws {Error} If the model components are not initialized or if there is an error during processing.
+ */
     private async processImage(
         imageUrl: string
     ): Promise<{ title: string; description: string }> {
@@ -317,6 +369,11 @@ export class ImageDescriptionService
         }
     }
 
+/**
+ * Extracts the first frame from a GIF image and saves it as a PNG file.
+ * @param {string} gifUrl - The URL of the GIF image.
+ * @returns {Promise<{ filePath: string }>} A promise that resolves with the file path of the saved PNG file.
+ */
     private async extractFirstFrameFromGif(
         gifUrl: string
     ): Promise<{ filePath: string }> {

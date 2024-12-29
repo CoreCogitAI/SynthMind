@@ -1,12 +1,24 @@
 import WebSocket from "ws";
 import EventEmitter from "events";
 
+/**
+ * Interface representing a device handshake.
+ * @typedef {Object} DeviceHandshake
+ * @property {string} identifier - The unique identifier of the device.
+ * @property {string} address - The address of the device.
+ * @property {number} version - The version number of the device.
+ */
 interface DeviceHandshake {
     identifier: string;
     address: string;
     version: number;
 }
 
+/**
+ * Represents an abstract class for simulating a device communication.
+ * @abstract
+ */
+ */
 abstract class SimulatedDevice extends EventEmitter {
     protected ws: WebSocket | null = null;
     protected connected = false;
@@ -14,6 +26,12 @@ abstract class SimulatedDevice extends EventEmitter {
     name: string;
     protected cmdLog: Record<number, string> = {};
 
+/**
+ * Constructor for creating a simulated device object.
+ * @param {number} port - The port number for the device.
+ * @param {string} deviceType - The type of device being simulated.
+ * @param {string} address - The address of the device.
+ */
     constructor(
         protected port: number,
         protected deviceType: string,
@@ -24,6 +42,9 @@ abstract class SimulatedDevice extends EventEmitter {
         this.connect();
     }
 
+/**
+ * Establishes a WebSocket connection to a specified port and handles various events such as opening, receiving messages, errors, and closing the connection.
+ */
     private connect(): void {
         if (this.ws || !this.shouldReconnect) return;
 
@@ -71,6 +92,9 @@ abstract class SimulatedDevice extends EventEmitter {
         });
     }
 
+/**
+ * Attempt to reconnect to the server if not currently connected and reconnection is enabled.
+ */
     private reconnect(): void {
         if (!this.connected && this.shouldReconnect) {
             this.ws = null;
@@ -81,6 +105,11 @@ abstract class SimulatedDevice extends EventEmitter {
     protected abstract getIdentifier(): string;
     protected abstract handleMessage(message: string): void;
 
+/**
+* Asynchronously disconnects the WebSocket connection.
+*
+* @returns A Promise that resolves when the disconnection process is complete.
+*/
     async disconnect(): Promise<void> {
         this.shouldReconnect = false;
         if (this.ws) {
@@ -94,20 +123,43 @@ abstract class SimulatedDevice extends EventEmitter {
     abstract stop(): Promise<void>;
 }
 
+/**
+ * Class representing a simulated Lovense Nora device.
+ * @extends SimulatedDevice
+ */ 
 export class LovenseNora extends SimulatedDevice {
     private batteryQueryReceived = false;
     private batteryLevel = 0.9;
     private vibrateCmdLog: Record<number, string> = {};
     private rotateCmdLog: Record<number, string> = {};
 
+/**
+ * Constructor for Lovense Nora device.
+ * 
+ * @param {number} port - The port number for the device.
+ */
     constructor(port: number = 54817) {
         super(port, "Lovense Nora", "696969696969");
     }
 
+/**
+ * Returns the identifier for the LVSDevice.
+ * @returns {string} The identifier for the LVSDevice.
+ */
     protected getIdentifier(): string {
         return "LVSDevice";
     }
 
+/**
+ * Handles incoming messages from the WebSocket server.
+ * Checks the message type and responds accordingly:
+ * - If the message starts with "DeviceType;", sends the device type response to the server.
+ * - If the message starts with "Vibrate:", logs the vibrate command and updates the vibrate command log.
+ * - If the message starts with "Rotate:", logs the rotate command and updates the rotate command log.
+ * - If the message starts with "Battery", responds with the current battery level to the server.
+ * @param {string} message - The message received from the WebSocket server.
+ * @returns {void}
+ */
     protected handleMessage(message: string): void {
         if (message.startsWith("DeviceType;")) {
             this.ws?.send(`A:${this.address}:10`);
@@ -154,6 +206,12 @@ export class LovenseNora extends SimulatedDevice {
         }
     }
 
+/**
+ * Function to vibrate the device at a given speed.
+ * @param {number} speed - The speed of vibration, between 0 and 1.
+ * @returns {Promise<void>} A Promise that resolves once the vibration command is sent.
+ * @throws {Error} Throws an error if the device is not connected.
+ */
     async vibrate(speed: number): Promise<void> {
         if (!this.connected || !this.ws) {
             throw new Error("Device not connected");
@@ -163,6 +221,12 @@ export class LovenseNora extends SimulatedDevice {
         console.log(`[fake-buttplug] Sending vibrate command: ${command}`);
     }
 
+/**
+ * Rotate the device at the specified speed.
+ * @param {number} speed - The speed at which to rotate the device.
+ * @returns {Promise<void>} - A promise that resolves once the rotation command is sent.
+ * @throws {Error} - If the device is not connected.
+ */
     async rotate(speed: number): Promise<void> {
         if (!this.connected || !this.ws) {
             throw new Error("Device not connected");
@@ -172,6 +236,12 @@ export class LovenseNora extends SimulatedDevice {
         console.log(`[fake-buttplug] Sending rotate command: ${command}`);
     }
 
+/**
+ * Stops all motors by sending stop commands to the connected websocket.
+ * If there is no active connection or websocket, the function does nothing.
+ * 
+ * @returns A Promise that resolves when all motors have been stopped.
+ */
     async stop(): Promise<void> {
         if (this.connected && this.ws) {
             this.ws.send("Vibrate:0;");
@@ -180,6 +250,11 @@ export class LovenseNora extends SimulatedDevice {
         }
     }
 
+/**
+ * Async function to get the current battery level of the device.
+ * @returns {Promise<number>} The current battery level of the device.
+ * @throws {Error} If the device is not connected or websocket is not available.
+ */
     async getBatteryLevel(): Promise<number> {
         if (!this.connected || !this.ws) {
             throw new Error("Device not connected");

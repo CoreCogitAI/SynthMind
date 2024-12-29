@@ -16,9 +16,23 @@ import { hasIpAttachedLicenseTerms } from "../queries";
 
 export { licenseIPTemplate };
 
+/**
+ * Class representing an action to license an IP.
+ */
+
 export class LicenseIPAction {
+/**
+ * Constructor for creating a new instance of a class with a provided wallet provider.
+ * @param {WalletProvider} walletProvider - The wallet provider to use for the instance.
+ */
     constructor(private walletProvider: WalletProvider) {}
 
+/**
+ * Mint license tokens for a specific IP asset.
+ * 
+ * @param {LicenseIPParams} params - The parameters for minting the license tokens.
+ * @returns {Promise<MintLicenseTokensResponse>} - The response object containing information about the minted license tokens.
+ */
     async licenseIP(
         params: LicenseIPParams
     ): Promise<MintLicenseTokensResponse> {

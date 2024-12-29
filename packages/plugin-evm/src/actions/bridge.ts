@@ -18,9 +18,20 @@ import { parseEther } from "viem";
 
 export { bridgeTemplate };
 
+/**
+ * BridgeAction class with methods for bridging tokens between different chains.
+ * @constructor
+ * @param {WalletProvider} walletProvider - The wallet provider instance used for interacting with wallets.
+ */
+*/
 export class BridgeAction {
     private config;
 
+/**
+ * Constructor for creating a new configuration object based on the given WalletProvider.
+ *
+ * @param {WalletProvider} walletProvider - The WalletProvider object to use for generating the configuration.
+ */
     constructor(private walletProvider: WalletProvider) {
         this.config = createConfig({
             integrator: "eliza",
@@ -49,6 +60,12 @@ export class BridgeAction {
         });
     }
 
+/**
+ * Bridge tokens between two chains.
+ *
+ * @param {BridgeParams} params - The parameters for bridging transaction.
+ * @returns {Promise<Transaction>} The bridged transaction object.
+ */
     async bridge(params: BridgeParams): Promise<Transaction> {
         const walletClient = this.walletProvider.getWalletClient(
             params.fromChain

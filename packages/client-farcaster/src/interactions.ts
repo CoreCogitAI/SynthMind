@@ -23,8 +23,20 @@ import {
 import { castUuid } from "./utils";
 import { sendCast } from "./actions";
 
+/**
+ * Class representing a Farcaster Interaction Manager.
+ */
+*/
 export class FarcasterInteractionManager {
     private timeout: NodeJS.Timeout | undefined;
+/**
+ * Initialize a new instance of the Class.
+ * 
+ * @param {FarcasterClient} client - The Farcaster client.
+ * @param {IAgentRuntime} runtime - The agent runtime.
+ * @param {string} signerUuid - The UUID of the signer.
+ * @param {Map<string, any>} cache - The cache to store data.
+ */
     constructor(
         public client: FarcasterClient,
         public runtime: IAgentRuntime,
@@ -32,6 +44,9 @@ export class FarcasterInteractionManager {
         public cache: Map<string, any>
     ) {}
 
+/**
+ * Asynchronously starts a loop to handle interactions at regular intervals.
+ */
     public async start() {
         const handleInteractionsLoop = async () => {
             try {
@@ -52,10 +67,16 @@ export class FarcasterInteractionManager {
         handleInteractionsLoop();
     }
 
+/**
+ * Asynchronously stops the operation by clearing the timeout, if it exists.
+ */
     public async stop() {
         if (this.timeout) clearTimeout(this.timeout);
     }
 
+/**
+ * Handles interactions for the agent, including processing mentions and creating memories.
+ */
     private async handleInteractions() {
         const agentFid = Number(this.runtime.getSetting("FARCASTER_FID"));
 
@@ -115,6 +136,16 @@ export class FarcasterInteractionManager {
         this.client.lastInteractionTimestamp = new Date();
     }
 
+/**
+ * Handles the processing of a cast message
+ *
+ * @param {Object} param - The parameters object
+ * @param {Profile} agent - The profile of the agent sending the cast
+ * @param {Cast} cast - The cast message being processed
+ * @param {Memory} memory - The memory object associated with the cast
+ * @param {Cast[]} thread - The thread of previous casts related to the current cast message
+ * @returns {Object} - Returns an object with text and action properties if certain conditions are met
+ */
     private async handleCast({
         agent,
         cast,

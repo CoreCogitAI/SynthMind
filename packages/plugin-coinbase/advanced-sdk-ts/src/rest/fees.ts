@@ -8,6 +8,12 @@ import { method } from './types/request-types';
 
 // [GET] Get Transaction Summary
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_commitconverttrade
+/**
+ * Retrieves a summary of transactions based on the provided request parameters.
+ * 
+ * @param {GetTransactionsSummaryRequest} requestParams - The request parameters for retrieving the transaction summary.
+ * @returns {Promise<GetTransactionsSummaryResponse>} A promise that resolves with the summary of transactions.
+ */
 export function getTransactionSummary(
   this: RESTBase,
   requestParams: GetTransactionsSummaryRequest

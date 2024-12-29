@@ -2,14 +2,37 @@ import { stringToUuid } from "@elizaos/core";
 
 export const MAX_CAST_LENGTH = 1024; // Updated to Twitter's current character limit
 
+/**
+ * Concatenates the given hash and agentId strings with a hyphen in between.
+ * 
+ * @param {Object} params - The parameters for concatenation.
+ * @param {string} params.hash - The hash string.
+ * @param {string} params.agentId - The agentId string.
+ * @returns {string} The concatenated string of hash and agentId.
+ */
 export function castId({ hash, agentId }: { hash: string; agentId: string }) {
     return `${hash}-${agentId}`;
 }
 
+/**
+ * Casts a hash and agentId to a UUID format.
+ * 
+ * @param {Object} props - The hash and agentId properties.
+ * @param {string} props.hash - The hash to be casted to UUID.
+ * @param {string} props.agentId - The agentId to be casted to UUID.
+ * @returns {string} - The UUID format generated from the hash and agentId.
 export function castUuid(props: { hash: string; agentId: string }) {
     return stringToUuid(castId(props));
 }
 
+/**
+ * Splits the given content into multiple posts based on a maximum length.
+ * If a paragraph exceeds the maxLength, it will be split into smaller chunks.
+ *
+ * @param {string} content - The content to split into posts.
+ * @param {number} [maxLength=MAX_CAST_LENGTH] - The maximum length for each post.
+ * @returns {string[]} An array of posts after splitting the content.
+ */
 export function splitPostContent(
     content: string,
     maxLength: number = MAX_CAST_LENGTH
@@ -49,6 +72,12 @@ export function splitPostContent(
     return posts;
 }
 
+/**
+ * Splits a given paragraph into chunks of text that are each within the specified maximum length.
+ * @param {string} paragraph - The paragraph to split into chunks.
+ * @param {number} maxLength - The maximum length each chunk of text should be.
+ * @returns {string[]} An array of strings representing the chunks of text within the specified maximum length.
+ */
 export function splitParagraph(paragraph: string, maxLength: number): string[] {
     const sentences = paragraph.match(/[^\.!\?]+[\.!\?]+|[^\.!\?]+$/g) || [
         paragraph,
@@ -100,6 +129,15 @@ export function splitParagraph(paragraph: string, maxLength: number): string[] {
     return chunks;
 }
 
+/**
+ * Populates mentions in a given text string with the corresponding user display names
+ * 
+ * @param {string} text - The text string containing mentions
+ * @param {number[]} userIds - An array of user IDs corresponding to the mentions
+ * @param {number[]} positions - An array of positions where mentions should be inserted in the text
+ * @param {Record<number, string>} userMap - A map of user IDs to display names
+ * @returns {string} The modified text string with mentions inserted
+ */
 export function populateMentions(
     text: string,
     userIds: number[],

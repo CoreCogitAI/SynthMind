@@ -18,6 +18,11 @@ let _instance: FlowConnector;
  * Get the singleton instance of the Flow connector
  * @param runtime The runtime object
  */
+/**
+ * Retrieves the default instance of the FlowConnector. If the instance has not been created yet, it will be asynchronously created using the provided IAgentRuntime and flowJSON.
+ * @param {IAgentRuntime} runtime - The IAgentRuntime object to create the instance with.
+ * @returns {Promise<FlowConnector>} The default instance of the FlowConnector.
+ */
 async function _getDefaultConnectorInstance(
     runtime: IAgentRuntime
 ): Promise<FlowConnector> {

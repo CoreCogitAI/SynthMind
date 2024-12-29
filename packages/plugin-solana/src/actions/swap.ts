@@ -16,6 +16,16 @@ import { getWalletKey } from "../keypairUtils.ts";
 import { walletProvider, WalletProvider } from "../providers/wallet.ts";
 import { getTokenDecimals } from "./swapUtils.ts";
 
+/**
+ * Perform a token swap operation by fetching a quote from the Jupitertoken API and submitting a swap request.
+ * 
+ * @param {Connection} connection - Connection object for interacting with the Solana blockchain
+ * @param {PublicKey} walletPublicKey - Public key of the user's wallet
+ * @param {string} inputTokenCA - Address of the input token's mint
+ * @param {string} outputTokenCA - Address of the output token's mint
+ * @param {number} amount - Amount of tokens to swap
+ * @returns {Promise<any>} - A promise that resolves to the swap transaction data
+ */
 async function swapToken(
     connection: Connection,
     walletPublicKey: PublicKey,
@@ -135,6 +145,12 @@ Respond with a JSON markdown block containing only the extracted values. Use nul
 // if we get the token symbol but not the CA, check walet for matching token, and if we have, get the CA for it
 
 // get all the tokens in the wallet using the wallet provider
+/**
+ * Asynchronously retrieves the tokens in the wallet using the provided runtime and wallet information.
+ *
+ * @param {IAgentRuntime} runtime - The runtime associated with the wallet.
+ * @returns {Array<Token>} - An array of tokens in the wallet.
+ */
 async function getTokensInWallet(runtime: IAgentRuntime) {
     const { publicKey } = await getWalletKey(runtime, false);
     const walletProvider = new WalletProvider(
@@ -148,6 +164,13 @@ async function getTokensInWallet(runtime: IAgentRuntime) {
 }
 
 // check if the token symbol is in the wallet
+/**
+ * Asynchronously retrieves the address of a token from the user's wallet based on the provided token symbol.
+ *
+ * @param {IAgentRuntime} runtime - The runtime environment.
+ * @param {string} tokenSymbol - The symbol of the token to find.
+ * @returns {Promise<string|null>} The address of the token if found, or null if not found or an error occurs.
+ */
 async function getTokenFromWallet(runtime: IAgentRuntime, tokenSymbol: string) {
     try {
         const items = await getTokensInWallet(runtime);

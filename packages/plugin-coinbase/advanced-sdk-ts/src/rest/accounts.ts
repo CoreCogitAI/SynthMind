@@ -10,6 +10,12 @@ import { method } from './types/request-types';
 
 // [GET] Get Account
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_getaccount
+/**
+ * Retrieves an account by its UUID.
+ * @param {object} params - The parameters for the request.
+ * @param {string} params.accountUuid - The UUID of the account to retrieve.
+ * @returns {Promise<GetAccountResponse>} The response containing the account data.
+ */
 export function getAccount(
   this: RESTBase,
   { accountUuid }: GetAccountRequest
@@ -23,6 +29,12 @@ export function getAccount(
 
 // [GET] List Accounts
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_getaccounts
+/**
+ * Function to list accounts.
+ *
+ * @param {ListAccountsRequest} requestParams - The request parameters for listing accounts.
+ * @returns {Promise<ListAccountsResponse>} A promise that resolves with the response containing a list of accounts.
+ */
 export function listAccounts(
   this: RESTBase,
   requestParams: ListAccountsRequest

@@ -1,5 +1,18 @@
 import { WEB3_STORAGE_API_HOST } from '../constants/apis';
 
+/**
+ * Interface representing the response after uploading a file.
+ * @property {boolean} success - Flag indicating if the upload was successful.
+ * @property {string} [cid] - The unique identifier of the uploaded file.
+ * @property {object} [urls] - URLs related to the uploaded file.
+ * @property {string} [urls.direct] - The direct URL for the uploaded file.
+ * @property {string} [urls.raw] - The raw URL for the uploaded file.
+ * @property {string} [urls.gateway] - The gateway URL for the uploaded file.
+ * @property {string} [type] - The type of the uploaded file.
+ * @property {string} [name] - The name of the uploaded file.
+ * @property {number} [size] - The size of the uploaded file in bytes.
+ * @property {string} [error] - The error message if the upload was unsuccessful.
+ */
 interface UploadResponse {
     success: boolean;
     cid?: string;
@@ -14,6 +27,12 @@ interface UploadResponse {
     error?: string;
 }
 
+/**
+ * Uploads a file to Web3.storage by converting base64 data to a Blob and sending it via a POST request
+ * @param {string} base64Data - The base64 encoded data of the file to be uploaded
+ * @param {string} [fileName="image.png"] - The name of the file to be uploaded (default is "image.png")
+ * @returns {Promise<UploadResponse>} The response object containing the upload status and result
+ */
 export async function uploadFileToWeb3Storage(
     base64Data: string,
     fileName: string = "image.png"

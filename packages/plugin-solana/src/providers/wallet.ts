@@ -18,6 +18,18 @@ const PROVIDER_CONFIG = {
     },
 };
 
+/**
+ * Represents an item with the following properties:
+ * - name: the name of the item
+ * - address: the address of the item
+ * - symbol: the symbol of the item
+ * - decimals: the number of decimals for the item
+ * - balance: the balance of the item
+ * - uiAmount: the UI amount of the item
+ * - priceUsd: the price of the item in USD
+ * - valueUsd: the value of the item in USD
+ * - valueSol (optional): the value of the item in Solana
+ */
 export interface Item {
     name: string;
     address: string;
@@ -30,12 +42,23 @@ export interface Item {
     valueSol?: string;
 }
 
+/**
+ * Interface representing a wallet portfolio.
+ * @typedef {Object} WalletPortfolio
+ * @property {string} totalUsd - The total value in USD.
+ * @property {string} [totalSol] - The total value in SOL (optional).
+ * @property {Array<Item>} items - An array of items in the portfolio.
+ */
 interface WalletPortfolio {
     totalUsd: string;
     totalSol?: string;
     items: Array<Item>;
 }
 
+/**
+ * Interface representing Bird Eye Price Data.
+ * Contains data object with key-value pairs where key is a string and value is an object with price and priceChange24h properties.
+ */
 interface _BirdEyePriceData {
     data: {
         [key: string]: {
@@ -45,15 +68,34 @@ interface _BirdEyePriceData {
     };
 }
 
+/**
+ * Interface representing prices for various cryptocurrencies.
+ * @property {object} solana - Price of Solana in USD
+ * @property {string} solana.usd - Price of Solana in USD
+ * @property {object} bitcoin - Price of Bitcoin in USD
+ * @property {string} bitcoin.usd - Price of Bitcoin in USD
+ * @property {object} ethereum - Price of Ethereum in USD
+ * @property {string} ethereum.usd - Price of Ethereum in USD
+ */
 interface Prices {
     solana: { usd: string };
     bitcoin: { usd: string };
     ethereum: { usd: string };
 }
 
+/**
+ * Represents a WalletProvider that interacts with the Birdeye API to fetch wallet information and portfolio values.
+ */
+ */
 export class WalletProvider {
     private cache: NodeCache;
 
+/**
+ * Represents a WalletManager class that manages wallet data.
+ * @constructor
+ * @param {Connection} connection - The connection object.
+ * @param {PublicKey} walletPublicKey - The public key of the wallet.
+ */
     constructor(
         private connection: Connection,
         private walletPublicKey: PublicKey
@@ -61,6 +103,14 @@ export class WalletProvider {
         this.cache = new NodeCache({ stdTTL: 300 }); // Cache TTL set to 5 minutes
     }
 
+/**
+ * Performs a fetch request with retries in case of failure.
+ * 
+ * @param {any} runtime - The runtime object.
+ * @param {string} url - The URL to fetch.
+ * @param {RequestInit} options - The options for the fetch request.
+ * @returns {Promise<any>} A promise that resolves with the fetched data.
+ */
     private async fetchWithRetry(
         runtime,
         url: string,
@@ -108,6 +158,12 @@ export class WalletProvider {
         throw lastError;
     }
 
+/**
+ * Fetch the portfolio value for the wallet.
+ * 
+ * @param {any} runtime - The runtime object for the fetch.
+ * @returns {Promise<WalletPortfolio>} - The fetched wallet portfolio.
+ */
     async fetchPortfolioValue(runtime): Promise<WalletPortfolio> {
         try {
             const cacheKey = `portfolio-${this.walletPublicKey.toBase58()}`;
@@ -163,6 +219,12 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Fetches the portfolio value of a wallet from Codex API.
+ * 
+ * @param {Runtime} runtime The runtime instance.
+ * @returns {Promise<WalletPortfolio>} The portfolio value of the wallet.
+ */
     async fetchPortfolioValueCodex(runtime): Promise<WalletPortfolio> {
         try {
             const cacheKey = `portfolio-${this.walletPublicKey.toBase58()}`;
@@ -260,6 +322,15 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Asynchronously fetches prices for SOL, BTC, and ETH using Birdeye API with specified token addresses.
+ * Checks if the prices are already cached and returns them if found.
+ * If not cached, makes API calls for each token, retrieves and stores the prices in cache.
+ * 
+ * @param {any} runtime - The runtime environment for making API requests.
+ * @returns {Promise<Prices>} - A Promise that resolves to an object containing the prices of SOL, BTC, and ETH.
+ * @throws {Error} - If there is an error fetching prices from the API.
+ */
     async fetchPrices(runtime): Promise<Prices> {
         try {
             const cacheKey = "prices";
@@ -312,6 +383,14 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Formats the portfolio information into a string for display.
+ * 
+ * @param {any} runtime - The runtime object.
+ * @param {WalletPortfolio} portfolio - The portfolio object containing wallet information.
+ * @param {Prices} prices - The prices object containing market prices.
+ * @returns {string} The formatted portfolio information as a string.
+ */
     formatPortfolio(
         runtime,
         portfolio: WalletPortfolio,
@@ -349,6 +428,12 @@ export class WalletProvider {
         return output;
     }
 
+/**
+ * Asynchronously retrieves the portfolio value, prices, and formats the portfolio based on the provided runtime.
+ * 
+ * @param {any} runtime - The runtime environment for the portfolio retrieval and formatting.
+ * @returns {Promise<string>} A Promise that resolves with a formatted portfolio report, or a string indicating an error message.
+ */
     async getFormattedPortfolio(runtime): Promise<string> {
         try {
             const [portfolio, prices] = await Promise.all([

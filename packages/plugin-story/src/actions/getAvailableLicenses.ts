@@ -17,16 +17,30 @@ import { storyOdyssey } from "viem/chains";
 export { licenseIPTemplate };
 
 // Types for request/response
+/**
+ * Params for getting available licenses.
+ * @typedef {Object} GetAvailableLicensesParams
+ * @property {Address} ipid - The IP address of the license holder.
+ */
 type GetAvailableLicensesParams = {
     ipid: Address;
 };
 
+/**
+ * Represents the response object for getting available licenses.
+ * @typedef {Object} GetAvailableLicensesResponse
+ * @property {IPLicenseDetails[]} data - Array of license details
+ */
 type GetAvailableLicensesResponse = {
     data: IPLicenseDetails[];
 };
 
 /**
  * Class to handle fetching available licenses for an IP asset from Story Protocol
+ */
+/**
+ * Class representing an action to get available licenses.
+ */
  */
 export class GetAvailableLicensesAction {
     // Default query options for license terms

@@ -17,6 +17,13 @@ import { WebClient } from "@slack/web-api";
 import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 
+/**
+ * Generate a concise summary for the given text using a specified model.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime to use for generating the summary.
+ * @param {string} text - The text to generate the summary for.
+ * @returns {Promise<{ title: string; description: string }>} The generated title and description in a promise.
+ */
 async function generateSummary(
     runtime: IAgentRuntime,
     text: string
@@ -58,6 +65,15 @@ async function generateSummary(
     };
 }
 
+/**
+ * Interface representing a Slack file.
+ * @property {string} id - The unique identifier of the file.
+ * @property {string} url_private - The private URL of the file.
+ * @property {string} name - The name of the file.
+ * @property {number} size - The size of the file in bytes.
+ * @property {string} mimetype - The MIME type of the file.
+ * @property {string} [title] - An optional title for the file.
+ */
 interface SlackFile {
     id: string;
     url_private: string;
@@ -67,16 +83,30 @@ interface SlackFile {
     title?: string;
 }
 
+/**
+ * Class representing an Attachment Manager that processes Slack attachments.
+ */
+
 export class AttachmentManager {
     private attachmentCache: Map<string, Media> = new Map();
     private runtime: IAgentRuntime;
     private client: WebClient;
 
+/**
+ * Constructor for creating a new instance of the class.
+ * @param {IAgentRuntime} runtime - The runtime to be used by the class.
+ * @param {WebClient} client - The client to be used by the class.
+ */
     constructor(runtime: IAgentRuntime, client: WebClient) {
         this.runtime = runtime;
         this.client = client;
     }
 
+/**
+ * Processes attachments asynchronously and returns an array of Media objects.
+ * @param {SlackFile[]} files - Array of SlackFile objects to process
+ * @returns {Promise<Media[]>} - A Promise that resolves to an array of processed Media objects
+ */
     async processAttachments(files: SlackFile[]): Promise<Media[]> {
         const processedAttachments: Media[] = [];
 
@@ -90,6 +120,12 @@ export class AttachmentManager {
         return processedAttachments;
     }
 
+/**
+ * Processes the provided Slack file attachment and returns the corresponding Media object, or null if unable to process.
+ * 
+ * @param file The Slack file attachment to process
+ * @returns A Promise that resolves with the processed Media object, or null if unable to process
+ */
     async processAttachment(file: SlackFile): Promise<Media | null> {
         if (this.attachmentCache.has(file.url_private)) {
             return this.attachmentCache.get(file.url_private)!;
@@ -135,6 +171,11 @@ export class AttachmentManager {
         return media;
     }
 
+/**
+ * Fetches the content of a file from Slack as a Buffer.
+ * @param {SlackFile} file - The Slack file to fetch content from.
+ * @returns {Promise<Buffer>} - A promise that resolves to a Buffer containing the file content.
+ */
     private async fetchFileContent(file: SlackFile): Promise<Buffer> {
         const response = await fetch(file.url_private, {
             headers: {
@@ -145,6 +186,15 @@ export class AttachmentManager {
         return Buffer.from(arrayBuffer);
     }
 
+/**
+ * Process audio/video attachment file to extract transcription and generate summary.
+ * If the file is audio, transcribe the audio buffer. If the file is video, extract audio from mp4 and transcribe it.
+ * Retrieves transcription service from runtime and uses it to transcribe audio buffer.
+ * If transcription is successful, generates summary for the transcription.
+ * If any error occurs during processing, logs the error and returns a default Media object with basic information.
+ * @param file - The SlackFile object representing the audio/video attachment file.
+ * @returns A Promise that resolves to a Media object with the processed audio/video attachment information.
+ */
     private async processAudioVideoAttachment(file: SlackFile): Promise<Media> {
         try {
             const fileBuffer = await this.fetchFileContent(file);
@@ -204,6 +254,12 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Extracts audio from an MP4 file as a Buffer.
+ * 
+ * @param {Buffer} mp4Data - The MP4 file data to extract audio from.
+ * @returns {Promise<Buffer>} A Promise that resolves with the extracted audio data as a Buffer.
+ */
     private async extractAudioFromMP4(mp4Data: Buffer): Promise<Buffer> {
         const tempMP4File = `temp_${Date.now()}.mp4`;
         const tempAudioFile = `temp_${Date.now()}.mp3`;
@@ -232,6 +288,11 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Process a PDF attachment by converting it to text and extracting metadata.
+ * @param {SlackFile} file - The Slack file representing the PDF attachment
+ * @returns {Promise<Media>} A Promise that resolves with the processed Media object
+ */
     private async processPdfAttachment(file: SlackFile): Promise<Media> {
         try {
             const pdfBuffer = await this.fetchFileContent(file);
@@ -273,6 +334,11 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Process a plaintext attachment from Slack to create a Media object.
+ * @param {SlackFile} file The file object representing the attachment
+ * @returns {Promise<Media>} The processed Media object
+ */
     private async processPlaintextAttachment(file: SlackFile): Promise<Media> {
         try {
             const textBuffer = await this.fetchFileContent(file);
@@ -298,6 +364,11 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Processes an image attachment by retrieving description using the image description service
+ * @param {SlackFile} file - The file object representing the image attachment
+ * @returns {Promise<Media>} - The processed media object with file details and description
+ */
     private async processImageAttachment(file: SlackFile): Promise<Media> {
         try {
             const imageService =
@@ -333,6 +404,12 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Process the video attachment and return a Media object with information about the video.
+ * 
+ * @param {SlackFile} file - The file representing the video attachment
+ * @returns {Promise<Media>} A promise that resolves with a Media object containing information about the video attachment
+ */
     private async processVideoAttachment(file: SlackFile): Promise<Media> {
         try {
             const videoService = this.runtime.getService<IVideoService>(
@@ -362,6 +439,12 @@ export class AttachmentManager {
         }
     }
 
+/**
+ * Process a generic attachment received from Slack and convert it into a Media object.
+ * 
+ * @param {SlackFile} file - The Slack file object to process.
+ * @returns {Promise<Media>} - A Promise that resolves with a Media object containing the processed attachment details.
+ */
     private async processGenericAttachment(file: SlackFile): Promise<Media> {
         return {
             id: file.id,

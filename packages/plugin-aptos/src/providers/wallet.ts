@@ -25,19 +25,40 @@ const PROVIDER_CONFIG = {
     RETRY_DELAY: 2000,
 };
 
+/**
+ * Interface representing a wallet portfolio.
+ * @property {string} totalUsd - The total amount in USD.
+ * @property {string} totalApt - The total amount in a different currency (e.g. Apt).
+ */
 interface WalletPortfolio {
     totalUsd: string;
     totalApt: string;
 }
 
+/**
+ * Interface representing prices in different currencies.
+ * @typedef {Object} Prices
+ * @property {Object} apt - Object representing apartment prices.
+ * @property {string} apt.usd - Price of apartment in USD.
+ */
 interface Prices {
     apt: { usd: string };
 }
 
+/**
+ * Represents a Wallet Provider that interacts with the Aptos blockchain to manage wallet data.
+ */
+ */
 export class WalletProvider {
     private cache: NodeCache;
     private cacheKey: string = "aptos/wallet";
 
+/**
+ * Constructor for creating an instance of a class.
+ * @param {Aptos} aptosClient - The Aptos client used for communication.
+ * @param {string} address - The address associated with the instance.
+ * @param {ICacheManager} cacheManager - The cache manager used for caching data.
+ */
     constructor(
         private aptosClient: Aptos,
         private address: string,
@@ -46,6 +67,13 @@ export class WalletProvider {
         this.cache = new NodeCache({ stdTTL: 300 }); // Cache TTL set to 5 minutes
     }
 
+/**
+ * Reads a value from cache using the provided key.
+ *
+ * @template T - The type of the value to be retrieved from cache.
+ * @param {string} key - The key used to retrieve the value from cache.
+ * @returns {Promise<T | null>} - A Promise that resolves to the cached value if found, or null if not found.
+ */
     private async readFromCache<T>(key: string): Promise<T | null> {
         const cached = await this.cacheManager.get<T>(
             path.join(this.cacheKey, key)
@@ -53,12 +81,24 @@ export class WalletProvider {
         return cached;
     }
 
+/**
+* Writes data to the cache with a specified key.
+* @param {string} key - The key to use when storing the data in the cache.
+* @param {T} data - The data to store in the cache.
+* @returns {Promise<void>}
+*/
     private async writeToCache<T>(key: string, data: T): Promise<void> {
         await this.cacheManager.set(path.join(this.cacheKey, key), data, {
             expires: Date.now() + 5 * 60 * 1000,
         });
     }
 
+/**
+ * Retrieves cached data either from in-memory cache or file-based cache.
+ * @template T The data type to retrieve.
+ * @param {string} key The key to retrieve the data for.
+ * @returns {Promise<T | null>} The cached data if found, otherwise null.
+ */
     private async getCachedData<T>(key: string): Promise<T | null> {
         // Check in-memory cache first
         const cachedData = this.cache.get<T>(key);
@@ -77,6 +117,13 @@ export class WalletProvider {
         return null;
     }
 
+/**
+ * Sets the cached data for a given cache key.
+ * 
+ * @param {string} cacheKey - The key under which the data is stored in the cache.
+ * @param {T} data - The data to be cached.
+ * @returns {Promise<void>} A promise that resolves when the data has been successfully cached.
+ */
     private async setCachedData<T>(cacheKey: string, data: T): Promise<void> {
         // Set in-memory cache
         this.cache.set(cacheKey, data);
@@ -85,6 +132,10 @@ export class WalletProvider {
         await this.writeToCache(cacheKey, data);
     }
 
+/**
+ * Fetches prices from a specified API endpoint with retries in case of failures
+ * @returns {Promise<any>} The data retrieved from the API
+ */
     private async fetchPricesWithRetry() {
         let lastError: Error;
 
@@ -123,6 +174,10 @@ export class WalletProvider {
         throw lastError;
     }
 
+/**
+ * Asynchronously fetches the portfolio value for the wallet.
+ * @returns {Promise<WalletPortfolio>} The wallet portfolio value.
+ */
     async fetchPortfolioValue(): Promise<WalletPortfolio> {
         try {
             const cacheKey = `portfolio-${this.address}`;
@@ -166,6 +221,11 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Asynchronously fetches prices, first attempting to retrieve cached data and falling back to live data if not available.
+ * Returns a Promise that resolves to Prices object containing APT price in USD.
+ * @returns {Promise<Prices>} The Prices object with APT price in USD
+ */
     async fetchPrices(): Promise<Prices> {
         try {
             const cacheKey = "prices";
@@ -194,6 +254,13 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Formats the given wallet portfolio with the character name, wallet address, total value in USD and APT.
+ * 
+ * @param {Runtime} runtime - The runtime object containing character information.
+ * @param {WalletPortfolio} portfolio - The portfolio object containing total USD and APT values.
+ * @returns {string} Formatted output with character name, wallet address, total value in USD and APT.
+ */
     formatPortfolio(runtime, portfolio: WalletPortfolio): string {
         let output = `${runtime.character.name}\n`;
         output += `Wallet Address: ${this.address}\n`;
@@ -206,6 +273,12 @@ export class WalletProvider {
         return output;
     }
 
+/**
+ * Asynchronously retrieves the portfolio value data and returns a formatted string representation of it.
+ * 
+ * @param {number} runtime - The runtime value used for formatting the portfolio data.
+ * @returns {Promise<string>} A promise that resolves to the formatted portfolio value string.
+ */
     async getFormattedPortfolio(runtime): Promise<string> {
         try {
             const portfolio = await this.fetchPortfolioValue();

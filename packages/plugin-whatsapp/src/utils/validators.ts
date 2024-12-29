@@ -1,5 +1,10 @@
 import { WhatsAppMessage, WhatsAppTemplate, WhatsAppConfig } from "../types";
 
+/**
+ * Validates the WhatsApp configuration object.
+ * @param {WhatsAppConfig} config - The configuration object containing accessToken and phoneNumberId.
+ * @throws {Error} If accessToken or phoneNumberId is missing.
+ */
 export function validateConfig(config: WhatsAppConfig): void {
     if (!config.accessToken) {
         throw new Error("WhatsApp access token is required");
@@ -9,6 +14,11 @@ export function validateConfig(config: WhatsAppConfig): void {
     }
 }
 
+/**
+ * Validates a WhatsApp message to ensure it meets the necessary criteria.
+ * @param {WhatsAppMessage} message - The WhatsApp message to validate.
+ * @throws {Error} - If recipient phone number, message type, or message content is missing.
+ */
 export function validateMessage(message: WhatsAppMessage): void {
     if (!message.to) {
         throw new Error("Recipient phone number is required");
@@ -27,6 +37,12 @@ export function validateMessage(message: WhatsAppMessage): void {
     }
 }
 
+/**
+ * Validates a WhatsApp template.
+ * @param {WhatsAppTemplate} template - The WhatsApp template to validate.
+ * @throws {Error} If template name is not provided.
+ * @throws {Error} If template language code is not provided.
+ */
 export function validateTemplate(template: WhatsAppTemplate): void {
     if (!template.name) {
         throw new Error("Template name is required");
@@ -37,6 +53,11 @@ export function validateTemplate(template: WhatsAppTemplate): void {
     }
 }
 
+/**
+ * Validates a phone number based on a basic regex pattern.
+ * @param {string} phoneNumber - The phone number to validate.
+ * @returns {boolean} - True if the phone number is valid, false otherwise.
+ */
 export function validatePhoneNumber(phoneNumber: string): boolean {
     // Basic phone number validation - can be enhanced based on requirements
     const phoneRegex = /^\d{1,15}$/;

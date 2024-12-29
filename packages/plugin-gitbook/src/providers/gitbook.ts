@@ -7,6 +7,12 @@ import {
 } from "@elizaos/core";
 import { GitBookResponse, GitBookClientConfig } from "../types";
 
+/**
+ * Cleans up text by removing Discord mentions, channels, roles, and platform mentions.
+ * 
+ * @param {string} text - The text to be cleaned up.
+ * @returns {string} The cleaned up text.
+ */
 function cleanText(text: string): string {
     const cleaned = text
         .replace(/<@!?\d+>/g, "") // Discord mentions
@@ -18,6 +24,13 @@ function cleanText(text: string): string {
     return cleaned;
 }
 
+/**
+ * Validates the query text based on project terms, document triggers, and general queries.
+ * 
+ * @param {IAgentRuntime} runtime The agent runtime object.
+ * @param {string} text The query text to validate.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the query is valid.
+ */ 
 async function validateQuery(
     runtime: IAgentRuntime,
     text: string

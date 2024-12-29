@@ -2,9 +2,24 @@ import { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
 import { TdxQuoteResponse, TappdClient } from "@phala/dstack-sdk";
 import { RemoteAttestationQuote, TEEMode } from "../types/tee";
 
+/**
+ * Represents a Remote Attestation Provider that connects to a TEE simulator.
+ * @class
+ */
+ */
 class RemoteAttestationProvider {
     private client: TappdClient;
 
+/**
+ * Constructor for TEEConfig class.
+ * Initializes the endpoint based on the provided teeMode.
+ * If teeMode is LOCAL, endpoint is set to "http://localhost:8090" and logs connection information.
+ * If teeMode is DOCKER, endpoint is set to "http://host.docker.internal:8090" and logs connection information.
+ * If teeMode is PRODUCTION, endpoint is set to undefined and logs production mode information.
+ * Throws an error if teeMode is not one of LOCAL, DOCKER, or PRODUCTION.
+ * Instantiates a new TappdClient with the determined endpoint.
+ * @param {string} teeMode - The mode for the TEE configuration (optional)
+ */
     constructor(teeMode?: string) {
         let endpoint: string | undefined;
 
@@ -37,6 +52,13 @@ class RemoteAttestationProvider {
         this.client = endpoint ? new TappdClient(endpoint) : new TappdClient();
     }
 
+/**
+ * Asynchronously generates a remote attestation quote based on the provided report data.
+ * 
+ * @param {string} reportData - The data for which the attestation is being generated.
+ * @returns {Promise<RemoteAttestationQuote>} The generated remote attestation quote.
+ * @throws {Error} If there is an error generating the remote attestation quote.
+ */
     async generateAttestation(
         reportData: string
     ): Promise<RemoteAttestationQuote> {

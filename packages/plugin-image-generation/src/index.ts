@@ -13,6 +13,14 @@ import fs from "fs";
 import path from "path";
 import { validateImageGenConfig } from "./environment";
 
+/**
+ * Saves a base64 encoded image string to a PNG file on the local file system.
+ * If the generatedImages directory does not exist, it will be created.
+ *
+ * @param {string} base64Data - The base64 encoded image data.
+ * @param {string} filename - The name of the file to save the image as.
+ * @returns {string} The full file path where the image was saved.
+ */
 export function saveBase64Image(base64Data: string, filename: string): string {
     // Create generatedImages directory if it doesn't exist
     const imageDir = path.join(process.cwd(), "generatedImages");
@@ -35,6 +43,13 @@ export function saveBase64Image(base64Data: string, filename: string): string {
     return filepath;
 }
 
+/**
+ * Saves an image from a given URL to a specified filename in the 'generatedImages' directory.
+ * 
+ * @param {string} imageUrl - The URL of the image to fetch.
+ * @param {string} filename - The name of the file to save the image as.
+ * @returns {Promise<string>} The full file path where the image is saved.
+ */
 export async function saveHeuristImage(
     imageUrl: string,
     filename: string

@@ -16,12 +16,26 @@ import { Address } from "viem";
 import { validateAvalancheConfig } from "../environment";
 import { STRATEGY_ADDRESSES, TOKEN_ADDRESSES } from "../utils/constants";
 
+/**
+ * Interface representing the content for a strategy.
+ * Extends Content interface.
+ * @property {string} depositTokenAddress - The address of the deposit token.
+ * @property {string} strategyAddress - The address of the strategy.
+ * @property {string | number} amount - The amount for the strategy content.
+ */
+```
 export interface StrategyContent extends Content {
     depositTokenAddress: string;
     strategyAddress: string;
     amount: string | number;
 }
 
+/**
+ * Check if the given content is of type `StrategyContent`.
+ * @param {IAgentRuntime} runtime - The Agent runtime object.
+ * @param {any} content - The content to be checked.
+ * @returns {content is StrategyContent} - True if the content is of type `StrategyContent`, false otherwise.
+ */
 function isStrategyContent(
     runtime: IAgentRuntime,
     content: any

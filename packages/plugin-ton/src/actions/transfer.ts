@@ -18,11 +18,24 @@ import {
 } from "../providers/wallet";
 import { internal } from "@ton/ton";
 
+/**
+ * Interface representing the transfer content with recipient and amount.
+ * @interface
+ * @extends Content
+ * @property {string} recipient - The recipient of the transfer.
+ * @property {string | number} amount - The amount to transfer.
+ */
 export interface TransferContent extends Content {
     recipient: string;
     amount: string | number;
 }
 
+/**
+ * Check if the given content is a TransferContent.
+ * 
+ * @param {Content} content - The content to be checked.
+ * @returns {boolean} - True if the content is a TransferContent, false otherwise.
+ */
 function isTransferContent(content: Content): content is TransferContent {
     console.log("Content for transfer", content);
     return (
@@ -50,9 +63,25 @@ Given the recent messages, extract the following information about the requested
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
+/**
+ * Class representing a transfer action.
+ */
+
 export class TransferAction {
+/**
+ * Constructor for creating an instance of a class with the specified wallet provider.
+ * 
+ * @param walletProvider The wallet provider to be used by the class instance.
+ */
     constructor(private walletProvider: WalletProvider) {}
 
+/**
+ * Transfer tokens to a specified recipient.
+ * 
+ * @param {TransferContent} params - The transfer parameters including amount and recipient.
+ * @returns {Promise<string>} - A promise that resolves to a string representing the transaction hash.
+ * @throws {Error} - If the transfer fails, an error is thrown.
+ */
     async transfer(params: TransferContent): Promise<string> {
         console.log(
             `Transferring: ${params.amount} tokens to (${params.recipient})`

@@ -30,6 +30,16 @@ import MEMEABI from "../abi/meme";
 import ERC20ABI from "../abi/erc20";
 
 // Helper function to check and approve token allowance if needed
+/**
+ * Ensure that the account has enough allowance for a specified amount of tokens to be transferred to a meme address.
+ * 
+ * @param {WalletClient} walletClient - The wallet client used to send transactions.
+ * @param {string} rpcUrl - The URL of the RPC node.
+ * @param {Account} account - The account for which the allowance is being checked.
+ * @param {string} tokenAddress - The address of the token contract.
+ * @param {string} memeAddress - The address of the meme contract.
+ * @param {bigint} amount - The amount of tokens to be transferred.
+ */
 async function ensureAllowance(
     walletClient: WalletClient,
     rpcUrl: string,

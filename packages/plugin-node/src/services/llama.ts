@@ -149,6 +149,20 @@ const jsonSchemaGrammar: Readonly<{
     },
 };
 
+/**
+ * Represents a queued message containing the context, temperature, stop criteria, token counts, penalty factors,
+ * grammar usage, and callback functions for resolving or rejecting the message.
+ * @typedef {Object} QueuedMessage
+ * @property {string} context - The context of the message.
+ * @property {number} temperature - The temperature parameter for generating creative responses.
+ * @property {string[]} stop - An array of strings representing criteria to stop generating responses.
+ * @property {number} max_tokens - The maximum number of tokens to generate in a response.
+ * @property {number} frequency_penalty - The penalty factor for the frequency of tokens in a response.
+ * @property {number} presence_penalty - The penalty factor for the presence of tokens in a response.
+ * @property {boolean} useGrammar - A flag indicating whether to use grammar rules when generating responses.
+ * @property {(value: any | string | PromiseLike<any | string>) => void} resolve - The function to call when the message is successfully processed.
+ * @property {(reason?: any) => void} reject - The function to call when an error occurs while processing the message.
+ */
 interface QueuedMessage {
     context: string;
     temperature: number;
@@ -161,6 +175,10 @@ interface QueuedMessage {
     reject: (reason?: any) => void;
 }
 
+/**
+ * Represents a Llama Service that extends Service class.
+ * Manages initialization, model loading, queue processing, completions, and embeddings.
+ * Supports using local GGUF model or Ollama API for completions and embeddings.
 export class LlamaService extends Service {
     private llama: Llama | undefined;
     private model: LlamaModel | undefined;
@@ -178,6 +196,10 @@ export class LlamaService extends Service {
 
     static serviceType: ServiceType = ServiceType.TEXT_GENERATION;
 
+/**
+ * Constructor for creating an instance of the Llama class.
+ * Initializes the llama, model, modelUrl, modelPath, and ollamaModel properties.
+ */
     constructor() {
         super();
         this.llama = undefined;
@@ -192,11 +214,20 @@ export class LlamaService extends Service {
         this.ollamaModel = process.env.OLLAMA_MODEL;
     }
 
+/**
+ * Initializes the LlamaService with the given runtime.
+ * 
+ * @param {IAgentRuntime} runtime The runtime to initialize the service with.
+ * @returns {Promise<void>}
+ */
     async initialize(runtime: IAgentRuntime): Promise<void> {
         elizaLogger.info("Initializing LlamaService...");
         this.runtime = runtime;
     }
 
+/**
+ * Ensures that the model is initialized. If not initialized, starts the initialization process.
+ */
     private async ensureInitialized() {
         if (!this.modelInitialized) {
             elizaLogger.info(
@@ -208,6 +239,19 @@ export class LlamaService extends Service {
         }
     }
 
+/**
+ * Asynchronous method to initialize the Llama model. This method performs the following tasks:
+ * 1. Checking for the model file existence.
+ * 2. Determining if CUDA is available for GPU acceleration.
+ * 3. Initializing the Llama instance.
+ * 4. Creating a JSON schema grammar.
+ * 5. Loading the model.
+ * 6. Creating context and sequence.
+ * 
+ * If any error occurs during the initialization process, the method will attempt to delete and re-download the model before throwing an error.
+ * 
+ * @throws {Error} If the model initialization fails after retry.
+ */
     async initializeModel() {
         try {
             elizaLogger.info("Checking model file...");
@@ -275,6 +319,12 @@ export class LlamaService extends Service {
         }
     }
 
+/**
+ * Asynchronously checks if the model file exists at the specified path. If the file does not exist, initiates a download process from the provided URL and saves it to the model path. 
+ * If the file already exists at the path, a warning is logged.
+ *
+ * @returns {Promise<void>} A promise that resolves when the model file is downloaded and saved successfully, or rejects with an error if the download process fails.
+ */
     async checkModel() {
         if (!fs.existsSync(this.modelPath)) {
             elizaLogger.info("Model file not found, starting download...");
@@ -379,12 +429,26 @@ export class LlamaService extends Service {
         }
     }
 
+/**
+ * Deletes the model file if it exists.
+ */
     async deleteModel() {
         if (fs.existsSync(this.modelPath)) {
             fs.unlinkSync(this.modelPath);
         }
     }
 
+/**
+     * Queue a message completion for processing based on given parameters.
+     * 
+     * @param {string} context - The context for the message completion.
+     * @param {number} temperature - The sampling temperature for the response.
+     * @param {string[]} stop - The tokens on which to stop the message completion.
+     * @param {number} frequency_penalty - The frequency penalty for the response.
+     * @param {number} presence_penalty - The presence penalty for the response.
+     * @param {number} max_tokens - The maximum number of tokens in the response.
+     * @returns {Promise<any>} The promise containing the queued message completion process.
+     */
     async queueMessageCompletion(
         context: string,
         temperature: number,
@@ -410,6 +474,17 @@ export class LlamaService extends Service {
         });
     }
 
+/**
+ * Adds a new text completion request to the message queue.
+ * 
+ * @param {string} context - The context for text completion.
+ * @param {number} temperature - Controls the randomness of the generated text.
+ * @param {string[]} stop - List of stop sequences for text generation to stop at.
+ * @param {number} frequency_penalty - Controls the sensitivity to the frequency of tokens in the text.
+ * @param {number} presence_penalty - Controls the sensitivity to the presence/absence of tokens in the text.
+ * @param {number} max_tokens - The maximum number of tokens to generate for the completion.
+ * @returns {Promise<string>} A promise that resolves with the generated text.
+ */
     async queueTextCompletion(
         context: string,
         temperature: number,
@@ -436,6 +511,9 @@ export class LlamaService extends Service {
         });
     }
 
+/**
+ * Processes the message queue by asynchronously retrieving completion responses for each message.
+ */
     private async processQueue() {
         if (
             this.isProcessing ||
@@ -470,6 +548,14 @@ export class LlamaService extends Service {
         this.isProcessing = false;
     }
 
+/**
+ * Asynchronously completes the given prompt based on the runtime's model provider.
+ * 
+ * @param {string} prompt - The prompt to complete.
+ * @param {IAgentRuntime} runtime - The agent runtime context.
+ * @returns {Promise<string>} A promise that resolves to the completed prompt.
+ * @throws {Error} If there is an error during completion.
+ */
     async completion(prompt: string, runtime: IAgentRuntime): Promise<string> {
         try {
             await this.initialize(runtime);
@@ -485,6 +571,14 @@ export class LlamaService extends Service {
         }
     }
 
+/**
+ * Asynchronously generates an embedding for the input text using a provided runtime.
+ * 
+ * @param {string} text - The input text to generate embedding for.
+ * @param {IAgentRuntime} runtime - The runtime environment for the embedding generation.
+ * @returns {Promise<number[]>} - The embedding for the input text as an array of numbers.
+ * @throws Will throw an error if there's an issue with initialization or the embedding generation process.
+ */
     async embedding(text: string, runtime: IAgentRuntime): Promise<number[]> {
         try {
             await this.initialize(runtime);
@@ -500,6 +594,18 @@ export class LlamaService extends Service {
         }
     }
 
+/**
+ * Asynchronous function to get completion response based on the provided parameters.
+ *
+ * @param {string} context - The context for generating the completion response.
+ * @param {number} temperature - The temperature for sampling in the generation process.
+ * @param {string[]} stop - An array of strings indicating words that may trigger response termination.
+ * @param {number} frequency_penalty - Penalty for frequency of token recurrence.
+ * @param {number} presence_penalty - Penalty for presence of certain tokens.
+ * @param {number} max_tokens - Maximum number of tokens to generate.
+ * @param {boolean} useGrammar - Flag to indicate if grammar should be used in generating the response.
+ * @returns {Promise<any | string>} - A promise that resolves to the completion response or an error message.
+ */
     private async getCompletionResponse(
         context: string,
         temperature: number,
@@ -624,6 +730,11 @@ export class LlamaService extends Service {
         }
     }
 
+/**
+ * Retrieves an embedding response from the Ollama API or local GGUF model.
+ * @param {string} input - The input prompt for which to generate the embedding.
+ * @returns {Promise<number[] | undefined>} A Promise that resolves to an array of numbers representing the embedding response, or undefined if no response is available.
+ */
     async getEmbeddingResponse(input: string): Promise<number[] | undefined> {
         const ollamaModel = process.env.OLLAMA_MODEL;
         if (ollamaModel) {
@@ -686,6 +797,11 @@ export class LlamaService extends Service {
         return embedding.vector;
     }
 
+/**
+ * Asynchronously generates a completion using the Ollama API based on the provided prompt.
+ * @param {string} prompt - The prompt to generate the completion from
+ * @returns {Promise<string>} A Promise that resolves with the generated completion
+ */
     private async ollamaCompletion(prompt: string): Promise<string> {
         const ollamaModel = process.env.OLLAMA_MODEL;
         const ollamaUrl =
@@ -719,6 +835,11 @@ export class LlamaService extends Service {
         return result.response;
     }
 
+/**
+ * Retrieves the embedding of the input text using the Ollama API.
+ * @param {string} text - The text to get the embedding for.
+ * @returns {Promise<number[]>} The embedding of the input text.
+ */
     private async ollamaEmbedding(text: string): Promise<number[]> {
         const ollamaModel = process.env.OLLAMA_MODEL;
         const ollamaUrl =
@@ -748,6 +869,13 @@ export class LlamaService extends Service {
         return result.embedding;
     }
 
+/**
+ * Asynchronously generate local completion based on a given prompt.
+ * 
+ * @param {string} prompt - The prompt to generate completion for.
+ * @returns {Promise<string>} The generated completion for the prompt.
+ * @throws {Error} Throws an error if the sequence is not initialized or if the response is undefined.
+ */
     private async localCompletion(prompt: string): Promise<string> {
         if (!this.sequence) {
             throw new Error("Sequence not initialized");
@@ -798,6 +926,12 @@ export class LlamaService extends Service {
         return response;
     }
 
+/**
+ * Embeds the given text using the local model.
+ * @param {string} text - The text to be embedded.
+ * @returns {Promise<number[]>} The embedded vector for the text.
+ * @throws {Error} If the sequence is not initialized.
+ */
     private async localEmbedding(text: string): Promise<number[]> {
         if (!this.sequence) {
             throw new Error("Sequence not initialized");

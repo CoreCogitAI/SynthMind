@@ -11,10 +11,20 @@ import summarize_conversation from "./actions/summarize_conversation";
 import { channelStateProvider } from "./providers/channelState";
 import { SlackService } from "./services/slack.service";
 
+/**
+ * Interface representing a Slack request, extending the Request interface.
+ *
+ * @property {Buffer} rawBody - The raw body of the request, if available.
+ */
 interface SlackRequest extends Request {
     rawBody?: Buffer;
 }
 
+/**
+ * SlackClient class used to interact with the Slack API and handle events.
+ *
+ * @extends EventEmitter
+ */
 export class SlackClient extends EventEmitter {
     private client: WebClient;
     private runtime: IAgentRuntime;
@@ -24,6 +34,10 @@ export class SlackClient extends EventEmitter {
     private character: Character;
     private signingSecret: string;
 
+/**
+ * Constructor for initializing the SlackClient.
+ * @param {IAgentRuntime} runtime - The runtime object.
+ */
     constructor(runtime: IAgentRuntime) {
         super();
         elizaLogger.log("🚀 Initializing SlackClient...");
@@ -57,6 +71,12 @@ export class SlackClient extends EventEmitter {
         });
     }
 
+/**
+ * Handles the incoming event by logging relevant information and delegating to the appropriate message handler.
+ *
+ * @param {any} event The event to be handled
+ * @returns {Promise<void>}
+ */
     private async handleEvent(event: any) {
         elizaLogger.debug("🎯 [EVENT] Processing event:", {
             type: event.type,
@@ -74,6 +94,12 @@ export class SlackClient extends EventEmitter {
         }
     }
 
+/**
+ * Asynchronously verifies bot permissions by testing channel list access with all types,
+ * sending a test message to self, and handling the results with appropriate logging.
+ * 
+ * @throws {Error} If any permission verification fails, it will throw an error and list required scopes.
+ */
     private async verifyPermissions() {
         elizaLogger.debug("🔒 [PERMISSIONS] Verifying bot permissions...");
 
@@ -130,6 +156,19 @@ export class SlackClient extends EventEmitter {
         }
     }
 
+/**
+ * Asynchronous method to start the Slack client.
+ * - Logs the start of the Slack client.
+ * - Validates the Slack configuration.
+ * - Initializes and registers the Slack service.
+ * - Gets detailed bot information and verifies it.
+ * - Verifies permissions, initializes message manager, and registers actions/providers.
+ * - Adds request logging middleware and sets up event handling and interactions endpoints.
+ * - Starts the server on the specified port.
+ * - Logs success messages upon successful start of the Slack client.
+ * @returns {Promise<void>} Promise that resolves once the Slack client is started.
+ * @throws {Error} If an error occurs during the initialization process.
+ */
     async start() {
         try {
             elizaLogger.log("Starting Slack client...");
@@ -318,6 +357,11 @@ export class SlackClient extends EventEmitter {
         }
     }
 
+/**
+ * Asynchronously stops the Slack client. 
+ * Logs a message indicating that the Slack client is being stopped. 
+ * If the server is running, it is closed and a message is logged indicating that the server has been stopped.
+ */
     async stop() {
         elizaLogger.log("Stopping Slack client...");
         if (this.server) {

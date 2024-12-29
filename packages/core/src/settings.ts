@@ -18,10 +18,17 @@ elizaLogger.info("Loading character settings:", {
     CWD: process.cwd(),
 });
 
+/**
+ * Represents a generic settings object where the keys are strings and the values are either strings or undefined.
+ */
 interface Settings {
     [key: string]: string | undefined;
 }
 
+/**
+ * Interface representing a collection of settings organized by namespace.
+ * @typedef {Object.<string, Settings>} NamespacedSettings
+ */
 interface NamespacedSettings {
     [namespace: string]: Settings;
 }

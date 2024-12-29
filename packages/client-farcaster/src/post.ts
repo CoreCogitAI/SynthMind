@@ -12,9 +12,18 @@ import { castUuid, MAX_CAST_LENGTH } from "./utils";
 import { createCastMemory } from "./memory";
 import { sendCast } from "./actions";
 
+/**
+ * Class representing a Farcaster Post Manager.
 export class FarcasterPostManager {
     private timeout: NodeJS.Timeout | undefined;
 
+/**
+* Constructor for creating a new instance of a class.
+* @param {FarcasterClient} client - The client for the Farcaster.
+* @param {IAgentRuntime} runtime - The runtime for the agent.
+* @param {string} signerUuid - The UUID of the signer.
+* @param {Map<string, any>} cache - The cache for storing data.
+*/
     constructor(
         public client: FarcasterClient,
         public runtime: IAgentRuntime,
@@ -22,6 +31,11 @@ export class FarcasterPostManager {
         public cache: Map<string, any>
     ) {}
 
+/**
+* Asynchronously starts the process of generating a new cast at random intervals 
+* between 1 and 4 hours. This function will continuously call the generateNewCast 
+* method and log any errors that occur. 
+*/
     public async start() {
         const generateNewCastLoop = async () => {
             try {
@@ -40,10 +54,18 @@ export class FarcasterPostManager {
         generateNewCastLoop();
     }
 
+/**
+ * Asynchronously stops the current operation by clearing the timeout if it exists.
+ */
     public async stop() {
         if (this.timeout) clearTimeout(this.timeout);
     }
 
+/**
+ * Asynchronously generates a new cast by fetching profile information, timeline data, and composing the content to be posted in a specified room. 
+ * 
+ * @returns {Promise<void>} A Promise that resolves once the new cast has been generated and posted in the room, or rejects if an error occurs during the process.
+ */
     private async generateNewCast() {
         elizaLogger.info("Generating new cast");
         try {

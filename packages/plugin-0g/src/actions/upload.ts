@@ -16,10 +16,22 @@ import { promises as fs } from "fs";
 
 import { uploadTemplate } from "../templates/upload";
 
+/**
+ * Interface representing content to be uploaded.
+ * @interface
+ * @extends Content
+ * @property {string} filePath - The file path of the content to be uploaded.
+ */
 export interface UploadContent extends Content {
     filePath: string;
 }
 
+/**
+ * Checks if the provided content is of type UploadContent by validating the filePath property.
+ * @param _runtime - The agent runtime instance.
+ * @param content - The content to be checked.
+ * @returns A boolean value indicating if the content is of type UploadContent.
+ */
 function isUploadContent(
     _runtime: IAgentRuntime,
     content: any

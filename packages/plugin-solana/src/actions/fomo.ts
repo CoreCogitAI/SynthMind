@@ -24,12 +24,30 @@ import {
 
 import { walletProvider } from "../providers/wallet.ts";
 
+/**
+ * Interface representing metadata needed to create a token.
+ * @property {string} name - The name of the token.
+ * @property {string} symbol - The symbol of the token.
+ * @property {string} uri - The URI of the token.
+ */
 interface CreateTokenMetadata {
     name: string;
     symbol: string;
     uri: string;
 }
 
+/**
+ * Represents an interface for creating and buying content.
+ * Extends the Content interface.
+ * @typedef {Object} CreateAndBuyContent
+ * @property {Object} tokenMetadata - Metadata for the content's token
+ * @property {string} tokenMetadata.name - Name of the token
+ * @property {string} tokenMetadata.symbol - Symbol of the token
+ * @property {string} tokenMetadata.description - Description of the token
+ * @property {string} tokenMetadata.image_description - Description of the token's image
+ * @property {string|number} buyAmountSol - Amount of token to buy in SOL
+ * @property {string|number} requiredLiquidity - Required liquidity for the content
+ */
 export interface CreateAndBuyContent extends Content {
     tokenMetadata: {
         name: string;
@@ -41,6 +59,11 @@ export interface CreateAndBuyContent extends Content {
     requiredLiquidity: string | number;
 }
 
+/**
+ * Check if the provided content is of type CreateAndBuyContent for Fomo platform.
+ * @param {*} content - The content to be checked
+ * @returns {boolean} - Returns true if the content meets the required structure for CreateAndBuyContent
+ */ 
 export function isCreateAndBuyContentForFomo(
     content: any
 ): content is CreateAndBuyContent {

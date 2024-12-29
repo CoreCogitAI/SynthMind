@@ -16,10 +16,20 @@ import { API_URL, getResource } from "../lib/api";
 export { getIPDetailsTemplate };
 
 // Types for the action parameters and response
+/**
+ * Defines the parameters for getting IP details.
+ * @typedef {Object} GetIPDetailsParams
+ * @property {Address} ipId - The ID of the IP address to retrieve details for.
+ */
 type GetIPDetailsParams = {
     ipId: Address;
 };
 
+/**
+ * Response structure for the IP details API endpoint.
+ * @typedef {Object} GetIPDetailsResponse
+ * @property {Asset} data - The asset object containing IP details.
+ */
 type GetIPDetailsResponse = {
     data: Asset;
 };
@@ -27,7 +37,18 @@ type GetIPDetailsResponse = {
 /**
  * Class handling IP details retrieval from Story Protocol
  */
+/**
+ * Class representing an action to get details of an IP address.
+ */
+
 class GetIPDetailsAction {
+/**
+ * Asynchronously retrieves details of an IP address.
+ * 
+ * @param {GetIPDetailsParams} params - The parameters for fetching IP details.
+ * @returns {Promise<GetIPDetailsResponse>} A promise that resolves with the IP details.
+ */ 
+
     async getIPDetails(
         params: GetIPDetailsParams
     ): Promise<GetIPDetailsResponse> {

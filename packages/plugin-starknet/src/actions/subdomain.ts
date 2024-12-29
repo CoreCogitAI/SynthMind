@@ -17,11 +17,22 @@ import { getStarknetAccount } from "../utils";
 import { validateStarknetConfig } from "../environment";
 import { getTransferSubdomainCall, isStarkDomain } from "../utils/starknetId";
 
+/**
+ * Interface for defining the content needed to create a subdomain.
+ * @interface
+ * @extends {Content}
+ */
+*/
 export interface SubdomainCreationContent extends Content {
     recipient: string;
     subdomain: string;
 }
 
+/**
+ * Check if the provided content matches the SubdomainCreationContent type.
+ * @param {SubdomainCreationContent} content - The content to be validated.
+ * @returns {boolean} Returns true if the content matches the SubdomainCreationContent type, false otherwise.
+ */
 export function isSubdomainCreation(
     content: SubdomainCreationContent
 ): content is SubdomainCreationContent {

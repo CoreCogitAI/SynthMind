@@ -14,12 +14,26 @@ import {
 import { WalletProvider } from "../providers/wallet";
 import { validateMultiversxConfig } from "../enviroment";
 
+/**
+ * Interface for transferring content with specified token address and amount.
+ * Extends Content interface.
+ * @param {string} tokenAddress - The address of the token for transfer.
+ * @param {string} amount - The amount of token to transfer.
+ * @param {string} [tokenIdentifier] - Optional identifier for the token.
+ */
 export interface TransferContent extends Content {
     tokenAddress: string;
     amount: string;
     tokenIdentifier?: string;
 }
 
+/**
+ * Check if the provided content is of type TransferContent, based on the expected properties.
+ * 
+ * @param {IAgentRuntime} _runtime - The Agent Runtime object.
+ * @param {any} content - The content to be checked.
+ * @returns {boolean} Returns true if the content is of type TransferContent, false otherwise.
+ */
 function isTransferContent(
     _runtime: IAgentRuntime,
     content: any

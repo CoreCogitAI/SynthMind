@@ -21,8 +21,24 @@ export const nearEnvSchema = z.object({
     REF_DCL_SWAP_CONTRACT_ID: z.string(),
 });
 
+/**
+ * Type definition for NearConfig inferred from nearEnvSchema.
+ */
 export type NearConfig = z.infer<typeof nearEnvSchema>;
 
+/**
+ * Retrieves and returns configuration based on the environment.
+ * If no environment is specified, it defaults to ENV, process.env.NEAR_ENV, or process.env.REACT_APP_REF_SDK_ENV.
+ *
+ * @param {string | undefined | null} env - The environment to determine the configuration for.
+ * @returns {Object} - The configuration object based on the environment:
+ *   - For "mainnet": Contains networkId, nodeUrl, walletUrl, WRAP_NEAR_CONTRACT_ID, REF_FI_CONTRACT_ID,
+ *     REF_TOKEN_ID, indexerUrl, explorerUrl, and REF_DCL_SWAP_CONTRACT_ID.
+ *   - For "testnet": Contains networkId, nodeUrl, walletUrl, indexerUrl, WRAP_NEAR_CONTRACT_ID, REF_FI_CONTRACT_ID,
+ *     REF_TOKEN_ID, explorerUrl, and REF_DCL_SWAP_CONTRACT_ID.
+ *   - Default: Contains networkId, nodeUrl, walletUrl, REF_FI_CONTRACT_ID, WRAP_NEAR_CONTRACT_ID,
+ *     REF_TOKEN_ID, indexerUrl, explorerUrl, and REF_DCL_SWAP_CONTRACT_ID.
+ */
 export function getConfig(
     env: string | undefined | null = ENV ||
         process.env.NEAR_ENV ||
@@ -69,6 +85,13 @@ export function getConfig(
     }
 }
 
+/**
+ * Validates and parses the NEAR configuration based on the provided runtime settings and environment variables.
+ * 
+ * @param {IAgentRuntime} runtime The runtime implementation to retrieve settings from.
+ * @returns {Promise<NearConfig>} A Promise that resolves to the validated NEAR configuration.
+ * @throws {Error} If the configuration validation fails, an error is thrown with detailed error messages.
+ */
 export async function validateNearConfig(
     runtime: IAgentRuntime
 ): Promise<NearConfig> {

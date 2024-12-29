@@ -14,6 +14,15 @@ import {
 import { WalletProvider } from "../providers/wallet";
 import { validateMultiversxConfig } from "../enviroment";
 
+/**
+ * Interface for creating a token with specified content.
+ * @interface
+ * @extends Content
+ * @property {string} tokenName - The name of the token.
+ * @property {string} tokenTicker - The ticker symbol of the token.
+ * @property {string} decimals - The number of decimal places for the token.
+ * @property {string} amount - The initial amount of the token.
+ */
 export interface CreateTokenContent extends Content {
     tokenName: string;
     tokenTicker: string;
@@ -21,6 +30,13 @@ export interface CreateTokenContent extends Content {
     amount: string;
 }
 
+/**
+ * Check if the provided content is of type CreateTokenContent.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @param {any} content - The content to be checked.
+ * @returns {boolean} - True if the content is of type CreateTokenContent, false otherwise.
+ */
 function isCreateTokenContent(
     runtime: IAgentRuntime,
     content: any

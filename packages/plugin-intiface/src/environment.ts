@@ -20,8 +20,19 @@ export const intifaceEnvSchema = z
         }
     );
 
+/**
+ * Represents the inferred type of the IntifaceConfig based on the intifaceEnvSchema.
+ */
 export type IntifaceConfig = z.infer<typeof intifaceEnvSchema>;
 
+/**
+ * Validate the Intiface configuration by retrieving values from the runtime settings
+ * and environment variables, then parsing them with the intifaceEnvSchema.
+ * If validation fails, an appropriate error message is generated.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime instance to retrieve settings from
+ * @returns {Promise<IntifaceConfig>} The parsed Intiface configuration
+ */
 export async function validateIntifaceConfig(
     runtime: IAgentRuntime
 ): Promise<IntifaceConfig> {

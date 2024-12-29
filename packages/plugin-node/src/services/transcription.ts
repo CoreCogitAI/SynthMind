@@ -22,6 +22,11 @@ const __dirname = path.dirname(__filename);
 
 const execAsync = promisify(exec);
 
+/**
+ * TranscriptionService class for handling transcription services.
+ * @extends Service
+ * @implements ITranscriptionService
+ */
 export class TranscriptionService
     extends Service
     implements ITranscriptionService
@@ -38,12 +43,33 @@ export class TranscriptionService
     private queue: { audioBuffer: ArrayBuffer; resolve: Function }[] = [];
     private processing: boolean = false;
 
+/**
+ * Initializes the agent runtime and sets the Deepgram API client if the API key is provided.
+ * 
+ * @param {IAgentRuntime} _runtime - The agent runtime to initialize.
+ * @returns {Promise<void>} - A Promise that resolves once the initialization is complete.
+ */
     async initialize(_runtime: IAgentRuntime): Promise<void> {
         this.runtime = _runtime;
         const deepgramKey = this.runtime.getSetting("DEEPGRAM_API_KEY");
         this.deepgram = deepgramKey ? createClient(deepgramKey) : null;
     }
 
+/**
+ * Constructor for the class.
+ * Initializes directories for content cache and debug audio.
+ * Ensures that cache directory and debug directory exists.
+ * 
+ * TODO: It'd be nice to handle this more gracefully, but we can do local transcription for now.
+ * TODO: remove the runtime from here, use it when called.
+ * if (runtime.getSetting("OPENAI_API_KEY")) {
+ *     this.openai = new OpenAI({
+ *         apiKey: runtime.getSetting("OPENAI_API_KEY"),
+ *     });
+ * } else {
+ *     this.detectCuda();
+ * }
+ */
     constructor() {
         super();
         const rootDir = path.resolve(__dirname, "../../");
@@ -62,18 +88,28 @@ export class TranscriptionService
         // }
     }
 
+/**
+ * Ensure that the cache directory exists.
+ */
     private ensureCacheDirectoryExists() {
         if (!fs.existsSync(this.CONTENT_CACHE_DIR)) {
             fs.mkdirSync(this.CONTENT_CACHE_DIR, { recursive: true });
         }
     }
 
+/**
+ * Ensure that the debug directory exists. If it does not exist, create it.
+ */
     private ensureDebugDirectoryExists() {
         if (!fs.existsSync(this.DEBUG_AUDIO_DIR)) {
             fs.mkdirSync(this.DEBUG_AUDIO_DIR, { recursive: true });
         }
     }
 
+/**
+ * Private method to detect the availability of CUDA for GPU acceleration.
+ * Determines CUDA availability based on the operating system platform.
+ */
     private detectCuda() {
         const platform = os.platform();
         if (platform === "linux") {
@@ -113,6 +149,12 @@ export class TranscriptionService
         }
     }
 
+/**
+ * Asynchronously converts the input audio data from an ArrayBuffer to a Buffer using ffmpeg.
+ * 
+ * @param {ArrayBuffer} inputBuffer - The audio data to be converted.
+ * @returns {Promise<Buffer>} A Promise that resolves with the converted audio data as a Buffer.
+ */
     private async convertAudio(inputBuffer: ArrayBuffer): Promise<Buffer> {
         const inputPath = path.join(
             this.CONTENT_CACHE_DIR,
@@ -156,6 +198,13 @@ export class TranscriptionService
         }
     }
 
+/**
+ * Saves a debug audio file in WAV format.
+ * 
+ * @param {ArrayBuffer} audioBuffer - The audio data to be saved.
+ * @param {string} prefix - The prefix to be used in the filename.
+ * @returns {Promise<void>} - A Promise that resolves after the debug audio file has been saved.
+ */
     private async saveDebugAudio(audioBuffer: ArrayBuffer, prefix: string) {
         this.ensureDebugDirectoryExists();
 
@@ -166,12 +215,23 @@ export class TranscriptionService
         elizaLogger.log(`Debug audio saved: ${filePath}`);
     }
 
+/**
+ * Transcribes the given audio attachment using the provided audio buffer.
+ * 
+ * @param {ArrayBuffer} audioBuffer - The audio buffer of the attachment to transcribe.
+ * @returns {Promise<string | null>} A promise that resolves with the transcription result, or null if transcription fails.
+ */
     public async transcribeAttachment(
         audioBuffer: ArrayBuffer
     ): Promise<string | null> {
         return await this.transcribe(audioBuffer);
     }
 
+/**
+ * Asynchronously transcribes audio data from the given audio buffer.
+ * @param {ArrayBuffer} audioBuffer - The audio buffer to transcribe.
+ * @returns {Promise<string | null>} A promise that resolves with the transcribed text or null if audio length is less than .2 seconds.
+ */
     public async transcribe(audioBuffer: ArrayBuffer): Promise<string | null> {
         // if the audio buffer is less than .2 seconds, just return null
         if (audioBuffer.byteLength < 0.2 * 16000) {
@@ -185,12 +245,26 @@ export class TranscriptionService
         });
     }
 
+/**
+ * Transcribes the provided audio buffer locally.
+ * 
+ * @param {ArrayBuffer} audioBuffer - The audio buffer to transcribe.
+ * @returns {Promise<string | null>} The transcription result, or null if transcription fails.
+ */
     public async transcribeAttachmentLocally(
         audioBuffer: ArrayBuffer
     ): Promise<string | null> {
         return this.transcribeLocally(audioBuffer);
     }
 
+/**
+ * Process the queue by transcribing audio buffers.
+ * If not currently processing and queue is not empty, start processing.
+ * If using Deepgram, transcribes using Deepgram API.
+ * If using OpenAI, transcribes using OpenAI API.
+ * If both are not available, transcribes locally.
+ * Resolves the transcribed result for each audio buffer.
+ */
     private async processQueue(): Promise<void> {
         if (this.processing || this.queue.length === 0) {
             return;
@@ -215,6 +289,12 @@ export class TranscriptionService
         this.processing = false;
     }
 
+/**
+* Transcribes the given audio buffer using Deepgram API.
+* 
+* @param {ArrayBuffer} audioBuffer - The audio buffer to transcribe.
+* @returns {Promise<string | null>} The transcribed text if successful, otherwise null.
+*/
     private async transcribeWithDeepgram(
         audioBuffer: ArrayBuffer
     ): Promise<string | null> {
@@ -232,6 +312,12 @@ export class TranscriptionService
         return result;
     }
 
+/**
+ * Transcribes audio using OpenAI API.
+ *
+ * @param {ArrayBuffer} audioBuffer - The audio data to transcribe.
+ * @returns {Promise<string | null>} The transcribed text result, or null if an error occurs.
+ */
     private async transcribeWithOpenAI(
         audioBuffer: ArrayBuffer
     ): Promise<string | null> {
@@ -280,6 +366,12 @@ export class TranscriptionService
         }
     }
 
+/**
+* Asynchronously transcribe audio locally.
+* 
+* @param {ArrayBuffer} audioBuffer - The audio data to transcribe
+* @returns {Promise<string | null>} The transcribed text or null if transcription fails
+*/
     public async transcribeLocally(
         audioBuffer: ArrayBuffer
     ): Promise<string | null> {

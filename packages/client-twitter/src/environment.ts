@@ -3,15 +3,15 @@ import { z } from "zod";
 export const DEFAULT_MAX_TWEET_LENGTH = 280;
 
 const twitterUsernameSchema = z.string()
-    .min(4, 'An X/Twitter Username must be at least 4 characters long')
-    .max(15, 'n X/Twitter Username cannot exceed 15 characters')
-    .regex(/^[A-Za-z0-9_]*$/, 'n X Username can only contain letters, numbers, and underscores');
+    .min(1)
+    .max(15)
+    .regex(/^[A-Za-z][A-Za-z0-9_]*[A-Za-z0-9]$|^[A-Za-z]$/, 'Invalid Twitter username format');
 
 export const twitterEnvSchema = z.object({
     TWITTER_DRY_RUN: z.boolean(),
-    TWITTER_USERNAME: z.string().min(1, "X/Twitter username is required"),
-    TWITTER_PASSWORD: z.string().min(1, "X/Twitter password is required"),
-    TWITTER_EMAIL: z.string().email("Valid X/Twitter email is required"),
+    TWITTER_USERNAME: z.string().min(1, "Twitter username is required"),
+    TWITTER_PASSWORD: z.string().min(1, "Twitter password is required"),
+    TWITTER_EMAIL: z.string().email("Valid Twitter email is required"),
     MAX_TWEET_LENGTH: z.number().int().default(DEFAULT_MAX_TWEET_LENGTH),
     TWITTER_SEARCH_ENABLE: z.boolean().default(false),
     TWITTER_2FA_SECRET: z.string(),
@@ -53,8 +53,16 @@ export const twitterEnvSchema = z.object({
     POST_IMMEDIATELY: z.boolean(),
 });
 
+/**
+ * Type definition for TwitterConfig, which is inferred from the twitterEnvSchema.
+ */
 export type TwitterConfig = z.infer<typeof twitterEnvSchema>;
 
+/**
+ * Parses the target users string into an array of valid usernames.
+ * @param {string | null} targetUsersStr - The target users string to parse.
+ * @returns {string[]} An array of valid usernames extracted from the input string.
+ */
 function parseTargetUsers(targetUsersStr?:string | null): string[] {
     if (!targetUsersStr?.trim()) {
         return [];
@@ -72,6 +80,12 @@ function parseTargetUsers(targetUsersStr?:string | null): string[] {
         */
 }
 
+/**
+ * Function that safely parses a string into an integer, with a default value if the input is invalid.
+ * @param {string | undefined | null} value - The string to parse into an integer.
+ * @param {number} defaultValue - The default value to return if the input is invalid.
+ * @returns {number} The parsed integer value or the default value if the input is invalid.
+ */
 function safeParseInt(value: string | undefined | null, defaultValue: number): number {
     if (!value) return defaultValue;
     const parsed = parseInt(value, 10);
@@ -83,6 +97,14 @@ function safeParseInt(value: string | undefined | null, defaultValue: number): n
 
 // we also do a lot of typing/parsing here
 // so we can do it once and only once per character
+/**
+ * Validates the Twitter configuration settings by retrieving values from runtime or environment variables,
+ * parsing and validating them, and returning a validated TwitterConfig object.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime used to retrieve settings
+ * @returns {Promise<TwitterConfig>} A Promise that resolves with a validated TwitterConfig object
+ * @throws {Error} If the Twitter configuration validation fails, with details of the validation errors
+ */
 export async function validateTwitterConfig(
     runtime: IAgentRuntime
 ): Promise<TwitterConfig> {
@@ -164,7 +186,7 @@ export async function validateTwitterConfig(
                 .map((err) => `${err.path.join(".")}: ${err.message}`)
                 .join("\n");
             throw new Error(
-                `X/Twitter configuration validation failed:\n${errorMessages}`
+                `Twitter configuration validation failed:\n${errorMessages}`
             );
         }
         throw error;

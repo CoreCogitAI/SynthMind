@@ -5,6 +5,12 @@ import { createCollection } from "./handlers/createCollection.ts";
 import { createNFT, createNFTMetadata } from "./handlers/createNFT.ts";
 import { verifyNFT } from "./handlers/verifyNFT.ts";
 
+/**
+ * Creates an Express router for NFT API endpoints.
+ * 
+ * @param {Map<string, AgentRuntime>} agents - A map of AgentRuntime instances, keyed by agent ID.
+ * @returns {express.Router} - The configured Express router for NFT API endpoints.
+ */
 export function createNFTApiRouter(
     agents: Map<string, AgentRuntime>
 ): express.Router {

@@ -17,6 +17,13 @@ import {
 import { EchoChamberClient } from "./echoChamberClient";
 import { ChatMessage } from "./types";
 
+/**
+ * Creates a message template for generating responses in the voice and style of the agent.
+ * 
+ * @param {string} currentRoom - The current room or location where the message is being generated.
+ * @param {string} roomTopic - The topic or subject of the current room.
+ * @returns {string} - A message template with placeholders for agent information, room details, message directions, recent conversation history, thread context, and tasks for generating responses.
+ */
 function createMessageTemplate(currentRoom: string, roomTopic: string) {
     return (
         `
@@ -52,6 +59,13 @@ Remember:
     );
 }
 
+/**
+ * Creates a template for determining whether an agent should respond to a given message.
+ * 
+ * @param {string} currentRoom - The current room where the conversation is taking place.
+ * @param {string} roomTopic - The topic of the room where the conversation is happening.
+ * @returns {string} A template with guidelines on when the agent should RESPOND, IGNORE, or STOP in a conversation.
+ */
 function createShouldRespondTemplate(currentRoom: string, roomTopic: string) {
     return (
         `
@@ -100,6 +114,12 @@ Consider:
     );
 }
 
+/**
+ * Represents an InteractionClient that handles interactions in EchoChambers.
+ *
+ * @class InteractionClient
+ */
+ */
 export class InteractionClient {
     private client: EchoChamberClient;
     private runtime: IAgentRuntime;
@@ -112,11 +132,21 @@ export class InteractionClient {
     > = new Map();
     private pollInterval: NodeJS.Timeout | null = null;
 
+/**
+ * Constructor for EchoChamberClient.
+ * 
+ * @param {EchoChamberClient} client - The client for the echo chamber.
+ * @param {IAgentRuntime} runtime - The runtime for the agent.
+ */
     constructor(client: EchoChamberClient, runtime: IAgentRuntime) {
         this.client = client;
         this.runtime = runtime;
     }
 
+/**
+ * Asynchronously starts the process by retrieving the poll interval setting, 
+ * setting up a loop to handle interactions at specified intervals, and initiating the loop.
+ */
     async start() {
         const pollInterval = Number(
             this.runtime.getSetting("ECHOCHAMBERS_POLL_INTERVAL") || 60
@@ -133,6 +163,9 @@ export class InteractionClient {
         handleInteractionsLoop();
     }
 
+/**
+ * Stops the poll interval if it is currently running.
+ */
     async stop() {
         if (this.pollInterval) {
             clearTimeout(this.pollInterval);
@@ -140,6 +173,12 @@ export class InteractionClient {
         }
     }
 
+/**
+ * Builds a message thread with the given message and recent messages in the same room.
+ * @param {ChatMessage} message The message to start the thread with.
+ * @param {ChatMessage[]} messages The array of messages to filter for recent messages in the same room.
+ * @returns {Promise<ChatMessage[]>} A Promise that resolves to an array of ChatMessage objects representing the message thread.
+ */
     private async buildMessageThread(
         message: ChatMessage,
         messages: ChatMessage[]
@@ -172,6 +211,18 @@ export class InteractionClient {
         return thread;
     }
 
+/**
+ * Determines if a chat message should be processed based on various conditions including:
+ * - Message not sent by the bot itself
+ * - Message has not been processed before
+ * - Time elapsed since last response meets rate limiting criteria
+ * - Message mentions the bot's username
+ * - Message content is relevant to the room topic
+ * 
+ * @param {ChatMessage} message - The chat message to be processed
+ * @param {{ topic: string }} room - The room object containing the topic information
+ * @returns {boolean} Returns true if the message should be processed, false otherwise
+ */
     private shouldProcessMessage(
         message: ChatMessage,
         room: { topic: string }
@@ -212,6 +263,13 @@ export class InteractionClient {
         return isMentioned || isRelevantToTopic;
     }
 
+/**
+ * Method to handle interactions in EchoChambers. 
+ * Retrieves messages from rooms, processes them, updates history, and checks for any new messages to respond to.
+ * 
+ * @private
+ * @async
+ */
     private async handleInteractions() {
         elizaLogger.log("Checking EchoChambers interactions");
 
@@ -273,6 +331,13 @@ export class InteractionClient {
         }
     }
 
+/**
+ * Handles incoming chat messages by processing, saving, responding and updating state.
+ * 
+ * @param {ChatMessage} message - The chat message to be handled.
+ * @param {string} roomTopic - The topic of the chat room.
+ * @returns {Promise<void>} A Promise that resolves once the message is handled.
+ */
     private async handleMessage(message: ChatMessage, roomTopic: string) {
         try {
             const roomId = stringToUuid(message.roomId);

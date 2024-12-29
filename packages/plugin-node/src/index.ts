@@ -14,8 +14,16 @@ import {
 } from "./services/index.ts";
 import { describeImage } from "./actions/describe-image.ts";
 
+/**
+ * Represents a Node Plugin type, which is the return type of the createNodePlugin function.
+ */
 export type NodePlugin = ReturnType<typeof createNodePlugin>;
 
+/**
+ * Creates a Node Plugin with default settings, services, and actions.
+ *
+ * @returns {Plugin} The created Node Plugin.
+ */
 export function createNodePlugin() {
     return {
         name: "default",

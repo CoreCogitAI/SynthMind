@@ -10,14 +10,35 @@ import { initWalletProvider, WalletProvider } from "../providers/wallet";
 import { bn } from "fuels";
 import { transferTemplate } from "../templates";
 
+/**
+ * Represents the parameters required for transferring an amount to a specified address.
+ * @typedef {Object} TransferParams
+ * @property {string} toAddress - The address to transfer the amount to.
+ * @property {string} amount - The amount to be transferred.
+ */
 type TransferParams = {
     toAddress: string;
     amount: string;
 };
 
+/**
+ * Represents a transfer action to transfer funds from one wallet to another.
+ */
+ 
 export class TransferAction {
+/**
+ * Create a new instance of this class with the provided wallet provider.
+ * 
+ * @param {WalletProvider} walletProvider - The wallet provider to be used by this instance.
+ */
     constructor(private walletProvider: WalletProvider) {}
 
+/**
+ * Asynchronously transfers a specified amount to a given address.
+ * @param {TransferParams} params - The parameters for the transfer, including the recipient address and amount to transfer.
+ * @returns {Promise<Transaction>} - A promise that resolves to the transaction object once the transfer is completed successfully.
+ * @throws {Error} - If the transfer fails, an error is thrown with a message detailing the failure.
+ */
     async transfer(params: TransferParams) {
         try {
             const { toAddress, amount } = params;

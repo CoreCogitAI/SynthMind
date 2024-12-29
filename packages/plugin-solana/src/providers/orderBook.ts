@@ -1,4 +1,14 @@
 import { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
+/**
+ * Represents an order made by a user.
+ * @typedef {Object} Order
+ * @property {string} userId - The ID of the user placing the order.
+ * @property {string} ticker - The ticker symbol of the asset being traded.
+ * @property {string} contractAddress - The contract address of the asset being traded.
+ * @property {string} timestamp - The timestamp when the order was placed.
+ * @property {number} buyAmount - The amount of the asset being bought.
+ * @property {number} price - The price at which the asset is being bought/sold.
+ */
 interface Order {
     userId: string;
     ticker: string;

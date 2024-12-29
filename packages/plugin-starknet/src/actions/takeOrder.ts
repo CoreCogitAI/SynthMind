@@ -12,6 +12,16 @@ import {
 import * as fs from "fs";
 import { validateStarknetConfig } from "../environment";
 
+/**
+ * Interface representing an order placed by a user.
+ * @typedef {Object} Order
+ * @property {string} userId - The ID of the user placing the order.
+ * @property {string} ticker - The ticker symbol of the asset being traded.
+ * @property {string} contractAddress - The contract address of the asset being traded.
+ * @property {string} timestamp - The timestamp when the order was placed.
+ * @property {number} buyAmount - The amount of the asset being bought.
+ * @property {number} price - The price at which the asset is being traded.
+ */
 interface Order {
     userId: string;
     ticker: string;

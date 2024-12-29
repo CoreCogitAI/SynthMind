@@ -11,6 +11,18 @@ import { createPublicationMemory } from "./memory";
 import { AnyPublicationFragment } from "@lens-protocol/client";
 import StorjProvider from "./providers/StorjProvider";
 
+/**
+ * Sends a publication to the Lens platform with the given content and optional comment.
+ * 
+ * @param {Object} options - The options object.
+ * @param {LensClient} options.client - The Lens client instance.
+ * @param {IAgentRuntime} options.runtime - The Agent runtime.
+ * @param {Content} options.content - The content to be published.
+ * @param {UUID} options.roomId - The ID of the room where the publication is being sent.
+ * @param {string} [options.commentOn] - Optional comment to be associated with the publication.
+ * @param {StorjProvider} options.ipfs - The StorjProvider for content hosting.
+ * @returns {Promise<Object>} A promise that resolves to an object with optional 'memory' and 'publication' properties.
+ */
 export async function sendPublication({
     client,
     runtime,

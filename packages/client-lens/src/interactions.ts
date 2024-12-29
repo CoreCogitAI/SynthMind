@@ -25,8 +25,21 @@ import { AnyPublicationFragment } from "@lens-protocol/client";
 import { Profile } from "./types";
 import StorjProvider from "./providers/StorjProvider";
 
+/**
+ * Lens Interaction Manager class to handle interactions between Lens Client and Agent Runtime
+ * @class
+ */
+        
 export class LensInteractionManager {
     private timeout: NodeJS.Timeout | undefined;
+/**
+ * Constructor for creating a new instance of the class.
+ * @param {LensClient} client - The LensClient object.
+ * @param {IAgentRuntime} runtime - The IAgentRuntime object.
+ * @param {string} profileId - The profile ID.
+ * @param {Map<string, any>} cache - The cache object.
+ * @param {StorjProvider} ipfs - The StorjProvider object.
+ */
     constructor(
         public client: LensClient,
         public runtime: IAgentRuntime,
@@ -35,6 +48,9 @@ export class LensInteractionManager {
         private ipfs: StorjProvider
     ) {}
 
+/**
+ * Asynchronously starts the interaction handler, which continuously handles interactions based on a specific interval.
+ */
     public async start() {
         const handleInteractionsLoop = async () => {
             try {
@@ -54,10 +70,17 @@ export class LensInteractionManager {
         handleInteractionsLoop();
     }
 
+/**
+ * Asynchronously stops the timer by clearing the timeout if it exists.
+ */
     public async stop() {
         if (this.timeout) clearTimeout(this.timeout);
     }
 
+/**
+ * Handles interactions from Lens
+ * @async
+ */
     private async handleInteractions() {
         elizaLogger.info("Handle Lens interactions");
         // TODO: handle next() for pagination
@@ -116,6 +139,16 @@ export class LensInteractionManager {
         this.client.lastInteractionTimestamp = new Date();
     }
 
+/**
+ * Handles a publication by generating a response and sending it back to the agent.
+ * 
+ * @param {Object} params - The parameters for handling the publication.
+ * @param {Profile} params.agent - The agent profile.
+ * @param {AnyPublicationFragment} params.publication - The publication to be handled.
+ * @param {Memory} params.memory - The memory associated with the publication.
+ * @param {AnyPublicationFragment[]} params.thread - The thread of publications related to the current one.
+ * @returns {Promise<void>} - A promise that resolves after handling the publication.
+ */
     private async handlePublication({
         agent,
         publication,

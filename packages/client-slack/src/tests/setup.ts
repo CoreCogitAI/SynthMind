@@ -164,11 +164,22 @@ jest.mock("@slack/web-api", () => ({
 }));
 
 // Helper function to get mock WebClient
+/**
+ * Returns a mocked instance of the WebClient class.
+ * @returns {Mocked<WebClient>} A mocked instance of the WebClient class
+ */
 export function getMockWebClient(): Mocked<WebClient> {
     return mockWebClient;
 }
 
 // Helper function to create mock Slack API responses
+/**
+ * Creates a mock Slack response object.
+ * 
+ * @param {boolean} ok - The status of the response, true for success or false for failure.
+ * @param {any} [data={}] - Optional additional data to include in the response object.
+ * @returns {Object} A mock Slack response object with the specified status and additional data.
+ */
 export function createMockSlackResponse(ok: boolean, data: any = {}) {
     return {
         ok,
@@ -177,6 +188,10 @@ export function createMockSlackResponse(ok: boolean, data: any = {}) {
 }
 
 // Helper function to simulate rate limiting
+/**
+ * Simulates a rate limit error for the chat.postMessage method in the provided WebClient mock.
+ * @param {Mocked<WebClient>} client - The mocked WebClient instance to simulate the rate limit error on.
+ */
 export function simulateRateLimit(client: Mocked<WebClient>) {
     const mockPostMessage = client.chat.postMessage as Mocked<
         typeof client.chat.postMessage
@@ -185,6 +200,11 @@ export function simulateRateLimit(client: Mocked<WebClient>) {
 }
 
 // Helper function to simulate network errors
+/**
+ * Simulates a network error by setting up a mock response for the 'chat.postMessage' method of the WebClient.
+ * 
+ * @param {Mocked<WebClient>} client - The mocked WebClient instance to simulate the network error on.
+ */
 export function simulateNetworkError(client: Mocked<WebClient>) {
     const mockPostMessage = client.chat.postMessage as Mocked<
         typeof client.chat.postMessage

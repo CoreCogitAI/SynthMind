@@ -2,6 +2,14 @@ import jwt from 'jsonwebtoken';
 import { BASE_URL, ALGORITHM, JWT_ISSUER } from './constants';
 import crypto from 'crypto';
 
+/**
+ * Generates a JWT token for authentication based on the provided request details and API credentials.
+ * @param {string} requestMethod - The HTTP request method (e.g. GET, POST).
+ * @param {string} requestPath - The path of the API endpoint.
+ * @param {string} apiKey - The API key for authentication.
+ * @param {string} apiSecret - The API secret for signing the token.
+ * @returns {string} - The JWT token generated for authentication.
+ */
 export function generateToken(
   requestMethod: string,
   requestPath: string,

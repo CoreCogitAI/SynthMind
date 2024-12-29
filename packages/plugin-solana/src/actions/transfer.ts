@@ -25,12 +25,28 @@ import { composeContext } from "@elizaos/core";
 import { getWalletKey } from "../keypairUtils";
 import { generateObjectDeprecated } from "@elizaos/core";
 
+/**
+ * Represents the transfer of content with additional details such as token address, recipient, and amount.
+ * @interface TransferContent
+ * @extends Content
+ * @property {string} tokenAddress - The address of the token being transferred.
+ * @property {string} recipient - The recipient of the transferred content.
+ * @property {string|number} amount - The amount of content being transferred.
+ */
 export interface TransferContent extends Content {
     tokenAddress: string;
     recipient: string;
     amount: string | number;
 }
 
+/**
+ * Check if the provided content is of type TransferContent.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime object.
+ * @param {any} content - The content to be checked.
+ * @returns {boolean} - True if the content is of type TransferContent, otherwise false.
+ */
+```
 function isTransferContent(
     runtime: IAgentRuntime,
     content: any

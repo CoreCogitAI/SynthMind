@@ -1,3 +1,12 @@
+/**
+ * Interface representing a synthesis voice.
+ *
+ * @typedef {Object} SynthesisVoice
+ * @property {string} name - The name of the voice.
+ * @property {string[]} languages - The languages supported by the voice.
+ * @property {string} gender - The gender of the voice.
+ * @property {number} [speakerCount] - The number of speakers for this voice (optional).
+ */
 export interface SynthesisVoice {
     name: string;
     languages: string[];

@@ -7,6 +7,13 @@ const units: string[] = ["k", "m", "b", "t"];
  * @param precision Number of decimal places, defaults to 1
  * @returns Formatted string
  */
+/**
+ * Converts a number to a string with the specified precision.
+ * 
+ * @param {number} number - The number to convert.
+ * @param {number} [precision=1] - The number of decimal places to keep.
+ * @returns {string} The converted number as a string.
+ */
 export function toPrecision(number: number, precision = 1): string {
     return (
         number

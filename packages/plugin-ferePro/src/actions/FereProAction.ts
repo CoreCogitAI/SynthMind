@@ -9,12 +9,26 @@ import {
 } from "@elizaos/core";
 import { FereProService } from "../services/FereProService";
 
+/**
+ * Interface for defining the structure of a Fere message content.
+ * @typedef {Object} FereMessageContent
+ * @property {string} message - The main content of the message.
+ * @property {boolean} [stream] - Optional flag indicating if the content should be streamed.
+ * @property {boolean} [debug] - Optional flag indicating if debug mode is enabled.
+ */
 export interface FereMessageContent {
     message: string;
     stream?: boolean;
     debug?: boolean;
 }
 
+/**
+ * Checks if the given content object is a valid FereMessageContent by
+ * verifying if the 'message' property is a string.
+ * 
+ * @param {any} content - The content object to validate
+ * @return {boolean} - True if the content is a valid FereMessageContent, false otherwise
+ */
 function isValidMessageContent(content: any): content is FereMessageContent {
     return typeof content.message === "string";
 }

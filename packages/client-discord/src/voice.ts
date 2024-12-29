@@ -53,6 +53,11 @@ import { getWavHeader } from "./utils.ts";
 const DECODE_FRAME_SIZE = 1024;
 const DECODE_SAMPLE_RATE = 16000;
 
+/**
+ * Class representing an AudioMonitor that tracks audio data.
+ * @class
+ */
+ 
 export class AudioMonitor {
     private readable: Readable;
     private buffers: Buffer[] = [];
@@ -60,6 +65,13 @@ export class AudioMonitor {
     private lastFlagged: number = -1;
     private ended: boolean = false;
 
+/**
+ * Constructor for AudioMonitor class.
+ * @param {Readable} readable - Readable stream to monitor.
+ * @param {number} maxSize - Maximum size for buffer storage.
+ * @param {Function} onStart - Callback function for when speaking starts.
+ * @param {Function} callback - Callback function for when buffer is ready.
+ */
     constructor(
         readable: Readable,
         maxSize: number,
@@ -104,6 +116,9 @@ export class AudioMonitor {
         });
     }
 
+/**
+ * Removes all event listeners related to data, end, speakingStopped, and speakingStarted
+ */
     stop() {
         this.readable.removeAllListeners("data");
         this.readable.removeAllListeners("end");
@@ -111,10 +126,23 @@ export class AudioMonitor {
         this.readable.removeAllListeners("speakingStarted");
     }
 
+/**
+ * Checks if the item has been flagged.
+ * 
+ * @returns {boolean} True if the item has been flagged, false otherwise.
+ */
     isFlagged() {
         return this.lastFlagged >= 0;
     }
 
+/**
+ * Retrieves a buffer from the last flagged index.
+ * If the last flagged index is less than 0, returns null.
+ * Concatenates and returns a buffer from the array of buffers starting from the last flagged index.
+ *
+ * @returns {Buffer|null} The concatenated buffer or null if lastFlagged < 0.
+ */
+         
     getBufferFromFlag() {
         if (this.lastFlagged < 0) {
             return null;
@@ -123,21 +151,35 @@ export class AudioMonitor {
         return buffer;
     }
 
+/**
+ * Concatenates all buffers in the 'buffers' array and returns the resulting buffer.
+ * @returns {Buffer} The concatenated buffer.
+ */
     getBufferFromStart() {
         const buffer = Buffer.concat(this.buffers);
         return buffer;
     }
 
+/**
+ * Resets the state of the object by emptying the buffers array and setting lastFlagged to -1.
+ */
     reset() {
         this.buffers = [];
         this.lastFlagged = -1;
     }
 
+/**
+ * Check if the object is already ended.
+ * @returns {boolean} True if the object is ended, false otherwise.
+ */
     isEnded() {
         return this.ended;
     }
 }
 
+/**
+ * Class representing a VoiceManager.
+ * @extends EventEmitter
 export class VoiceManager extends EventEmitter {
     private processingVoice: boolean = false;
     private transcriptionTimeout: NodeJS.Timeout | null = null;
@@ -160,12 +202,22 @@ export class VoiceManager extends EventEmitter {
         { channel: BaseGuildVoiceChannel; monitor: AudioMonitor }
     > = new Map();
 
+/**
+ * Constructor for creating a new instance of the class.
+ * @param {DiscordClient} client - The client object for Discord.
+ */
     constructor(client: DiscordClient) {
         super();
         this.client = client.client;
         this.runtime = client.runtime;
     }
 
+/**
+ * Handles the update of a voice state for a user.
+ * @param {VoiceState} oldState - The old voice state of the user.
+ * @param {VoiceState} newState - The new voice state of the user.
+ * @returns {Promise<void>}
+ */
     async handleVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
         const oldChannelId = oldState.channelId;
         const newChannelId = newState.channelId;
@@ -194,6 +246,12 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Function to join a specific voice channel.
+ * 
+ * @param {BaseGuildVoiceChannel} channel - The voice channel to join.
+ * @returns {Promise<void>} - A promise that resolves when the connection is successfully established.
+ */
     async joinChannel(channel: BaseGuildVoiceChannel) {
         const oldConnection = this.getVoiceConnection(
             channel.guildId as string
@@ -332,6 +390,11 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+* Retrieves the voice connection for a specific guild.
+* @param {string} guildId - The ID of the guild to retrieve the voice connection for.
+* @returns {VoiceConnection | undefined} The voice connection for the specified guild, or undefined if no connection is found.
+*/
     private getVoiceConnection(guildId: string) {
         const connections = getVoiceConnections(this.client.user.id);
         if (!connections) {
@@ -343,6 +406,12 @@ export class VoiceManager extends EventEmitter {
         return connection;
     }
 
+/**
+ * Monitors a member's audio stream for speaking activity and volume levels.
+ * @param {GuildMember} member - The member whose audio stream is being monitored.
+ * @param {BaseGuildVoiceChannel} channel - The voice channel the member is in.
+ * @returns {void}
+ */
     private async monitorMember(
         member: GuildMember,
         channel: BaseGuildVoiceChannel
@@ -436,6 +505,10 @@ export class VoiceManager extends EventEmitter {
         );
     }
 
+/**
+ * Removes the bot from the specified voice channel and stops monitoring all members in that channel.
+ * @param {BaseGuildVoiceChannel} channel - The voice channel to leave
+ */
     leaveChannel(channel: BaseGuildVoiceChannel) {
         const connection = this.connections.get(channel.id);
         if (connection) {
@@ -456,6 +529,10 @@ export class VoiceManager extends EventEmitter {
         console.log(`Left voice channel: ${channel.name} (${channel.id})`);
     }
 
+/**
+ * Stops monitoring a specific member based on their memberId.
+ * @param {string} memberId - The unique identifier of the member to stop monitoring.
+ */
     stopMonitoringMember(memberId: string) {
         const monitorInfo = this.activeMonitors.get(memberId);
         if (monitorInfo) {
@@ -466,11 +543,25 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Handle when the bot joins a new guild.
+ * 
+ * @param {Guild} guild - The guild that the bot has joined.
+ */ 
+         
     async handleGuildCreate(guild: Guild) {
         console.log(`Joined guild ${guild.name}`);
         // this.scanGuild(guild);
     }
 
+/**
+ * Asynchronously processes transcription data with a debouncing mechanism to ensure smooth operation.
+ *
+ * @param {UUID} userId - The unique identifier of the user. 
+ * @param {string} name - The name of the user.
+ * @param {string} userName - The username of the user.
+ * @param {BaseGuildVoiceChannel} channel - The voice channel where the transcription is being processed.
+ */
     async debouncedProcessTranscription(
         userId: UUID,
         name: string,
@@ -517,6 +608,15 @@ export class VoiceManager extends EventEmitter {
         }, DEBOUNCE_TRANSCRIPTION_THRESHOLD);
     }
 
+/**
+ * Handles the user stream by monitoring the audio and processing the buffers.
+ * 
+ * @param {UUID} userId - The unique identifier of the user.
+ * @param {string} name - The name of the user.
+ * @param {string} userName - The username of the user.
+ * @param {BaseGuildVoiceChannel} channel - The voice channel the user is connected to.
+ * @param {Readable} audioStream - The readable stream containing audio data.
+ */
     async handleUserStream(
         userId: UUID,
         name: string,
@@ -573,6 +673,15 @@ export class VoiceManager extends EventEmitter {
         );
     }
 
+/**
+ * Process the transcription for a user.
+ * 
+ * @param {UUID} userId - The unique identifier of the user.
+ * @param {string} channelId - The ID of the channel where the transcription occurred.
+ * @param {BaseGuildVoiceChannel} channel - The voice channel where the transcription occurred.
+ * @param {string} name - The name associated with the user.
+ * @param {string} userName - The username of the user.
+ */
     private async processTranscription(
         userId: UUID,
         channelId: string,
@@ -625,6 +734,17 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Handles user messages in a Discord voice channel.
+ *
+ * @param {string} message - The message sent by the user.
+ * @param {UUID} userId - The ID of the user sending the message.
+ * @param {string} channelId - The ID of the Discord channel.
+ * @param {BaseGuildVoiceChannel} channel - The Discord voice channel.
+ * @param {string} name - The name associated with the user.
+ * @param {string} userName - The username of the user.
+ * @returns {Promise<void>} - A Promise that resolves when the message handling is complete.
+ */
     private async handleUserMessage(
         message: string,
         userId: UUID,
@@ -787,6 +907,13 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Convert the Opus format data to WAV format.
+ * 
+ * @param {Buffer} pcmBuffer - The PCM buffer to convert to WAV.
+ * @returns {Promise<Buffer>} The converted WAV buffer.
+ * @throws {Error} If an error occurs during the conversion process.
+ */
     private async convertOpusToWav(pcmBuffer: Buffer): Promise<Buffer> {
         try {
             // Generate the WAV header
@@ -805,6 +932,14 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Determines whether the bot should respond to a message based on various conditions.
+ * @param {string} message - The message content.
+ * @param {UUID} userId - The ID of the user who sent the message.
+ * @param {BaseGuildVoiceChannel} channel - The Discord channel where the message was sent.
+ * @param {State} state - The current state of the bot.
+ * @returns {Promise<boolean>} A boolean indicating whether the bot should respond to the message.
+ */
     private async _shouldRespond(
         message: string,
         userId: UUID,
@@ -865,6 +1000,14 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Generates a response based on the provided message, state, and context.
+ * 
+ * @param {Memory} message The message object containing userId and roomId.
+ * @param {State} state The state object.
+ * @param {string} context The context string.
+ * @returns {Promise<Content>} A promise that resolves to the generated response content.
+ */
     private async _generateResponse(
         message: Memory,
         state: State,
@@ -895,6 +1038,12 @@ export class VoiceManager extends EventEmitter {
         return response;
     }
 
+/**
+ * Check if the message should be ignored based on its content and length.
+ *
+ * @param {Memory} message The message to be checked
+ * @returns {Promise<boolean>} True if the message should be ignored, false otherwise
+ */
     private async _shouldIgnore(message: Memory): Promise<boolean> {
         // console.log("message: ", message);
         elizaLogger.debug("message.content: ", message.content);
@@ -948,6 +1097,13 @@ export class VoiceManager extends EventEmitter {
         return false;
     }
 
+/**
+ * Asynchronously scans the provided guild for a suitable voice channel to join.
+ *
+ * @param {Guild} guild The guild to scan for voice channels.
+ * @returns {Promise<void>} A promise that resolves once a suitable voice channel
+ * is found and the bot successfully joins it.
+ */
     async scanGuild(guild: Guild) {
         let chosenChannel: BaseGuildVoiceChannel | null = null;
 
@@ -990,6 +1146,13 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Play an audio stream for a specific user.
+ *
+ * @param {UUID} userId - The ID of the user to play the audio stream for.
+ * @param {Readable} audioStream - The audio stream to play.
+ * @returns {void}
+ */
     async playAudioStream(userId: UUID, audioStream: Readable) {
         const connection = this.connections.get(userId);
         if (connection == null) {
@@ -1029,6 +1192,11 @@ export class VoiceManager extends EventEmitter {
         );
     }
 
+/**
+ * Cleans up the specified audio player by stopping playback, removing all listeners, and clearing the active audio player if it matches the specified player.
+ * 
+ * @param {AudioPlayer} audioPlayer - The audio player to be cleaned up.
+ */
     cleanupAudioPlayer(audioPlayer: AudioPlayer) {
         if (!audioPlayer) return;
 
@@ -1039,6 +1207,11 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Handles the join channel command for the interaction.
+ * @param {any} interaction - The interaction object
+ * @returns {Promise<void>}
+ */
     async handleJoinChannelCommand(interaction: any) {
         try {
             // Defer the reply immediately to prevent interaction timeout
@@ -1083,6 +1256,12 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+/**
+ * Asynchronously handles the command to leave the voice channel.
+ * 
+ * @param {any} interaction - The interaction object containing information about the command
+ * @returns {Promise<void>} - A Promise that resolves once the handling is completed 
+ */
     async handleLeaveChannelCommand(interaction: any) {
         const connection = this.getVoiceConnection(interaction.guildId as any);
 

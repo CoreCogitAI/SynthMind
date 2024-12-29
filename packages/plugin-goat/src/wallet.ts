@@ -8,6 +8,13 @@ import { base } from "viem/chains";
 // the EVM_PROVIDER_URL to the correct one for the chain
 export const chain = base;
 
+/**
+ * Retrieves a wallet client based on the provided settings.
+ *
+ * @param {Function} getSetting - The function used to retrieve the setting value based on a key.
+ * @returns {Object|null} - The wallet client object or null if the private key is not provided.
+ * @throws {Error} - If the EVM_PROVIDER_URL setting is not configured.
+ */
 export function getWalletClient(
     getSetting: (key: string) => string | undefined
 ) {
@@ -26,6 +33,12 @@ export function getWalletClient(
     return viem(wallet);
 }
 
+/**
+ * Returns a wallet provider object that can retrieve the EVM wallet address and balance.
+ * 
+ * @param {WalletClient} walletClient - The client for interacting with the wallet.
+ * @returns {{get: () => Promise<string | null>}} - An object with a `get` method that returns a Promise resolving to the EVM wallet address and balance, or null if an error occurs.
+ */
 export function getWalletProvider(walletClient: WalletClient) {
     return {
         async get(): Promise<string | null> {

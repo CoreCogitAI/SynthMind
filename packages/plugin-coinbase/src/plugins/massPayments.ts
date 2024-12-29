@@ -101,6 +101,16 @@ export const massPayoutProvider: Provider = {
     },
 };
 
+/**
+ * Executes mass payout to multiple receiving addresses.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @param {string} networkId - The network ID.
+ * @param {string[]} receivingAddresses - Array of receiving addresses.
+ * @param {number} transferAmount - The amount to transfer to each address.
+ * @param {string} assetId - The asset ID for the transfer.
+ * @returns {Promise<Transaction[]>} - The array of transactions.
+ */
 async function executeMassPayout(
     runtime: IAgentRuntime,
     networkId: string,

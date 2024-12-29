@@ -16,6 +16,11 @@ import { elizaLogger } from "./logger";
  * An abstract class representing a database adapter for managing various entities
  * like accounts, memories, actors, goals, and rooms.
  */
+/**
+ * Database Adapter interface for interacting with a database.
+ * @interface
+ */
+ */
 export abstract class DatabaseAdapter<DB = any> implements IDatabaseAdapter {
     /**
      * The database instance.

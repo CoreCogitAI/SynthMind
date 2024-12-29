@@ -11,6 +11,14 @@ import { toHex } from "viem";
 import { castUuid } from "./utils";
 import { FarcasterClient } from "./client";
 
+/**
+ * Creates a memory object based on the provided cast information.
+ * @param {Object} params - The parameters for creating the memory.
+ * @param {UUID} params.roomId - The UUID of the room.
+ * @param {IAgentRuntime} params.runtime - The agent runtime.
+ * @param {Cast} params.cast - The cast object.
+ * @returns {Memory} The created memory object.
+ */
 export function createCastMemory({
     roomId,
     runtime,
@@ -46,6 +54,16 @@ export function createCastMemory({
     };
 }
 
+/**
+ * Builds a conversation thread by recursively processing the given Cast object and its parent Cast objects.
+ * 
+ * @param {Object} params - The parameters for building the conversation thread.
+ * @param {Cast} params.cast - The initial Cast object to start building the thread from.
+ * @param {IAgentRuntime} params.runtime - The runtime object providing access to Farcaster's message manager.
+ * @param {FarcasterClient} params.client - The client object for interacting with Farcaster's API.
+ * 
+ * @returns {Promise<Cast[]>} A Promise that resolves with an array of Cast objects representing the conversation thread.
+ */
 export async function buildConversationThread({
     cast,
     runtime,

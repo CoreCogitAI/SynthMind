@@ -3,6 +3,12 @@ import { Database } from "better-sqlite3";
 import { elizaLogger } from "@elizaos/core";
 
 // Loads the sqlite-vec extensions into the provided SQLite database
+/**
+ * Loads sqlite-vec extensions into the provided database.
+ *
+ * @param {Database} db - The database object to load the extensions into.
+ * @returns {void}
+ */
 export function loadVecExtensions(db: Database): void {
     try {
         // Load sqlite-vec extensions
@@ -16,6 +22,12 @@ export function loadVecExtensions(db: Database): void {
 
 /**
  * @param db - An instance of better - sqlite3 Database
+ */
+/**
+ * Loads extensions for the given database.
+ *
+ * @param {Database} db - The database to load extensions for.
+ * @returns {void}
  */
 export function load(db: Database): void {
     loadVecExtensions(db);

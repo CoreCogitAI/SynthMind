@@ -18,6 +18,10 @@ import {
 import { WebClient } from "@slack/web-api";
 import { IAgentRuntime } from "@elizaos/core";
 
+/**
+ * Manage and process incoming messages from Slack platform.
+ * @class
+ */
 export class MessageManager {
     private client: WebClient;
     private runtime: IAgentRuntime;
@@ -26,6 +30,13 @@ export class MessageManager {
     private messageProcessingLock: Set<string> = new Set();
     private processedMessages: Map<string, number> = new Map();
 
+/**
+ * Initializes a new MessageManager.
+ * 
+ * @param {WebClient} client - The WebClient to communicate with the messaging platform.
+ * @param {IAgentRuntime} runtime - The IAgentRuntime instance for handling agent actions.
+ * @param {string} botUserId - The ID of the bot user.
+ */
     constructor(client: WebClient, runtime: IAgentRuntime, botUserId: string) {
         console.log("📱 Initializing MessageManager...");
         this.client = client;
@@ -49,6 +60,12 @@ export class MessageManager {
         }, 3600000);
     }
 
+/**
+ * Generate a unique key based on the provided event object's data.
+ *
+ * @param {any} event - The event object to generate the key for.
+ * @returns {string} The generated event key.
+ */
     private generateEventKey(event: any): string {
         // Create a unique key that includes all relevant event data
         // Normalize event type to handle message and app_mention as the same type
@@ -73,6 +90,12 @@ export class MessageManager {
         return key;
     }
 
+/**
+ * Cleans the given message text by removing the bot mention.
+ *
+ * @param {string} text - The message text to clean.
+ * @returns {string} The cleaned message text without the bot mention.
+ */
     private cleanMessage(text: string): string {
         elizaLogger.debug("🧹 [CLEAN] Cleaning message text:", text);
         // Remove bot mention
@@ -83,6 +106,13 @@ export class MessageManager {
         return cleaned;
     }
 
+/**
+ * Determines if the bot should respond to a message based on various criteria such as direct mentions, direct messages, active thread participation, and decision from a Language Model.
+ * 
+ * @param {any} message - The message received by the bot.
+ * @param {State} state - The current state of the bot.
+ * @returns {Promise<boolean>} A boolean value indicating whether the bot should respond to the message.
+ */
     private async _shouldRespond(message: any, state: State): Promise<boolean> {
         console.log("\n=== SHOULD_RESPOND PHASE ===");
         console.log("🔍 Step 1: Evaluating if should respond to message");
@@ -132,6 +162,14 @@ export class MessageManager {
         return response === "RESPOND";
     }
 
+/**
+ * Generates a response based on the provided memory, state, and context.
+ * 
+ * @param {Memory} memory - The memory object containing information about the current conversation.
+ * @param {State} state - The state object containing the current state of the conversation.
+ * @param {string} context - The context for generating the response.
+ * @returns {Promise<Content>} A promise that resolves to the generated content response.
+ */
     private async _generateResponse(
         memory: Memory,
         state: State,
@@ -174,6 +212,12 @@ export class MessageManager {
         return response;
     }
 
+/**
+ * Asynchronously handles incoming messages.
+ * 
+ * @param {any} event - The incoming message event to handle
+ * @returns {Promise<void>} - A Promise that resolves when the message handling is complete
+ */
     public async handleMessage(event: any) {
         console.log("\n=== MESSAGE_HANDLING PHASE ===");
         console.log("🔍 Step 1: Received new message event");

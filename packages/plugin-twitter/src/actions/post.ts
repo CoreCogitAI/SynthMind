@@ -13,6 +13,13 @@ import { Scraper } from "agent-twitter-client";
 import { tweetTemplate } from "../templates";
 import { isTweetContent, TweetSchema } from "../types";
 
+/**
+ * Composes a tweet based on a provided memory message and optional state.
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @param {Memory} _message - The memory message to compose the tweet from.
+ * @param {State} [state] - The optional state object.
+ * @returns {Promise<string>} The composed tweet content.
+ */
 async function composeTweet(
     runtime: IAgentRuntime,
     _message: Memory,
@@ -60,6 +67,13 @@ async function composeTweet(
     }
 }
 
+/**
+ * Posts a tweet on Twitter using the provided content.
+ * 
+ * @param {string} content - The content of the tweet to be posted.
+ * @returns {Promise<boolean>} - A boolean indicating whether the tweet was successfully posted or not.
+ */ 
+          
 async function postTweet(content: string): Promise<boolean> {
     try {
         const scraper = new Scraper();

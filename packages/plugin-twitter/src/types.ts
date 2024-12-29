@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+/**
+ * Interface for defining the structure of a Tweet content.
+ * @interface
+ * @property {string} text - The text content of the Tweet.
+ */
 export interface TweetContent {
     text: string;
 }

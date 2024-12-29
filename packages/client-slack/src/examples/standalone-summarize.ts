@@ -8,6 +8,10 @@ const envPath = resolve(__dirname, '../../../../.env');
 console.log('Loading environment from:', envPath);
 config({ path: envPath });
 
+/**
+ * Validates the presence of required environment variables for the application to run.
+ * @returns {boolean} Returns true if all required environment variables are present, false otherwise.
+ */
 function validateEnvironment() {
     const requiredEnvVars = [
         'SLACK_APP_ID',
@@ -29,6 +33,15 @@ function validateEnvironment() {
     return true;
 }
 
+/**
+ * Main function to start the conversation summarization example. 
+ * 
+ * This function initializes the Slack client with provided credentials, validates the connection, 
+ * sends messages to a specified channel, requests a summary of the conversation, and keeps the 
+ * process running for a specified duration.
+ * 
+ * @throws {Error} Throws an error if environment validation fails or failed to connect to Slack.
+ */
 async function main() {
     console.log('\n=== Starting Summarize Conversation Example ===\n');
 

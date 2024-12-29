@@ -15,6 +15,15 @@ import {
 } from "@elizaos/core";
 import { validateGithubConfig } from "./environment";
 
+/**
+ * Interface for defining the configuration for connecting to GitHub.
+ * @typedef {Object} GitHubConfig
+ * @property {string} owner - The owner of the GitHub repository.
+ * @property {string} repo - The name of the GitHub repository.
+ * @property {string} [branch] - The branch of the repository (optional).
+ * @property {string} [path] - The path within the repository (optional).
+ * @property {string} token - The access token for authentication with GitHub.
+ */
 export interface GitHubConfig {
     owner: string;
     repo: string;
@@ -23,6 +32,11 @@ export interface GitHubConfig {
     token: string;
 }
 
+/**
+ * GitHubClient class for interacting with GitHub repositories.
+ * @constructor
+ * @param {AgentRuntime} runtime - The runtime of the agent.
+ */
 export class GitHubClient {
     private octokit: Octokit;
     private git: SimpleGit;
@@ -30,6 +44,11 @@ export class GitHubClient {
     private runtime: AgentRuntime;
     private repoPath: string;
 
+/**
+ * Constructor for GithubAgent class.
+ * 
+ * @param {AgentRuntime} runtime The runtime object for the agent.
+ */
     constructor(runtime: AgentRuntime) {
         this.runtime = runtime;
         this.config = {
@@ -49,6 +68,12 @@ export class GitHubClient {
         );
     }
 
+/**
+ * Asynchronously initializes the repository by:
+ * 1. Creating the repos directory if it doesn't exist
+ * 2. Cloning the repository if it doesn't exist, or pulling the changes if it does
+ * 3. Checking out the specified branch if provided
+ */
     async initialize() {
         // Create repos directory if it doesn't exist
         await fs.mkdir(path.join(process.cwd(), ".repos", this.config.owner), {
@@ -70,6 +95,12 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously clones a repository using the specified owner and repository name.
+ * 
+ * @returns {Promise<void>} A Promise that resolves when the repository has been successfully cloned.
+ * @throws {Error} If unable to clone the repository after the maximum number of retries.
+ */
     private async cloneRepository() {
         const repositoryUrl = `https://github.com/${this.config.owner}/${this.config.repo}.git`;
         const maxRetries = 3;
@@ -94,11 +125,14 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates memories from files based on the configuration path.
+ * 
+ * @returns {Promise<void>} A Promise that resolves once memories are created
+ */
     async createMemoriesFromFiles() {
         console.log("Create memories");
         const searchPath = this.config.path
-            ? path.join(this.repoPath, this.config.path, "**/*")
-            : path.join(this.repoPath, "**/*");
 
         const files = await glob(searchPath, { nodir: true });
 
@@ -146,6 +180,15 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates a new pull request with the given title, branch name, list of files to be added/modified, and an optional description.
+ * 
+ * @param {string} title - The title of the pull request.
+ * @param {string} branch - The name of the branch where changes will be made.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects containing the file path and content to be added/modified.
+ * @param {string} [description] - Optional. A description for the pull request. If not provided, the title will be used as the default description.
+ * @returns {Promise<any>} - A promise that resolves to the data of the created pull request.
+ */
     async createPullRequest(
         title: string,
         branch: string,
@@ -181,6 +224,15 @@ export class GitHubClient {
         return pr.data;
     }
 
+/**
+ * Asynchronously creates a commit in the repository with the specified message
+ * and files.
+ * 
+ * @param {string} message - The commit message.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects containing the path
+ * and content of each file to be included in the commit.
+ * @returns {Promise<void>} A Promise that resolves once the commit has been created and pushed.
+ */
     async createCommit(
         message: string,
         files: Array<{ path: string; content: string }>

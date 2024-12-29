@@ -35,12 +35,23 @@ const PROVIDER_CONFIG = {
     MAIN_WALLET: "",
 };
 
+/**
+ * TokenProvider class for interacting with tokens and fetching related data.
+ * @class
+ */
+ */
 export class TokenProvider {
     private cache: NodeCache;
     private cacheKey: string = "solana/tokens";
     private NETWORK_ID = 1399811149;
     private GRAPHQL_ENDPOINT = "https://graph.codex.io/graphql";
 
+/**
+ * Constructor for creating a new instance of a class.
+ * @param {string} tokenAddress - The address of the token.
+ * @param {WalletProvider} walletProvider - The provider for the wallet.
+ * @param {ICacheManager} cacheManager - The manager for cache.
+ */
     constructor(
         //  private connection: Connection,
         private tokenAddress: string,
@@ -50,6 +61,12 @@ export class TokenProvider {
         this.cache = new NodeCache({ stdTTL: 300 }); // 5 minutes cache
     }
 
+/**
+ * Reads a value from the cache based on the provided key.
+ * @template T
+ * @param {string} key - The key to search for in the cache.
+ * @returns {Promise<T | null>} - The value corresponding to the key in the cache, or null if not found.
+ */
     private async readFromCache<T>(key: string): Promise<T | null> {
         const cached = await this.cacheManager.get<T>(
             path.join(this.cacheKey, key)
@@ -57,12 +74,25 @@ export class TokenProvider {
         return cached;
     }
 
+/**
+ * Write data to the cache with a specified key and expiration time.
+ * @template T
+ * @param {string} key - The key for the data in the cache.
+ * @param {T} data - The data to be stored in the cache.
+ * @returns {Promise<void>} A promise that resolves once the data is stored in the cache.
+ */
     private async writeToCache<T>(key: string, data: T): Promise<void> {
         await this.cacheManager.set(path.join(this.cacheKey, key), data, {
             expires: Date.now() + 5 * 60 * 1000,
         });
     }
 
+/**
+ * Retrieves cached data by the provided key. 
+ * 
+ * @param {string} key - The key used to retrieve the cached data.
+ * @returns {Promise<T | null>} The cached data if found, or null if not found.
+ */
     private async getCachedData<T>(key: string): Promise<T | null> {
         // Check in-memory cache first
         const cachedData = this.cache.get<T>(key);
@@ -81,6 +111,14 @@ export class TokenProvider {
         return null;
     }
 
+/**
+ * Asynchronously sets the provided data in the in-memory cache and also writes it to the file-based cache.
+ * 
+ * @template T - The type of data being cached
+ * @param {string} cacheKey - The key to identify the cached data
+ * @param {T} data - The data to be cached
+ * @returns {Promise<void>} A Promise that resolves once the data is successfully stored in both caches
+ */
     private async setCachedData<T>(cacheKey: string, data: T): Promise<void> {
         // Set in-memory cache
         this.cache.set(cacheKey, data);
@@ -89,6 +127,13 @@ export class TokenProvider {
         await this.writeToCache(cacheKey, data);
     }
 
+/**
+ * Fetches data from a URL with retry mechanism in case of failures.
+ *
+ * @param {string} url - The URL to fetch data from.
+ * @param {RequestInit} [options={}] - The options for the fetch request.
+ * @returns {Promise<any>} The data fetched from the URL.
+ */
     private async fetchWithRetry(
         url: string,
         options: RequestInit = {}
@@ -135,6 +180,12 @@ export class TokenProvider {
         throw lastError;
     }
 
+/**
+ * Asynchronously retrieves the tokens in the wallet using the provided IAgentRuntime.
+ * 
+ * @param {IAgentRuntime} runtime - The IAgentRuntime interface that provides access to runtime functionality.
+ * @returns {Promise<Item[]>} A Promise that resolves with an array of Item objects representing the tokens in the wallet.
+ */
     async getTokensInWallet(runtime: IAgentRuntime): Promise<Item[]> {
         const walletInfo =
             await this.walletProvider.fetchPortfolioValue(runtime);
@@ -143,6 +194,13 @@ export class TokenProvider {
     }
 
     // check if the token symbol is in the wallet
+/**
+ * Asynchronously retrieves the address of a specific token from the wallet by token symbol.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime environment for the agent.
+ * @param {string} tokenSymbol - The symbol of the token to search for in the wallet.
+ * @returns {Promise<string | null>} The address of the token if found, otherwise null.
+ */
     async getTokenFromWallet(runtime: IAgentRuntime, tokenSymbol: string) {
         try {
             const items = await this.getTokensInWallet(runtime);
@@ -159,6 +217,10 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Fetches token data from Codex API.
+ * @returns {Promise<TokenCodex>} The token data fetched from Codex API.
+ */
     async fetchTokenCodex(): Promise<TokenCodex> {
         try {
             const cacheKey = `token_${this.tokenAddress}`;
@@ -240,6 +302,10 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Fetches prices of SOL, BTC, and ETH tokens using external API and returns them.
+ * @returns {Promise<Prices>} Object containing prices of solana, bitcoin, and ethereum tokens in USD.
+ */
     async fetchPrices(): Promise<Prices> {
         try {
             const cacheKey = "prices";
@@ -286,6 +352,10 @@ export class TokenProvider {
             throw error;
         }
     }
+/**
+ * Asynchronously calculates the buy amounts for different liquidity impact levels in USD and converts them to SOL based on the fetched DEX screener data.
+ * @returns {Promise<CalculatedBuyAmounts>} An object containing the calculated buy amounts for different liquidity impact levels: none, low, medium, and high, expressed in SOL.
+ */
     async calculateBuyAmounts(): Promise<CalculatedBuyAmounts> {
         const dexScreenerData = await this.fetchDexScreenerData();
         const prices = await this.fetchPrices();
@@ -338,6 +408,11 @@ export class TokenProvider {
         };
     }
 
+/**
+ * Asynchronously fetches the token security data for a specific token address.
+ * 
+ * @returns {Promise<TokenSecurityData>} The token security data for the specified token address
+ */
     async fetchTokenSecurity(): Promise<TokenSecurityData> {
         const cacheKey = `tokenSecurity_${this.tokenAddress}`;
         const cachedData = this.getCachedData<TokenSecurityData>(cacheKey);
@@ -368,6 +443,10 @@ export class TokenProvider {
         return security;
     }
 
+/**
+ * Asynchronously fetches token trade data.
+ * @returns {Promise<TokenTradeData>} The token trade data returned as a Promise.
+ */
     async fetchTokenTradeData(): Promise<TokenTradeData> {
         const cacheKey = `tokenTradeData_${this.tokenAddress}`;
         const cachedData = this.getCachedData<TokenTradeData>(cacheKey);
@@ -603,6 +682,13 @@ export class TokenProvider {
         return tradeData;
     }
 
+/**
+ * Fetches DexScreener data for a specific token address.
+ * If the data is available in cache, returns the cached data.
+ * If not, fetches the data from a remote API and caches it for future use.
+ * 
+ * @returns {Promise<DexScreenerData>} The DexScreener data for the token address.
+ */
     async fetchDexScreenerData(): Promise<DexScreenerData> {
         const cacheKey = `dexScreenerData_${this.tokenAddress}`;
         const cachedData = this.getCachedData<DexScreenerData>(cacheKey);
@@ -644,6 +730,12 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Asynchronously searches for DexScreener data for a given symbol.
+ * 
+ * @param {string} symbol The symbol to search for in DexScreener.
+ * @returns {Promise<DexScreenerPair | null>} The DexScreener data for the symbol, or null if the data is not available.
+ */
     async searchDexScreenerData(
         symbol: string
     ): Promise<DexScreenerPair | null> {
@@ -683,6 +775,13 @@ export class TokenProvider {
             return null;
         }
     }
+/**
+ * Get the pair with the highest liquidity from the provided DexScreenerData.
+ * If the list of pairs is empty, return null.
+ * Sort the pairs by both liquidity and market cap to get the pair with the highest liquidity.
+ * @param {DexScreenerData} dexData - The DexScreenerData object containing the pairs to search through.
+ * @returns {DexScreenerPair|null} - The pair with the highest liquidity, or null if no pairs are available.
+ */
     getHighestLiquidityPair(dexData: DexScreenerData): DexScreenerPair | null {
         if (dexData.pairs.length === 0) {
             return null;
@@ -698,6 +797,11 @@ export class TokenProvider {
         })[0];
     }
 
+/**
+ * Analyzes the holder distribution based on the provided token trade data for different time intervals.
+ * @param {TokenTradeData} tradeData - The token trade data containing unique wallet change percentages for different time intervals.
+ * @returns {Promise<string>} The analysis result indicating if the holder distribution is increasing, decreasing, or stable.
+ */
     async analyzeHolderDistribution(
         tradeData: TokenTradeData
     ): Promise<string> {
@@ -744,6 +848,16 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Asynchronously fetches the list of holders for a specific token address.
+ * This method checks if the data is already cached, if so it returns the cached data.
+ * Otherwise, it makes a POST request to Helius API to retrieve the token holders data.
+ * The data is processed and stored in a map, which is then transformed into an array of HolderData objects.
+ * The final result is cached and returned as an array of HolderData objects.
+ * 
+ * @returns {Promise<HolderData[]>} A promise that resolves to an array of HolderData objects containing the address and balance of the token holders.
+ * @throws {Error} If there is an error fetching the holder list from Helius API, an Error is thrown with a failure message.
+ */
     async fetchHolderList(): Promise<HolderData[]> {
         const cacheKey = `holderList_${this.tokenAddress}`;
         const cachedData = this.getCachedData<HolderData[]>(cacheKey);
@@ -842,6 +956,12 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Asynchronously filters the high value holders from the given token trade data.
+ * 
+ * @param {TokenTradeData} tradeData - The token trade data containing price information.
+ * @returns {Promise<Array<{ holderAddress: string; balanceUsd: string }>} - An array of objects representing high value holders with their address and balance in USD.
+ */
     async filterHighValueHolders(
         tradeData: TokenTradeData
     ): Promise<Array<{ holderAddress: string; balanceUsd: string }>> {
@@ -866,10 +986,22 @@ export class TokenProvider {
         return highValueHolders;
     }
 
+/**
+ * Check if the 24-hour trading volume of the token is greater than 0.
+ * 
+ * @param {TokenTradeData} tradeData - The trade data of the token.
+ * @returns {Promise<boolean>} - A boolean indicating whether the 24-hour trading volume is greater than 0.
+ */
     async checkRecentTrades(tradeData: TokenTradeData): Promise<boolean> {
         return toBN(tradeData.volume_24h_usd).isGreaterThan(0);
     }
 
+/**
+ * Asynchronously counts the number of high supply holders for a given TokenSecurityData.
+ *
+ * @param {TokenSecurityData} securityData The TokenSecurityData object containing ownerBalance and creatorBalance.
+ * @returns {Promise<number>} The number of high supply holders.
+ */
     async countHighSupplyHolders(
         securityData: TokenSecurityData
     ): Promise<number> {
@@ -891,6 +1023,12 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Asynchronously fetches and processes various data related to the token, including security data, trade data, holder distribution, high-value holders, recent trades, high-supply holders count, and DexScreener data.
+ * 
+ * @returns {Promise<ProcessedTokenData>} The processed token data containing security, trade data, holder distribution trend, high-value holders, recent trades, high-supply holders count, DexScreener data, and other relevant information.
+ * @throws {Error} If there is an error while processing token data.
+ */
     async getProcessedTokenData(): Promise<ProcessedTokenData> {
         try {
             console.log(
@@ -960,6 +1098,12 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Asynchronously determines if the token should be traded based on various criteria such as volume, price change, liquidity,
+ * market cap, top holder percentage, and unique wallet count.
+ * 
+ * @returns {Promise<boolean>} A Promise that resolves to a boolean indicating if the token should be traded.
+ */
     async shouldTradeToken(): Promise<boolean> {
         try {
             const tokenData = await this.getProcessedTokenData();
@@ -1017,6 +1161,12 @@ export class TokenProvider {
         }
     }
 
+/**
+ * Formats the token data into a readable string format.
+ * Includes security data, trade data, holder distribution trend, high-value holders, recent trades, high-supply holders, DexScreener status, and DexScreener pairs if listed.
+ * @param {ProcessedTokenData} data - The processed token data object containing security data, trade data, holder distribution trend, high-value holders, recent trades, high-supply holders count, DexScreener status, and DexScreener pairs data.
+ * @returns {string} The formatted token data string.
+ */
     formatTokenData(data: ProcessedTokenData): string {
         let output = `**Token Security and Trade Report**\n`;
         output += `Token Address: ${this.tokenAddress}\n\n`;
@@ -1081,6 +1231,11 @@ export class TokenProvider {
         return output;
     }
 
+/**
+ * Asynchronously generates a formatted token report.
+ * 
+ * @returns {Promise<string>} A Promise that resolves to a string representing the formatted token report.
+ */
     async getFormattedTokenReport(): Promise<string> {
         try {
             console.log("Generating formatted token report...");

@@ -19,6 +19,17 @@ import { getWalletDetails } from "../utils";
 import { Coinbase } from "@coinbase/coinbase-sdk";
 
 const url = "https://api.commerce.coinbase.com/charges";
+/**
+ * Interface representing a charge request.
+ * 
+ * @interface
+ * @property {string} name - The name of the charge.
+ * @property {string} description - The description of the charge.
+ * @property {string} pricing_type - The pricing type of the charge.
+ * @property {Object} local_price - The local price details of the charge.
+ * @property {string} local_price.amount - The amount of the charge.
+ * @property {string} local_price.currency - The currency of the charge.
+ */
 interface ChargeRequest {
     name: string;
     description: string;
@@ -29,6 +40,14 @@ interface ChargeRequest {
     };
 }
 
+/**
+ * Asynchronously creates a charge using the provided API key and parameters.
+ * 
+ * @param {string} apiKey - The API key to authenticate the request.
+ * @param {ChargeRequest} params - The parameters for the charge request.
+ * @returns {Promise<any>} A Promise that resolves with the data of the created charge.
+ * @throws {Error} If the request fails or an error occurs during processing.
+ */
 export async function createCharge(apiKey: string, params: ChargeRequest) {
     elizaLogger.debug("Starting createCharge function");
     try {
@@ -54,6 +73,13 @@ export async function createCharge(apiKey: string, params: ChargeRequest) {
 }
 
 // Function to fetch all charges
+/**
+ * Retrieves all charges from the API using the provided API key.
+ * 
+ * @param {string} apiKey - The API key to authenticate the request.
+ * @returns {Promise} A Promise that resolves to an array of all charges.
+ * @throws {Error} If there is an issue fetching the charges or an error occurs during the process.
+ */
 export async function getAllCharges(apiKey: string) {
     elizaLogger.debug("Starting getAllCharges function");
     try {
@@ -80,6 +106,13 @@ export async function getAllCharges(apiKey: string) {
 }
 
 // Function to fetch details of a specific charge
+/**
+ * Fetches details of a specific charge from the API using the provided API key and charge ID.
+ * @param {string} apiKey - The API key for authentication.
+ * @param {string} chargeId - The ID of the charge to fetch details for.
+ * @returns {Promise<Object>} - A promise that resolves to the data of the charge.
+ * @throws {Error} - If there is an issue with fetching the charge details.
+ */
 export async function getChargeDetails(apiKey: string, chargeId: string) {
     elizaLogger.debug("Starting getChargeDetails function");
     const getUrl = `${url}${chargeId}`;

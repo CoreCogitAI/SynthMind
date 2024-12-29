@@ -17,8 +17,19 @@ export const slackEnvSchema = z.object({
         .transform((val) => (val ? parseInt(val) : 3000)),
 });
 
+/**
+ * Type definition for Slack configuration based on the inferred type of slackEnvSchema.
+ */
 export type SlackConfig = z.infer<typeof slackEnvSchema>;
 
+/**
+ * Asynchronously validates Slack configuration using the provided runtime settings.
+ * Retrieves Slack configuration settings from runtime, falling back to process environment variables if not available.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime to retrieve settings from
+ * @returns {Promise<SlackConfig>} - A Promise that resolves with the validated Slack configuration
+ * @throws {Error} - If there is an error during configuration validation
+ */
 export async function validateSlackConfig(
     runtime: IAgentRuntime
 ): Promise<SlackConfig> {

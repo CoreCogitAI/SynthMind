@@ -2,10 +2,17 @@ import NodeCache from "node-cache";
 import fs from "fs";
 import path from "path";
 
+/**
+ * Class representing a Cache object that handles caching data both in-memory and in files.
+ * @class
+ */
 export class Cache {
     private cache: NodeCache;
     public cacheDir: string;
 
+/**
+ * Constructor for initializing a CacheManager.
+ */
     constructor() {
         this.cache = new NodeCache({ stdTTL: 300 }); // 5 minutes cache
         const __dirname = path.resolve();
@@ -24,6 +31,13 @@ export class Cache {
         }
     }
 
+/**
+ * Reads the cache content from a file based on the given cache key.
+ * 
+ * @template T - Type of the cache data
+ * @param {string} cacheKey - The key used to identify the cache
+ * @returns {T | null} The cache data if found and not expired, otherwise null
+ */
     private readCacheFromFile<T>(cacheKey: string): T | null {
         const filePath = path.join(this.cacheDir, `${cacheKey}.json`);
         if (fs.existsSync(filePath)) {
@@ -52,6 +66,14 @@ export class Cache {
         return null;
     }
 
+/**
+ * Writes data to a file in the cache directory with the specified cache key.
+ *
+ * @template T
+ * @param {string} cacheKey - The key to identify the cache file.
+ * @param {T} data - The data to be written to the cache file.
+ * @returns {void}
+ */
     private writeCacheToFile<T>(cacheKey: string, data: T): void {
         try {
             const filePath = path.join(this.cacheDir, `${cacheKey}.json`);
@@ -68,14 +90,34 @@ export class Cache {
         }
     }
 
+/**
+ * Get the value from cache with the specified cache key.
+ * 
+ * @param {string} cacheKey - The key to look up in the cache.
+ * @returns {T | undefined} The value stored in the cache corresponding to the cache key,
+ * or undefined if no value is found.
+ */
     public get<T>(cacheKey: string): T | undefined {
         return this.cache.get<T>(cacheKey);
     }
 
+/**
+ * Set a value in the cache.
+ * 
+ * @param {string} cacheKey - The key for the cache entry.
+ * @param {T} data - The data to be stored in the cache.
+ * @returns {void}
+ */
     public set<T>(cacheKey: string, data: T): void {
         this.cache.set(cacheKey, data);
     }
 
+/**
+ * Retrieves cached data from in-memory cache or file-based cache.
+ * 
+ * @param {string} cacheKey - The key to identify the cached data.
+ * @returns {T | null} The cached data if found, null otherwise.
+ */
     public getCachedData<T>(cacheKey: string): T | null {
         // Check in-memory cache first
         const cachedData = this.cache.get<T>(cacheKey);
@@ -94,6 +136,14 @@ export class Cache {
         return null;
     }
 
+/**
+ * Sets the data in the in-memory cache and writes it to the file-based cache.
+ * 
+ * @template T The type of data being cached
+ * @param {string} cacheKey The key to identify the cached data
+ * @param {T} data The data to be stored in the cache
+ * @returns {void}
+ */
     public setCachedData<T>(cacheKey: string, data: T): void {
         // Set in-memory cache
         this.cache.set(cacheKey, data);

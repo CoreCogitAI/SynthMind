@@ -6,8 +6,18 @@ export const abstractEnvSchema = z.object({
     ABSTRACT_PRIVATE_KEY: z.string().min(1, "Abstract private key is required"),
 });
 
+/**
+ * Type definition representing the inferred type of the 'abstractEnvSchema' schema.
+ */
 export type AbstractConfig = z.infer<typeof abstractEnvSchema>;
 
+/**
+ * Validates the abstract configuration settings using a runtime object.
+ * 
+ * @param {IAgentRuntime} runtime The runtime object used to retrieve settings.
+ * @returns {Promise<AbstractConfig>} The validated abstract configuration.
+ * @throws {Error} Throws an error if the configuration is invalid.
+ */
 export async function validateAbstractConfig(
     runtime: IAgentRuntime
 ): Promise<AbstractConfig> {

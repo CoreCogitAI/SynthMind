@@ -18,6 +18,12 @@ import { method } from './types/request-types';
 
 // [POST] Allocate Portfolio
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_allocateportfolio
+/**
+ * Allocates a portfolio for a given request using the RESTBase instance.
+ * 
+ * @param {AllocatePortfolioRequest} requestParams - The request parameters for allocating the portfolio.
+ * @returns {Promise<AllocatePortfolioResponse>} A promise that resolves with the response of the portfolio allocation.
+ */
 export function allocatePortfolio(
   this: RESTBase,
   requestParams: AllocatePortfolioRequest
@@ -32,6 +38,13 @@ export function allocatePortfolio(
 
 // [GET] Get Perpetuals Portfolio Summary
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_getintxportfoliosummary
+/**
+ * Retrieves the summary of a perpetuals portfolio.
+ * 
+ * @param {object} options - The options for the request.
+ * @param {string} options.portfolioUuid - The UUID of the portfolio to retrieve the summary for.
+ * @returns {Promise<GetPerpetualsPortfolioSummaryResponse>} A Promise that resolves with the summary of the perpetuals portfolio.
+ */
 export function getPerpetualsPortfolioSummary(
   this: RESTBase,
   { portfolioUuid }: GetPerpetualsPortfolioSummaryRequest
@@ -45,6 +58,11 @@ export function getPerpetualsPortfolioSummary(
 
 // [GET] List Perpetuals Positions
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_getintxpositions
+/**
+ * Retrieves a list of perpetual positions for a given portfolio.
+ * @param {ListPerpetualsPositionsRequest} options - The request options including the portfolio UUID.
+ * @returns {Promise<ListPerpetualsPositionsResponse>} - A promise that resolves to the list of perpetual positions for the specified portfolio.
+ */
 export function listPerpetualsPositions(
   this: RESTBase,
   { portfolioUuid }: ListPerpetualsPositionsRequest
@@ -58,6 +76,12 @@ export function listPerpetualsPositions(
 
 // [GET] Get Perpetuals Position
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_getintxposition
+/**
+ * Retrieves the position of a perpetual symbol for a specific portfolio.
+ *
+ * @param {GetPerpetualsPositionRequest} options - The request options including portfolioUuid and symbol.
+ * @returns {Promise<GetPerpetualsPositionResponse>} - The response containing the position of the perpetual symbol.
+ */
 export function getPerpertualsPosition(
   this: RESTBase,
   { portfolioUuid, symbol }: GetPerpetualsPositionRequest
@@ -71,6 +95,12 @@ export function getPerpertualsPosition(
 
 // [GET] Get Portfolio Balances
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_getintxbalances
+/**
+ * Retrieves portfolio balances for a specific portfolio UUID.
+ * @param {GetPortfolioBalancesRequest} options - The request options.
+ * @param {string} options.portfolioUuid - The unique identifier of the portfolio.
+ * @returns {Promise<GetPortfolioBalancesResponse>} A promise that resolves with the portfolio balances response.
+ */
 export function getPortfolioBalances(
   this: RESTBase,
   { portfolioUuid }: GetPortfolioBalancesRequest
@@ -84,6 +114,12 @@ export function getPortfolioBalances(
 
 // [POST] Opt In or Out of Multi Asset Collateral
 // Official Documentation: https://docs.cdp.coinbase.com/advanced-trade/reference/retailbrokerageapi_intxmultiassetcollateral
+/**
+ * Function to opt in or out of multi-asset collateral.
+ * 
+ * @param {OptInOutMultiAssetCollateralRequest} requestParams - The request parameters for opting in or out of multi-asset collateral.
+ * @returns {Promise<OptInOutMultiAssetCollateralResponse>} - A promise that resolves with the response of the opt in or opt out action.
+ */
 export function optInOutMultiAssetCollateral(
   this: RESTBase,
   requestParams: OptInOutMultiAssetCollateralRequest

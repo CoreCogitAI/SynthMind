@@ -26,15 +26,31 @@ const PROVIDER_CONFIG = {
 // settings
 // TON_PRIVATE_KEY, TON_RPC_URL
 
+/**
+ * Represents the portfolio of a wallet, containing information about the total value in USD and the total amount of native tokens.
+ * @interface WalletPortfolio
+ * @property {string} totalUsd - The total value in USD.
+ * @property {string} totalNativeToken - The total amount of native tokens.
+ */
 interface WalletPortfolio {
     totalUsd: string;
     totalNativeToken: string;
 }
 
+/**
+ * Interface representing prices.
+ * @typedef {object} Prices
+ * @property {{ usd: string }} nativeToken - Object containing the price in USD of the native token.
+ */
 interface Prices {
     nativeToken: { usd: string };
 }
 
+/**
+ * Class representing a Wallet Provider.
+ * @class
+ */
+ */
 export class WalletProvider {
     keypair: KeyPair;
     wallet: WalletContractV4;
@@ -42,6 +58,12 @@ export class WalletProvider {
     private cacheKey: string = "ton/wallet";
 
     // reqiure hex private key
+/**
+ * Constructor for creating a new instance of the MyClass class.
+ * @param {KeyPair} keypair - The key pair used for encryption and decryption.
+ * @param {string} endpoint - The endpoint for making API calls.
+ * @param {ICacheManager} cacheManager - The cache manager for storing data.
+ */
     constructor(
         // mnemonic: string,
         keypair: KeyPair,
@@ -57,6 +79,13 @@ export class WalletProvider {
     }
 
     // thanks to plugin-sui
+/**
+ * Asynchronously reads data from the cache using the provided key.
+ * 
+ * @template T - The type of data to be read from the cache
+ * @param {string} key - The key to retrieve the data from the cache
+ * @returns {Promise<T | null>} A promise that resolves with the data from the cache, or null if the data is not found
+ */
     private async readFromCache<T>(key: string): Promise<T | null> {
         const cached = await this.cacheManager.get<T>(
             path.join(this.cacheKey, key)
@@ -64,12 +93,24 @@ export class WalletProvider {
         return cached;
     }
 
+/**
+ * Writes data to the cache with a specified key and expiration time.
+ * @param {string} key - The key to store the data with in the cache.
+ * @param {T} data - The data to store in the cache.
+ * @returns {Promise<void>} A promise that resolves once the data has been written to the cache.
+ */
     private async writeToCache<T>(key: string, data: T): Promise<void> {
         await this.cacheManager.set(path.join(this.cacheKey, key), data, {
             expires: Date.now() + 5 * 60 * 1000,
         });
     }
 
+/**
+ * Retrieves cached data of type T using the provided key.
+ * 
+ * @param key - The key used to retrieve the cached data.
+ * @returns A Promise that resolves with the cached data or null if not found.
+ */
     private async getCachedData<T>(key: string): Promise<T | null> {
         // Check in-memory cache first
         const cachedData = this.cache.get<T>(key);
@@ -88,6 +129,14 @@ export class WalletProvider {
         return null;
     }
 
+/**
+ * Store the provided data in both in-memory cache and file-based cache.
+ * 
+ * @template T
+ * @param {string} cacheKey - The key to store the data in the cache
+ * @param {T} data - The data to be stored in the cache
+ * @returns {Promise<void>} A Promise that resolves when the data is successfully stored in both caches
+ */
     private async setCachedData<T>(cacheKey: string, data: T): Promise<void> {
         // Set in-memory cache
         this.cache.set(cacheKey, data);
@@ -96,6 +145,16 @@ export class WalletProvider {
         await this.writeToCache(cacheKey, data);
     }
 
+/**
+ * Function to fetch prices with retry mechanism in place.
+ * Will attempt to fetch the prices from the specified URL,
+ * and if the request fails, will retry up to MAX_RETRIES times
+ * with an increasing delay between each attempt.
+ * 
+ * @returns {Promise<object>} The fetched data if successful.
+ * 
+ * @throws {Error} If all attempts fail, will throw the last error encountered.
+ */
     private async fetchPricesWithRetry() {
         let lastError: Error;
 
@@ -132,6 +191,14 @@ export class WalletProvider {
         throw lastError;
     }
 
+/**
+ * Asynchronously fetches prices from an API and returns a Promise of Prices object.
+ * Utilizes caching to optimize performance by checking for cached data first.
+ * If cache hit, returns cached value. If cache miss, fetches prices from the API with retry logic.
+ * 
+ * @returns {Promise<Prices>} A Promise that resolves to a Prices object containing native token price in USD.
+ * @throws {Error} If there is an error while fetching prices.
+ */
     async fetchPrices(): Promise<Prices> {
         try {
             const cacheKey = "prices";
@@ -163,6 +230,13 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Format the given portfolio data into a human-readable string format.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime instance of the agent.
+ * @param {WalletPortfolio} portfolio - The portfolio data to format.
+ * @returns {string} The formatted portfolio data as a string.
+ */
     private formatPortfolio(
         runtime: IAgentRuntime,
         portfolio: WalletPortfolio
@@ -180,6 +254,11 @@ export class WalletProvider {
         return output;
     }
 
+/**
+ * Fetches the portfolio value of the wallet.
+ * 
+ * @returns {Promise<WalletPortfolio>} The portfolio value of the wallet.
+ */
     private async fetchPortfolioValue(): Promise<WalletPortfolio> {
         try {
             const cacheKey = `portfolio-${this.getAddress()}`;
@@ -229,6 +308,12 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Asynchronously fetches and formats the portfolio value.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime of the agent.
+ * @returns {Promise<string>} The formatted portfolio value as a string.
+ */
     async getFormattedPortfolio(runtime: IAgentRuntime): Promise<string> {
         try {
             const portfolio = await this.fetchPortfolioValue();
@@ -239,6 +324,11 @@ export class WalletProvider {
         }
     }
 
+/**
+ * Retrieve and return the formatted address of the wallet.
+ * 
+ * @returns {string} The formatted address of the wallet.
+ */
     getAddress(): string {
         const formattedAddress = this.wallet.address.toString({
             bounceable: false,
@@ -247,6 +337,10 @@ export class WalletProvider {
         return formattedAddress;
     }
 
+/**
+ * Retrieves a new instance of TonClient with the specified endpoint.
+ * @returns {TonClient} The new instance of TonClient.
+ */
     getWalletClient(): TonClient {
         const client = new TonClient({
             endpoint: this.endpoint,
@@ -254,6 +348,10 @@ export class WalletProvider {
         return client;
     }
 
+/**
+ * Asynchronously retrieves the balance of the wallet.
+ * @returns {Promise<bigint | null>} The wallet balance if successful, otherwise null.
+ */
     async getWalletBalance(): Promise<bigint | null> {
         try {
             const client = this.getWalletClient();

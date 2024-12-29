@@ -20,8 +20,17 @@ export const nodeEnvSchema = z.object({
     VITS_MODEL: z.string().optional(),
 });
 
+/**
+ * Represents the type definition for the configuration of a Node.
+ */
 export type NodeConfig = z.infer<typeof nodeEnvSchema>;
 
+/**
+ * Validates the node configuration by retrieving settings from the runtime object
+ * and combining them with environment variables and default values.
+ * @param {IAgentRuntime} runtime - The IAgentRuntime object containing runtime settings
+ * @returns {Promise<NodeConfig>} - The validated node configuration object
+ */
 export async function validateNodeConfig(
     runtime: IAgentRuntime
 ): Promise<NodeConfig> {

@@ -20,6 +20,15 @@ const collectionImageTemplate = `
 Generate a logo with the text "{{collectionName}}", using orange as the main color, with a sci-fi and mysterious background theme
 `;
 
+/**
+ * Create a collection with the given parameters.
+ * 
+ * @param {Object} options - The options object containing the runtime, collection name, and optional fee.
+ * @param {IAgentRuntime} options.runtime - The runtime object.
+ * @param {string} options.collectionName - The name of the collection.
+ * @param {number} [options.fee] - The fee for the collection (optional).
+ * @returns {Promise<Object>} - A promise that resolves to an object containing network details, address, link, and collection information.
+ */
 export async function createCollection({
     runtime,
     collectionName,

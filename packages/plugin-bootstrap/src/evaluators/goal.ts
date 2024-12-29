@@ -49,6 +49,15 @@ Response format should be:
 ]
 \`\`\``;
 
+/**
+ * Asynchronously processes a message to analyze conversation and suggest goal updates.
+ *
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @param {Memory} message - The incoming message from the user.
+ * @param {State | undefined} state - The current state of the conversation.
+ * @param {Object} [options={ onlyInProgress: true }] - Optional parameters for the function.
+ * @returns {Promise<Goal[]>} - A promise that resolves to an array of updated goals.
+ */
 async function handler(
     runtime: IAgentRuntime,
     message: Memory,

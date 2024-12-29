@@ -6,8 +6,19 @@ export const envSchema = z.object({
     TON_RPC_URL: z.string(),
 });
 
+/**
+ * Define the type `EnvConfig` as the inferred type of `envSchema`.
+ */
 export type EnvConfig = z.infer<typeof envSchema>;
 
+/**
+ * Validates the environment configuration for TON private key and RPC URL.
+ * Uses the specified runtime to retrieve settings or falls back to process environment variables.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime instance to use for getting settings
+ * 
+ * @returns {Promise<EnvConfig>} The validated environment configuration object
+ */
 export async function validateEnvConfig(
     runtime: IAgentRuntime
 ): Promise<EnvConfig> {

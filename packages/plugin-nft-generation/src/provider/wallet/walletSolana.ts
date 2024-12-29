@@ -28,11 +28,21 @@ import { getExplorerLink } from "@solana-developers/helpers";
 import bs58 from "bs58";
 import { elizaLogger } from "@elizaos/core";
 
+/**
+ * Represents a Solana wallet with various functionalities for interacting with the Solana blockchain.
+ */
+ */
 export class WalletSolana {
     private cache: NodeCache;
     private umi: Umi;
     private cluster: Cluster;
 
+/**
+ * Constructor for creating a new Wallet instance.
+ * @param {PublicKey} walletPublicKey - The public key of the wallet.
+ * @param {string} walletPrivateKeyKey - The private key as a string of the wallet.
+ * @param {Connection} [connection] - Optional Connection object to use for communication with the Solana cluster.
+ */
     constructor(
         private walletPublicKey: PublicKey,
         private walletPrivateKeyKey: string,
@@ -55,6 +65,10 @@ export class WalletSolana {
         this.umi = umi;
     }
 
+/**
+ * Asynchronously fetches and returns the balance of the wallet using the specified public key.
+ * @returns {Object} An object containing the balance value and the formatted balance in SOL.
+ */
     async getBalance() {
         const balance = await this.connection.getBalance(this.walletPublicKey);
         return {
@@ -63,10 +77,28 @@ export class WalletSolana {
         };
     }
 
+/**
+ * Returns the decoded private key in the form of a Uint8Array.
+ */
     get privateKeyUint8Array() {
         return bs58.decode(this.walletPrivateKeyKey);
     }
 
+/**
+ * Function to create a new collection of NFTs with specified parameters.
+ * @param {object} options - The options for creating the collection.
+ * @param {string} options.name - The name of the collection.
+ * @param {string} options.symbol - The symbol of the collection.
+ * @param {string} options.adminPublicKey - The public key of the admin for the collection.
+ * @param {string} options.uri - The URI for the collection.
+ * @param {number} options.fee - The fee for the collection.
+ * @returns {Promise<{
+ *  success: boolean;
+ *  link: string;
+ *  address: string;
+ *  error?: string | null;
+ * }>} - The result of the creation operation including success status, link to explorer, address of the collection, and potential error message.
+ */
     async createCollection({
         name,
         symbol,
@@ -130,6 +162,23 @@ export class WalletSolana {
         }
     }
 
+/**
+ * Mint a new NFT with the given information.
+ * 
+ * @param {Object} param0 - The parameters for minting the NFT.
+ * @param {string} param0.collectionAddress - The address of the collection.
+ * @param {string} param0.adminPublicKey - The public key of the admin.
+ * @param {string} param0.name - The name of the NFT.
+ * @param {string} param0.symbol - The symbol of the NFT.
+ * @param {string} param0.uri - The URI of the NFT.
+ * @param {number} param0.fee - The fee for the NFT.
+ * 
+ * @returns {Promise<Object>} A Promise that resolves to an object with the minting result.
+ * @property {boolean} success - Indicates if the minting was successful.
+ * @property {string} link - The link to view the newly minted NFT.
+ * @property {string} address - The address of the new NFT.
+ * @property {string | null | undefined} error - An optional error message if the minting failed.
+ */
     async mintNFT({
         collectionAddress,
         adminPublicKey,
@@ -201,6 +250,12 @@ export class WalletSolana {
         }
     }
 
+/**
+ * Asynchronously verifies if an NFT belongs to a specific collection
+ * @param {string} collectionAddress - The address of the collection
+ * @param {string} nftAddress - The address of the NFT
+ * @returns {Promise<{isVerified: boolean, error: string | null}>} An object containing the verification result and error message if applicable
+ */
     async verifyNft({
         collectionAddress,
         nftAddress,

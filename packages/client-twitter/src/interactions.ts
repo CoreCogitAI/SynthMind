@@ -87,14 +87,28 @@ Thread of Tweets You Are Replying To:
 # INSTRUCTIONS: Respond with [RESPOND] if {{agentName}} should respond, or [IGNORE] if {{agentName}} should not respond to the last message and [STOP] if {{agentName}} should stop participating in the conversation.
 ` + shouldRespondFooter;
 
+/**
+ * Class representing a TwitterInteractionClient.
 export class TwitterInteractionClient {
     client: ClientBase;
     runtime: IAgentRuntime;
+/**
+ * Constructor for creating a new instance of a class.
+ * @param {ClientBase} client - The client used by the instance.
+ * @param {IAgentRuntime} runtime - The runtime used by the instance.
+ */
     constructor(client: ClientBase, runtime: IAgentRuntime) {
         this.client = client;
         this.runtime = runtime;
     }
 
+/**
+ * Asynchronously starts the process of handling Twitter interactions by setting up a loop that calls
+ * the 'handleTwitterInteractions' method at a specified interval. The interval is determined by
+ * the 'TWITTER_POLL_INTERVAL' configuration setting.
+ * 
+ * @returns {Promise<void>} A promise that resolves when the loop is successfully started
+ */
     async start() {
         const handleTwitterInteractionsLoop = () => {
             this.handleTwitterInteractions();
@@ -107,6 +121,12 @@ export class TwitterInteractionClient {
         handleTwitterInteractionsLoop();
     }
 
+/**
+ * Asynchronously handles Twitter interactions by checking for mentions and tweets from configured target users.
+ * 
+ * @returns {Promise<void>} A promise that resolves once all interactions have been handled
+ */ 
+```
     async handleTwitterInteractions() {
         elizaLogger.log("Checking Twitter interactions");
 
@@ -294,6 +314,14 @@ export class TwitterInteractionClient {
         }
     }
 
+/**
+ * Handles processing of a tweet and generates a response based on the tweet content and thread conversation.
+ * @param {Object} param0 - The tweet, message, and thread objects
+ * @param {Tweet} param0.tweet - The tweet object
+ * @param {Memory} param0.message - The message object
+ * @param {Tweet[]} param0.thread - The thread array containing previous tweets
+ * @returns {Object} - Object containing the text response and action to be taken
+ */
     private async handleTweet({
         tweet,
         message,
@@ -480,6 +508,13 @@ export class TwitterInteractionClient {
         }
     }
 
+/**
+ * Asynchronously builds a conversation thread starting from a given tweet.
+ *
+ * @param {Tweet} tweet - The initial tweet to start building the thread from.
+ * @param {number} maxReplies - The maximum number of replies to include in the thread (default is 10).
+ * @returns {Promise<Tweet[]>} A Promise that resolves to an array of tweets representing the conversation thread.
+ */
     async buildConversationThread(
         tweet: Tweet,
         maxReplies: number = 10

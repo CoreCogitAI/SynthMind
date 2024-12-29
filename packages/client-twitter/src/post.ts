@@ -44,28 +44,30 @@ export const twitterActionTemplate =
 {{postDirections}}
 
 Guidelines:
-- ONLY engage with content that DIRECTLY relates to character's core interests
-- Direct mentions are priority IF they are on-topic
-- Skip ALL content that is:
-  - Off-topic or tangentially related
-  - From high-profile accounts unless explicitly relevant
-  - Generic/viral content without specific relevance
-  - Political/controversial unless central to character
-  - Promotional/marketing unless directly relevant
+- Highly selective engagement
+- Direct mentions are priority
+- Skip: low-effort content, off-topic, repetitive
 
 Actions (respond only with tags):
-[LIKE] - Perfect topic match AND aligns with character (9.8/10)
-[RETWEET] - Exceptional content that embodies character's expertise (9.5/10)
-[QUOTE] - Can add substantial domain expertise (9.5/10)
-[REPLY] - Can contribute meaningful, expert-level insight (9.5/10)
+[LIKE] - Resonates with interests (9.5/10)
+[RETWEET] - Perfect character alignment (9/10)
+[QUOTE] - Can add unique value (8/10)
+[REPLY] - Memetic opportunity (9/10)
 
 Tweet:
 {{currentTweet}}
 
-# Respond with qualifying action tags only. Default to NO action unless extremely confident of relevance.` + postActionResponseFooter;
+# Respond with qualifying action tags only.` + postActionResponseFooter;
 
 /**
  * Truncate text to fit within the Twitter character limit, ensuring it ends at a complete sentence.
+ */
+/**
+ * Truncates a given text to fit within the specified maximum length by attempting to truncate at the last period within the limit,
+ * then at the nearest whitespace, and finally hard truncation with ellipsis if needed.
+ * @param {string} text - The text to truncate.
+ * @param {number} maxTweetLength - The maximum length of the truncated text.
+ * @returns {string} The truncated text.
  */
 function truncateToCompleteSentence(
     text: string,

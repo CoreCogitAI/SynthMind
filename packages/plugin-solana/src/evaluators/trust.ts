@@ -78,6 +78,13 @@ Response should be a JSON object array inside a JSON markdown block. Correct res
 ]
 \`\`\``;
 
+/**
+ * Handles the processing of recommendations based on trust score and user information.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime environment for the agent.
+ * @param {Memory} message - The message data to process.
+ * @returns {Promise<Array>} - An array of filtered recommendations after processing.
+ */
 async function handler(runtime: IAgentRuntime, message: Memory) {
     console.log("Evaluating for trust");
     const state = await runtime.composeState(message);

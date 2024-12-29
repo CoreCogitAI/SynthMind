@@ -11,6 +11,12 @@ const envPath = resolve(__dirname, '../../../../.env');
 console.log('Loading environment from:', envPath);
 config({ path: envPath });
 
+/**
+ * Validates whether all required environment variables are present.
+ * 
+ * @returns {boolean} Returns true if all required environment variables are present, 
+ * and logs masked versions of the tokens for debugging.
+ */
 function validateEnvironment() {
   const requiredEnvVars = [
     'SLACK_APP_ID',
@@ -41,6 +47,14 @@ function validateEnvironment() {
   return true;
 }
 
+/**
+ * Starts a server with the given express application on the specified port.
+ * If the port is already in use, it will try the next available port up to 10 attempts.
+ * 
+ * @param {express.Application} app - The express application to start the server with.
+ * @param {number} port - The port number to start the server on.
+ * @returns {Promise<number>} The port number where the server is successfully started.
+ */
 async function startServer(app: express.Application, port: number): Promise<number> {
   try {
     await new Promise<void>((resolve, reject) => {
@@ -62,6 +76,16 @@ async function startServer(app: express.Application, port: number): Promise<numb
   }
 }
 
+/**
+ * Asynchronous function that runs the Slack Client Example.
+ * 
+ * This function initializes the Slack client with specified credentials,
+ * validates the connection, sets up event handling, creates an Express app,
+ * sends initial messages to a specified channel, and demonstrates core functionalities
+ * such as sending messages, images, replying in threads, and sending images in threads.
+ * 
+ * @returns {Promise<void>} A Promise that resolves when the Slack Client Example is executed successfully.
+ */
 async function runExample() {
   console.log('\n=== Starting Slack Client Example ===\n');
 

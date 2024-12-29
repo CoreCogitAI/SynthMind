@@ -7,15 +7,30 @@ import { PrivateKeyAccount, keccak256 } from "viem";
 import { RemoteAttestationProvider } from "./remoteAttestationProvider";
 import { TEEMode, RemoteAttestationQuote } from "../types/tee";
 
+/**
+ * Interface for specifying the data required to derive key attestation.
+ * @typedef {Object} DeriveKeyAttestationData
+ * @property {string} agentId - The identifier of the agent.
+ * @property {string} publicKey - The public key string.
+ */
 interface DeriveKeyAttestationData {
     agentId: string;
     publicKey: string;
 }
 
+/**
+ * Class representing a DeriveKeyProvider used for key derivation with remote attestation.
+ * @class
+ */
+ 
 class DeriveKeyProvider {
     private client: TappdClient;
     private raProvider: RemoteAttestationProvider;
 
+/**
+ * Constructor for the TEEManager class.
+ * @param {string} teeMode - The mode in which to run the TEEManager. Can be LOCAL, DOCKER, or PRODUCTION.
+ */
     constructor(teeMode?: string) {
         let endpoint: string | undefined;
 
@@ -49,6 +64,13 @@ class DeriveKeyProvider {
         this.raProvider = new RemoteAttestationProvider(teeMode);
     }
 
+/**
+ * Generates a Remote Attestation Quote for Derive Key with the specified agent ID and public key.
+ * 
+ * @param {string} agentId - The ID of the agent.
+ * @param {string} publicKey - The public key used for the attestation.
+ * @returns {Promise<RemoteAttestationQuote>} The generated Remote Attestation Quote for Derive Key.
+ */
     private async generateDeriveKeyAttestation(
         agentId: string,
         publicKey: string
@@ -64,6 +86,14 @@ class DeriveKeyProvider {
         return quote;
     }
 
+/**
+ * Asynchronously derives a key based on the given path and subject in a Trusted Execution Environment (TEE).
+ * 
+ * @param {string} path - The path used for key derivation.
+ * @param {string} subject - The subject used for key derivation.
+ * @returns {Promise<DeriveKeyResponse>} A promise that resolves with the derived key response.
+ * @throws {Error} If there is an error during the key derivation process.
+ */
     async rawDeriveKey(
         path: string,
         subject: string
@@ -86,6 +116,14 @@ class DeriveKeyProvider {
         }
     }
 
+/**
+ * Derives an Ed25519 keypair using the provided path, subject, and agentId.
+ * 
+ * @param {string} path - The path for key derivation.
+ * @param {string} subject - The subject for key derivation.
+ * @param {string} agentId - The agentId for generating attestation.
+ * @returns {Promise<{ keypair: Keypair; attestation: RemoteAttestationQuote }>} The derived keypair and attestation.
+ */
     async deriveEd25519Keypair(
         path: string,
         subject: string,
@@ -122,6 +160,15 @@ class DeriveKeyProvider {
         }
     }
 
+/**
+ * Asynchronously derives an ECDSA key pair using the provided path and subject. 
+ * 
+ * @param {string} path - The path to derive the key from.
+ * @param {string} subject - The subject for the key derivation.
+ * @param {string} agentId - The agent ID for generating the attestation.
+ * @returns {Promise<{keypair: PrivateKeyAccount, attestation: RemoteAttestationQuote}>} - A promise that resolves to an object containing the derived key pair and attestation.
+ * @throws {Error} If an error occurs during the key derivation process.
+ */
     async deriveEcdsaKeypair(
         path: string,
         subject: string,

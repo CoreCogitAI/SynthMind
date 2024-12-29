@@ -1,5 +1,14 @@
 import { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
 
+/**
+ * Represents an event from Slack.
+ * @typedef {Object} SlackEvent
+ * @property {string} channel - The channel where the event occurred.
+ * @property {string} channel_type - The type of channel.
+ * @property {string} [thread_ts] - The timestamp of the thread.
+ * @property {string} [user] - The user associated with the event.
+ * @property {string} [team] - The team associated with the event.
+ */
 interface SlackEvent {
     channel: string;
     channel_type: string;

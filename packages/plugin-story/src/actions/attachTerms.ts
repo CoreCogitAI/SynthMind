@@ -20,9 +20,23 @@ import { zeroAddress } from "viem";
 
 export { attachTermsTemplate };
 
+/**
+ * Class representing an action to attach terms.
+ */
+
 export class AttachTermsAction {
+/**
+ * Constructor for initializing a new instance of a class with a wallet provider.
+ * @param {WalletProvider} walletProvider - The wallet provider being injected into the class.
+ */
     constructor(private walletProvider: WalletProvider) {}
 
+/**
+ * Asynchronously attaches license terms to an intellectual property.
+ * 
+ * @param {AttachTermsParams} params - The parameters needed to attach the license terms, including IP ID, commercial use, minting fee, and commercial rev share.
+ * @returns {Promise<{ attachTermsResponse: AttachLicenseTermsResponse, registerPilTermsResponse: RegisterPILResponse }>} An object containing the response from attaching the license terms and registering PIL terms.
+ */
     async attachTerms(params: AttachTermsParams): Promise<{
         attachTermsResponse: AttachLicenseTermsResponse;
         registerPilTermsResponse: RegisterPILResponse;

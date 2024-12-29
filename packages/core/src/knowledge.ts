@@ -5,6 +5,13 @@ import { stringToUuid } from "./uuid.ts";
 import { splitChunks } from "./generation.ts";
 import elizaLogger from "./logger.ts";
 
+/**
+ * Asynchronously fetches knowledge items based on a message in memory.
+ * 
+ * @param {AgentRuntime} runtime - The agent runtime environment.
+ * @param {Memory} message - The memory message containing text content.
+ * @returns {Promise<KnowledgeItem[]>} A promise that resolves to an array of KnowledgeItem objects.
+ */
 async function get(
     runtime: AgentRuntime,
     message: Memory
@@ -64,6 +71,15 @@ async function get(
         .map((memory) => ({ id: memory.id, content: memory.content }));
 }
 
+/**
+ * Set a knowledge item including its chunks into the runtime.
+ *
+ * @param {AgentRuntime} runtime - The AgentRuntime instance.
+ * @param {KnowledgeItem} item - The KnowledgeItem to set in the runtime.
+ * @param {number} chunkSize - The size of each chunk (default is 512).
+ * @param {number} bleed - The additional context size around each chunk (default is 20).
+ * @returns {Promise<void>} - A Promise that resolves once the item and its chunks are set in the runtime.
+ */
 async function set(
     runtime: AgentRuntime,
     item: KnowledgeItem,
@@ -102,6 +118,14 @@ async function set(
     }
 }
 
+/**
+ * Preprocesses the input text by performing various transformations to make it suitable for further processing.
+ * Removes code blocks, inline code, headers, image links, URLs, Discord mentions, HTML tags, horizontal rules, comments,
+ * special characters (except those common in URLs), and normalizes whitespace.
+ * 
+ * @param {string} content - The input text to preprocess.
+ * @returns {string} The preprocessed text.
+ */
 export function preprocess(content: string): string {
     elizaLogger.debug("Preprocessing text:", {
         input: content,

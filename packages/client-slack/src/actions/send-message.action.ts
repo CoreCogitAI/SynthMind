@@ -4,9 +4,18 @@ import { SlackClientContext, SlackMessage } from '../types/slack-types';
 const recentMessages = new Map<string, { text: string; timestamp: number }>();
 const MESSAGE_CACHE_TTL = 5000; // 5 seconds TTL
 
+/**
+ * Class representing an action to send a message using Slack API.
 export class SendMessageAction {
+/**
+ * Constructor for creating a new instance of the class.
+ * @param {SlackClientContext} context - The Slack client context to be assigned to the instance.
+ */
   constructor(private context: SlackClientContext) {}
 
+/**
+ * Removes old messages from the recentMessages map that have exceeded the MESSAGE_CACHE_TTL.
+ */
   private cleanupOldMessages() {
     const now = Date.now();
     for (const [key, value] of recentMessages.entries()) {
@@ -16,6 +25,13 @@ export class SendMessageAction {
     }
   }
 
+/**
+ * Checks if a Slack message is a duplicate based on the unique key generated from the message's channelId, threadTs, and text.
+ * If the message is a duplicate (seen recently), returns true. Otherwise, stores the message in the recentMessages map and returns false.
+ * 
+ * @param {SlackMessage} message - The Slack message to check for duplicates
+ * @returns {boolean} - True if the message is a duplicate, false if it is not
+ */
   private isDuplicate(message: SlackMessage): boolean {
     this.cleanupOldMessages();
     
@@ -37,6 +53,11 @@ export class SendMessageAction {
     return false;
   }
 
+/**
+ * Executes the command to send a message on Slack.
+ * @param {SlackMessage} message - The Slack message object containing the details of the message to be sent.
+ * @returns {Promise<boolean>} A boolean value indicating the success status of sending the message.
+ */
   public async execute(message: SlackMessage): Promise<boolean> {
     try {
       // Skip duplicate messages

@@ -6,8 +6,17 @@ export const suiEnvSchema = z.object({
     SUI_NETWORK: z.enum(["mainnet", "testnet"]),
 });
 
+/**
+ * Represents the inferred type of the SuiConfig based on the given suiEnvSchema.
+ */
 export type SuiConfig = z.infer<typeof suiEnvSchema>;
 
+/**
+ * Validates the SUI configuration provided by the runtime using the specified schema.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime environment from which to retrieve configuration settings.
+ * @returns {Promise<SuiConfig>} The validated SUI configuration.
+ */
 export async function validateSuiConfig(
     runtime: IAgentRuntime
 ): Promise<SuiConfig> {

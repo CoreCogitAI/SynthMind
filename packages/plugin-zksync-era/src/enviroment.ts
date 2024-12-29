@@ -6,8 +6,19 @@ export const zksyncEnvSchema = z.object({
     ZKSYNC_PRIVATE_KEY: z.string().min(1, "ZKsync private key is required"),
 });
 
+/**
+ * Type definition for ZKsyncConfig inferred from zksyncEnvSchema.
+ */
 export type ZKsyncConfig = z.infer<typeof zksyncEnvSchema>;
 
+/**
+ * Validates the ZKsync configuration by retrieving the ZKSYNC_ADDRESS and ZKSYNC_PRIVATE_KEY settings from the runtime
+ * or environment variables, and then parsing it using zksyncEnvSchema.
+ * 
+ * @param {IAgentRuntime} runtime - The Agent Runtime instance
+ * @returns {Promise<ZKsyncConfig>} - A Promise that resolves to the validated ZKsync configuration
+ * @throws {Error} - If the ZKsync configuration validation fails
+ */
 export async function validateZKsyncConfig(
     runtime: IAgentRuntime
 ): Promise<ZKsyncConfig> {

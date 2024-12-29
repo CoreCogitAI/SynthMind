@@ -8,6 +8,11 @@ const __dirname = path.dirname(__filename);
 
 let intifaceProcess: ChildProcess | null = null;
 
+/**
+ * Checks if a given port is available for listening.
+ * @param {number} port - The port number to check availability for.
+ * @returns {Promise<boolean>} A Promise that resolves to a boolean: true if the port is available, false otherwise.
+ */
 export async function isPortAvailable(port: number): Promise<boolean> {
     return new Promise((resolve) => {
         const server = net
@@ -21,6 +26,10 @@ export async function isPortAvailable(port: number): Promise<boolean> {
     });
 }
 
+/**
+ * Starts the Intiface Engine by spawning a child process with specific configurations.
+ * @returns {Promise<void>} A promise that resolves once the Intiface Engine has started successfully.
+ */
 export async function startIntifaceEngine(): Promise<void> {
     const configPath = path.join(
         __dirname,
@@ -55,6 +64,9 @@ export async function startIntifaceEngine(): Promise<void> {
     }
 }
 
+/**
+ * Function to clean up and shut down the Intiface Engine process.
+ */
 async function cleanup() {
     if (intifaceProcess) {
         console.log("[utils] Shutting down Intiface Engine...");

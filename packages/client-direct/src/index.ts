@@ -73,12 +73,22 @@ Note that {{agentName}} is capable of reading/seeing/hearing various forms of me
 # Instructions: Write the next message for {{agentName}}.
 ` + messageCompletionFooter;
 
+/**
+ * DirectClient class representing a direct client for interacting with agents.
+ * @class
+ */
+ */
 export class DirectClient {
     public app: express.Application;
     private agents: Map<string, AgentRuntime>; // container management
     private server: any; // Store server instance
     public startAgent: Function; // Store startAgent functor
 
+/**
+ * Constructor for setting up the Direct Client with various endpoints including message handling, image generation, speech generation, and fine-tuning functionality.
+ * 
+ * @constructor
+ */
     constructor() {
         elizaLogger.log("DirectClient constructor");
         this.app = express();
@@ -602,14 +612,28 @@ export class DirectClient {
     }
 
     // agent/src/index.ts:startAgent calls this
+/**
+ * Registers an agent with the given runtime.
+ * 
+ * @param {AgentRuntime} runtime - The runtime of the agent to be registered.
+ */
     public registerAgent(runtime: AgentRuntime) {
         this.agents.set(runtime.agentId, runtime);
     }
 
+/**
+ * Unregisters an agent from the system.
+ * @param {AgentRuntime} runtime - The agent runtime to unregister.
+ */
     public unregisterAgent(runtime: AgentRuntime) {
         this.agents.delete(runtime.agentId);
     }
 
+/**
+ * Starts the server on the specified port and sets up graceful shutdown handlers.
+ *
+ * @param {number} port - The port number to bind the server to.
+ */
     public start(port: number) {
         this.server = this.app.listen(port, () => {
             elizaLogger.success(
@@ -639,6 +663,9 @@ export class DirectClient {
         process.on("SIGINT", gracefulShutdown);
     }
 
+/**
+ * Stops the server if it is currently running.
+ */
     public stop() {
         if (this.server) {
             this.server.close(() => {

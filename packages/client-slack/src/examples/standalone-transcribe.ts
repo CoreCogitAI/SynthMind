@@ -8,6 +8,11 @@ const envPath = resolve(__dirname, '../../../../.env');
 console.log('Loading environment from:', envPath);
 config({ path: envPath });
 
+/**
+ * Validates the presence of required environment variables. 
+ *
+ * @returns {boolean} Returns true if all required environment variables are present, false otherwise.
+ */
 function validateEnvironment() {
     const requiredEnvVars = [
         'SLACK_APP_ID',
@@ -29,6 +34,12 @@ function validateEnvironment() {
     return true;
 }
 
+/**
+ * Executes the main function which connects to Slack, sends a test message with a media attachment,
+ * requests transcription of the audio file, and keeps the process running until completion.
+ * @throws {Error} When environment validation fails or connection to Slack fails
+ * @returns {Promise<void>}
+ */
 async function main() {
     console.log('\n=== Starting Transcribe Media Example ===\n');
 

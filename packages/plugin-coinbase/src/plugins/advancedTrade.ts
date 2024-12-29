@@ -103,6 +103,11 @@ const tradeProvider: Provider = {
     },
 };
 
+/**
+ * Appends trade data to a CSV file.
+ * @param {any} tradeResult The result of the trade operation.
+ * @returns {Promise<void>} A promise that resolves once the trade data is written to the CSV file.
+ */
 export async function appendTradeToCsv(tradeResult: any) {
     elizaLogger.debug("Starting appendTradeToCsv function");
     try {
@@ -135,6 +140,14 @@ export async function appendTradeToCsv(tradeResult: any) {
     }
 }
 
+/**
+ * Check if the client has enough balance to make a trade.
+ * @param {RESTClient} client - The REST client object.
+ * @param {string} currency - The currency to check the balance for.
+ * @param {number} amount - The amount of currency to check for.
+ * @param {string} side - The side of the trade (BUY or SELL).
+ * @returns {Promise<boolean>} A boolean value indicating if the client has enough balance.
+ */
 async function hasEnoughBalance(
     client: RESTClient,
     currency: string,

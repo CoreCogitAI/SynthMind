@@ -22,11 +22,22 @@ import {
 } from "@aptos-labs/ts-sdk";
 import { walletProvider } from "../providers/wallet";
 
+/**
+ * Interface for transferring content to another user.
+ * Extends Content interface.
+ * @property {string} recipient - The recipient of the transfer.
+ * @property {string | number} amount - The amount being transferred (string for currencies, number for quantities).
+ */
 export interface TransferContent extends Content {
     recipient: string;
     amount: string | number;
 }
 
+/**
+ * Check if the provided content is of type TransferContent
+ * @param {any} content 
+ * @returns {boolean} 
+ */
 function isTransferContent(content: any): content is TransferContent {
     console.log("Content for transfer", content);
     return (

@@ -18,9 +18,24 @@ import { RegisterIPParams } from "../types";
 
 export { registerIPTemplate };
 
+/**
+ * Class representing a RegisterIPAction.
+ */
+
 export class RegisterIPAction {
+/**
+ * Constructor for initializing a new instance of a class.
+ * @param {WalletProvider} walletProvider - The wallet provider being injected into the class.
+ */
     constructor(private walletProvider: WalletProvider) {}
 
+/**
+ * Register IP with the given parameters.
+ * 
+ * @param {RegisterIPParams} params - The parameters needed to register the IP.
+ * @param {IAgentRuntime} runtime - The runtime environment information.
+ * @returns {Promise<RegisterIpResponse>} The response of the registration process.
+ */
     async registerIP(
         params: RegisterIPParams,
         runtime: IAgentRuntime

@@ -8,6 +8,16 @@ import {
 import { composeContext } from "@elizaos/core";
 import { generateText } from "@elizaos/core";
 
+/**
+ * Interface representing an order object.
+ * @typedef {Object} Order
+ * @property {string} userId - The ID of the user placing the order.
+ * @property {string} ticker - The ticker symbol of the asset being traded.
+ * @property {string} contractAddress - The contract address of the asset being traded.
+ * @property {string} timestamp - The timestamp of when the order was placed.
+ * @property {number} buyAmount - The amount being bought/sold in the order.
+ * @property {number} price - The price at which the asset is being bought/sold.
+ */
 interface Order {
     userId: string;
     ticker: string;

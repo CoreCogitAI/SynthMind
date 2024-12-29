@@ -23,6 +23,12 @@ import { uploadFileToWeb3Storage } from "../apis/uploadFile";
 import { createTokenTemplate, logoPromptTemplate } from "./prompts/token";
 import { CANISTER_IDS } from "../constants/canisters";
 
+/**
+ * Creates a new token transaction using the provided ActorCreator and token information.
+ * @param {ActorCreator} creator The ActorCreator instance used to interact with the canister.
+ * @param {CreateMemeTokenArg} tokenInfo The information required to create the token.
+ * @returns {Promise<object>} A promise that resolves to the newly created token's details if successful, or throws an error with a message if the token creation failed.
+ */
 async function createTokenTransaction(
     creator: ActorCreator,
     tokenInfo: CreateMemeTokenArg
@@ -59,6 +65,15 @@ async function createTokenTransaction(
     );
 }
 
+/**
+ * Generate a logo for a cryptocurrency token based on the given description.
+ * The logo is created with the characteristics specified in the description and is expected to be simple, iconic, and suitable for a meme token.
+ * The style of the logo should be minimal with bold colors and crypto-themed elements.
+ * 
+ * @param {string} description - The description of the characteristics for the logo.
+ * @param {IAgentRuntime} runtime - The runtime environment for generating the logo.
+ * @returns {Promise<string | null>} A Promise that resolves with the generated logo image URL, or null if the generation was unsuccessful.
+ */
 async function generateTokenLogo(
     description: string,
     runtime: IAgentRuntime

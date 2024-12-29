@@ -1,6 +1,17 @@
 import { Database } from "better-sqlite3";
 import { v4 as uuidv4 } from "uuid";
 
+/**
+ * Interface for a recommender
+ * @typedef {Object} Recommender
+ * @property {string} id - UUID
+ * @property {string} address
+ * @property {string=} solanaPubkey
+ * @property {string=} telegramId
+ * @property {string=} discordId
+ * @property {string=} twitterId
+ * @property {string=} ip
+ */
 export interface Recommender {
     id: string; // UUID
     address: string;
@@ -11,6 +22,21 @@ export interface Recommender {
     ip?: string;
 }
 
+/**
+ * Interface representing metrics for a recommender system.
+ * @typedef {Object} RecommenderMetrics
+ * @property {string} recommenderId - The unique identifier for the recommender.
+ * @property {number} trustScore - The trust score of the recommender.
+ * @property {number} totalRecommendations - The total number of recommendations made by the recommender.
+ * @property {number} successfulRecs - The number of successful recommendations made by the recommender.
+ * @property {number} avgTokenPerformance - The average token performance of the recommendations.
+ * @property {number} riskScore - The risk score associated with the recommender.
+ * @property {number} consistencyScore - The consistency score of the recommender's recommendations.
+ * @property {number} virtualConfidence - The virtual confidence level of the recommender.
+ * @property {Date} lastActiveDate - The date when the recommender was last active.
+ * @property {number} trustDecay - The rate of decay for the recommender's trust score.
+ * @property {Date} lastUpdated - The date when the metrics were last updated.
+ */
 export interface RecommenderMetrics {
     recommenderId: string;
     trustScore: number;
@@ -25,6 +51,28 @@ export interface RecommenderMetrics {
     lastUpdated: Date;
 }
 
+/**
+ * Interface representing the performance metrics of a token.
+ * @typedef {object} TokenPerformance
+ * @property {string} tokenAddress - The address of the token.
+ * @property {string} symbol - The symbol of the token.
+ * @property {number} priceChange24h - The price change of the token in the last 24 hours.
+ * @property {number} volumeChange24h - The volume change of the token in the last 24 hours.
+ * @property {number} trade_24h_change - The trade change of the token in the last 24 hours.
+ * @property {number} liquidity - The liquidity of the token.
+ * @property {number} liquidityChange24h - The liquidity change of the token in the last 24 hours.
+ * @property {number} holderChange24h - The holder change of the token in the last 24 hours.
+ * @property {boolean} rugPull - Indicates if the token has experienced rug pull.
+ * @property {boolean} isScam - Indicates if the token is considered a scam.
+ * @property {number} marketCapChange24h - The market cap change of the token in the last 24 hours.
+ * @property {boolean} sustainedGrowth - Indicates if the token has shown sustained growth.
+ * @property {boolean} rapidDump - Indicates if the token has experienced rapid dump.
+ * @property {boolean} suspiciousVolume - Indicates if the token has suspicious volume.
+ * @property {number} validationTrust - The trust level for the validation of the token.
+ * @property {number} balance - The balance of the token.
+ * @property {number} initialMarketCap - The initial market cap of the token.
+ * @property {Date} lastUpdated - The date when the information was last updated.
+ */
 export interface TokenPerformance {
     tokenAddress: string;
     symbol: string;
@@ -46,6 +94,17 @@ export interface TokenPerformance {
     lastUpdated: Date;
 }
 
+/**
+ * Interface representing a token recommendation.
+ * @typedef {Object} TokenRecommendation
+ * @property {string} id - The UUID of the recommendation.
+ * @property {string} recommenderId - The ID of the recommender.
+ * @property {string} tokenAddress - The address of the token.
+ * @property {Date} timestamp - The timestamp of the recommendation.
+ * @property {number} [initialMarketCap] - The initial market capitalization of the token (optional).
+ * @property {number} [initialLiquidity] - The initial liquidity of the token (optional).
+ * @property {number} [initialPrice] - The initial price of the token (optional).
+ */
 export interface TokenRecommendation {
     id: string; // UUID
     recommenderId: string;
@@ -55,6 +114,21 @@ export interface TokenRecommendation {
     initialLiquidity?: number;
     initialPrice?: number;
 }
+/**
+ * Interface representing the history of metrics for a recommender.
+ * @typedef {Object} RecommenderMetricsHistory
+ * @property {string} historyId - The UUID of the history entry.
+ * @property {string} recommenderId - The ID of the recommender.
+ * @property {number} trustScore - The trust score of the recommender.
+ * @property {number} totalRecommendations - The total number of recommendations made.
+ * @property {number} successfulRecs - The number of successful recommendations.
+ * @property {number} avgTokenPerformance - The average token performance.
+ * @property {number} riskScore - The risk score associated with the recommendations.
+ * @property {number} consistencyScore - The consistency score of the recommender.
+ * @property {number} virtualConfidence - The virtual confidence score of the recommender.
+ * @property {number} trustDecay - The trust decay value.
+ * @property {Date} recordedAt - The date when the metrics were recorded.
+ */
 export interface RecommenderMetricsHistory {
     historyId: string; // UUID
     recommenderId: string;
@@ -69,6 +143,32 @@ export interface RecommenderMetricsHistory {
     recordedAt: Date;
 }
 
+/**
+ * Interface representing the performance of a trade.
+ * @typedef {Object} TradePerformance
+ * @property {string} token_address - The address of the token traded.
+ * @property {string} recommender_id - The ID of the recommender for the trade.
+ * @property {number} buy_price - The price at which the token was bought.
+ * @property {number} sell_price - The price at which the token was sold.
+ * @property {string} buy_timeStamp - The timestamp of the buy transaction.
+ * @property {string} sell_timeStamp - The timestamp of the sell transaction.
+ * @property {number} buy_amount - The amount of tokens bought.
+ * @property {number} sell_amount - The amount of tokens sold.
+ * @property {number} buy_sol - The number of SOL tokens used for buying.
+ * @property {number} received_sol - The number of SOL tokens received from selling.
+ * @property {number} buy_value_usd - The value of the buy transaction in USD.
+ * @property {number} sell_value_usd - The value of the sell transaction in USD.
+ * @property {number} profit_usd - The profit from the trade in USD.
+ * @property {number} profit_percent - The profit percentage from the trade.
+ * @property {number} buy_market_cap - The market capitalization at the time of buying.
+ * @property {number} sell_market_cap - The market capitalization at the time of selling.
+ * @property {number} market_cap_change - The change in market capitalization.
+ * @property {number} buy_liquidity - The liquidity at the time of buying.
+ * @property {number} sell_liquidity - The liquidity at the time of selling.
+ * @property {number} liquidity_change - The change in liquidity.
+ * @property {string} last_updated - The timestamp of when the data was last updated.
+ * @property {boolean} rapidDump - Indicates if the trade was a rapid dump.
+ */
 export interface TradePerformance {
     token_address: string;
     recommender_id: string;
@@ -94,6 +194,21 @@ export interface TradePerformance {
     rapidDump: boolean;
 }
 
+/**
+ * Interface representing a row of recommender metrics.
+ * @typedef {Object} RecommenderMetricsRow
+ * @property {string} recommender_id - The unique identifier of the recommender.
+ * @property {number} trust_score - The trust score of the recommender.
+ * @property {number} total_recommendations - The total number of recommendations made by the recommender.
+ * @property {number} successful_recs - The number of successful recommendations made by the recommender.
+ * @property {number} avg_token_performance - The average token performance of the recommendations made by the recommender.
+ * @property {number} risk_score - The risk score associated with the recommender.
+ * @property {number} consistency_score - The consistency score of the recommender's recommendations.
+ * @property {number} virtual_confidence - The virtual confidence score of the recommender.
+ * @property {Date} last_active_date - The date when the recommender was last active.
+ * @property {number} trust_decay - The trust decay rate of the recommender.
+ * @property {string} last_updated - The date when the metrics were last updated.
+ */
 interface RecommenderMetricsRow {
     recommender_id: string;
     trust_score: number;
@@ -108,6 +223,30 @@ interface RecommenderMetricsRow {
     last_updated: string;
 }
 
+/**
+ * Interface representing a row of performance data for a token.
+ * @typedef {Object} TokenPerformanceRow
+ * @property {string} token_address - The address of the token.
+ * @property {string} symbol - The symbol of the token.
+ * @property {number} price_change_24h - The price change in the last 24 hours.
+ * @property {number} volume_change_24h - The volume change in the last 24 hours.
+ * @property {number} trade_24h_change - The trade change in the last 24 hours.
+ * @property {number} liquidity - The liquidity value.
+ * @property {number} liquidity_change_24h - The liquidity change in the last 24 hours.
+ * @property {number} holder_change_24h - The change in holders in the last 24 hours.
+ * @property {number} rug_pull - The likelihood of rug pull.
+ * @property {number} is_scam - Indicator for whether the token is a scam.
+ * @property {number} market_cap_change24h - The market cap change in the last 24 hours.
+ * @property {number} sustained_growth - Indicator for sustained growth.
+ * @property {number} rapid_dump - Indicator for a rapid dump.
+ * @property {number} suspicious_volume - Indicator for suspicious volume.
+ * @property {number} validation_trust - The trust level of validation.
+ * @property {number} balance - The balance value.
+ * @property {number} initial_market_cap - The initial market capitalization.
+ * @property {string} last_updated - The last updated timestamp.
+ */
+ 
+       
 interface TokenPerformanceRow {
     token_address: string;
     symbol: string;
@@ -129,6 +268,17 @@ interface TokenPerformanceRow {
     last_updated: string;
 }
 
+/**
+ * Represents a transaction object.
+ * @typedef {Object} Transaction
+ * @property {string} tokenAddress - The token address.
+ * @property {string} transactionHash - The transaction hash.
+ * @property {"buy" | "sell"} type - The type of transaction, can be "buy" or "sell".
+ * @property {number} amount - The amount of tokens involved in the transaction.
+ * @property {number} price - The price of tokens in the transaction.
+ * @property {boolean} isSimulation - Indicates if the transaction is a simulation.
+ * @property {string} timestamp - The timestamp of the transaction.
+ */
 interface Transaction {
     tokenAddress: string;
     transactionHash: string;
@@ -139,9 +289,19 @@ interface Transaction {
     timestamp: string;
 }
 
+/**
+ * TrustScoreDatabase class for managing trust score related data in the database.
+ * @class
 export class TrustScoreDatabase {
     private db: Database;
 
+/**
+ * Constructor for the RecommenderService class.
+ * Initializes the database connection and checks if the necessary tables exist,
+ * creating them if they do not.
+ *
+ * @param {Database} db - The database instance to use for the service.
+ */
     constructor(db: Database) {
         this.db = db;
         // load(db);
@@ -156,6 +316,16 @@ export class TrustScoreDatabase {
         }
     }
 
+/**
+ * Initialize the database schema by creating the following tables:
+ * - recommenders
+ * - recommender_metrics
+ * - token_performance
+ * - token_recommendations
+ * - recommender_metrics_history
+ * - trade
+ * - simulation_trade
+ * - transactions
     private initializeSchema() {
         // Enable Foreign Key Support
         this.db.exec(`PRAGMA foreign_keys = ON;`);
@@ -329,6 +499,11 @@ export class TrustScoreDatabase {
      * @param recommender Recommender object
      * @returns boolean indicating success
      */
+/**
+ * Adds a new recommender to the database with the provided information.
+ * @param {Recommender} recommender - The recommender object to be added.
+ * @returns {string | null} The ID of the newly added recommender, or null if an error occurs.
+ */
     addRecommender(recommender: Recommender): string | null {
         const sql = `
             INSERT INTO recommenders (id, address, solana_pubkey, telegram_id, discord_id, twitter_id, ip)

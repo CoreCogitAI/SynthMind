@@ -25,9 +25,21 @@ export const UpdateResourceSchema = z.object({
 });
 
 // Type definitions
+/**
+* Type definition for Resource
+*/
 export type Resource = z.infer<typeof ResourceSchema>;
+/**
+ * Type definition for the content of a created resource.
+ */
 export type CreateResourceContent = z.infer<typeof CreateResourceSchema>;
+/**
+ * Type definition for the content of a resource being read.
+ */
 export type ReadResourceContent = z.infer<typeof ReadResourceSchema>;
+/**
+ * Type definition for updating resource content.
+ */
 export type UpdateResourceContent = z.infer<typeof UpdateResourceSchema>;
 
 // Type guards
@@ -44,6 +56,13 @@ export const isUpdateResourceContent = (obj: any): obj is UpdateResourceContent 
 };
 
 // Plugin configuration type
+/**
+ * Interface for configuring an example plugin.
+ * @typedef {Object} ExamplePluginConfig
+ * @property {string} apiKey - The API key required for authentication.
+ * @property {string} apiSecret - The API secret required for authentication.
+ * @property {string} [endpoint] - Optional endpoint to use for API calls.
+ */
 export interface ExamplePluginConfig {
     apiKey: string;
     apiSecret: string;

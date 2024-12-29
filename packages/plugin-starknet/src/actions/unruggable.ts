@@ -25,6 +25,14 @@ import { validateStarknetConfig } from "../environment.ts";
 //     sellAmount: string;
 // }
 
+/**
+* Interface for representing the content of a deploy token.
+* @typedef {object} DeployTokenContent
+* @property {string} name - The name of the token.
+* @property {string} symbol - The symbol of the token.
+* @property {string} owner - The address of the owner of the token.
+* @property {string} initialSupply - The initial supply of the token.
+*/ 
 interface DeployTokenContent {
     name: string;
     symbol: string;
@@ -32,6 +40,11 @@ interface DeployTokenContent {
     initialSupply: string;
 }
 
+/**
+ * Checks if the provided DeployTokenContent object has valid properties.
+ * @param {DeployTokenContent} content - The content object to validate.
+ * @returns {boolean} - true if the content object has valid properties, false otherwise.
+ */
 export function isDeployTokenContent(content: DeployTokenContent) {
     // Validate types
     const validTypes =

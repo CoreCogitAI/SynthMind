@@ -4,6 +4,11 @@ import { FarcasterPostManager } from "./post";
 import { FarcasterInteractionManager } from "./interactions";
 import { Configuration, NeynarAPIClient } from "@neynar/nodejs-sdk";
 
+/**
+ * FarcasterAgentClient is a class that represents a client for interacting with the Farcaster Agent API.
+ * @implements Client
+ */
+ 
 export class FarcasterAgentClient implements Client {
     client: FarcasterClient;
     posts: FarcasterPostManager;
@@ -11,6 +16,12 @@ export class FarcasterAgentClient implements Client {
 
     private signerUuid: string;
 
+/**
+ * Constructor for initializing the Farcaster Neynar client.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime interface.
+ * @param {FarcasterClient} [client] - Optional Farcaster client.
+ */
     constructor(
         public runtime: IAgentRuntime,
         client?: FarcasterClient
@@ -55,10 +66,17 @@ export class FarcasterAgentClient implements Client {
         );
     }
 
+/**
+ * Asynchronously starts the posts and interactions services.
+ */
     async start() {
         await Promise.all([this.posts.start(), this.interactions.start()]);
     }
 
+/**
+ * Asynchronously stops the process of both stopping the posts and interactions.
+ */
+```
     async stop() {
         await Promise.all([this.posts.stop(), this.interactions.stop()]);
     }

@@ -28,6 +28,10 @@ import voiceStateProvider from "./providers/voiceState.ts";
 import { VoiceManager } from "./voice.ts";
 import { PermissionsBitField } from "discord.js";
 
+/**
+ * DiscordClient class representing a Discord bot client.
+ * @extends EventEmitter
+ */
 export class DiscordClient extends EventEmitter {
     apiToken: string;
     client: Client;
@@ -36,6 +40,12 @@ export class DiscordClient extends EventEmitter {
     private messageManager: MessageManager;
     private voiceManager: VoiceManager;
 
+/**
+ * Constructor for DiscordBot.
+ * Initializes Discord client with provided runtime settings and sets up event listeners.
+ *
+ * @param {IAgentRuntime} runtime - The runtime instance of the bot.
+ */
     constructor(runtime: IAgentRuntime) {
         super();
 
@@ -79,6 +89,16 @@ export class DiscordClient extends EventEmitter {
         this.runtime.providers.push(voiceStateProvider);
     }
 
+/**
+ * Sets up event listeners for various client events.
+ * - Listens for guildCreate event and calls handleGuildCreate method.
+ * - Listens for MessageReactionAdd event and calls handleReactionAdd method.
+ * - Listens for MessageReactionRemove event and calls handleReactionRemove method.
+ * - Listens for voiceStateUpdate event and calls handleVoiceStateUpdate method from voiceManager.
+ * - Listens for userStream event and calls handleUserStream method from voiceManager.
+ * - Listens for MessageCreate event and calls handleMessage method from messageManager.
+ * - Listens for InteractionCreate event and calls handleInteractionCreate method.
+ */
     private setupEventListeners() {
         // When joining to a new server
         this.client.on("guildCreate", this.handleGuildCreate.bind(this));
@@ -115,6 +135,9 @@ export class DiscordClient extends EventEmitter {
         );
     }
 
+/**
+ * Stops the client by disconnecting the websocket and unbinding all listeners.
+ */
     async stop() {
         try {
             // disconnect websocket
@@ -125,6 +148,14 @@ export class DiscordClient extends EventEmitter {
         }
     }
 
+/**
+ * Handles the logic when the client is ready
+ * @param {Object} readyClient - The client object containing user information
+ * @param {Object} readyClient.user - The user object with tag and id
+ * @param {string} readyClient.user.tag - The tag of the user
+ * @param {string} readyClient.user.id - The id of the user
+ * @returns {Promise<void>} - A Promise that resolves when the function finishes
+ */ 
     private async onClientReady(readyClient: { user: { tag: any; id: any } }) {
         elizaLogger.success(`Logged in as ${readyClient.user?.tag}`);
 
@@ -186,6 +217,13 @@ export class DiscordClient extends EventEmitter {
         await this.onReady();
     }
 
+/**
+ * Handles the addition of a reaction to a message.
+ * 
+ * @param {MessageReaction} reaction - The reaction that was added.
+ * @param {User} user - The user who added the reaction.
+ * @returns {Promise<void>} - A Promise that resolves when the reaction handling is complete.
+ */
     async handleReactionAdd(reaction: MessageReaction, user: User) {
         try {
             elizaLogger.log("Reaction added");
@@ -296,6 +334,13 @@ export class DiscordClient extends EventEmitter {
         }
     }
 
+/**
+ * Handles the removal of a reaction from a message.
+ *
+ * @param {MessageReaction} reaction The reaction that was removed.
+ * @param {User} user The user who removed the reaction.
+ * @returns {Promise<void>}
+ */
     async handleReactionRemove(reaction: MessageReaction, user: User) {
         elizaLogger.log("Reaction removed");
         // if (user.bot) return;
@@ -369,11 +414,21 @@ export class DiscordClient extends EventEmitter {
         }
     }
 
+/**
+ * Handles the event when the bot joins a guild.
+ * @param {Guild} guild - The guild that the bot has joined.
+ */
     private handleGuildCreate(guild: Guild) {
         console.log(`Joined guild ${guild.name}`);
         this.voiceManager.scanGuild(guild);
     }
 
+/**
+ * Handles interaction created by the user.
+ * 
+ * @param {any} interaction - The interaction object created by the user
+ * @returns {Promise<void>} - A promise that resolves after handling the interaction
+ */
     private async handleInteractionCreate(interaction: any) {
         if (!interaction.isCommand()) return;
 
@@ -387,6 +442,10 @@ export class DiscordClient extends EventEmitter {
         }
     }
 
+/**
+ * Function to handle client ready event
+ * @returns {Promise<void>}
+ */
     private async onReady() {
         const guilds = await this.client.guilds.fetch();
         for (const [, guild] of guilds) {
@@ -396,6 +455,12 @@ export class DiscordClient extends EventEmitter {
     }
 }
 
+/**
+ * Function to start a Discord client with the provided runtime.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime object for the agent
+ * @returns {DiscordClient} - The Discord client instance
+ */
 export function startDiscord(runtime: IAgentRuntime) {
     return new DiscordClient(runtime);
 }

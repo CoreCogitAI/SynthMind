@@ -18,6 +18,14 @@ const connection = new Connection(
 );
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Asynchronously calls the given method after a delay of 150 milliseconds.
+ * 
+ * @template T
+ * @param {(...args: any[]) => Promise<T>} method - The method to call asynchronously.
+ * @param {...any[]} args - Any arguments to pass to the method.
+ * @returns {Promise<T>} A promise that resolves to the result of the method call.
+ */
 export async function delayedCall<T>(
     method: (...args: any[]) => Promise<T>,
     ...args: any[]
@@ -26,6 +34,14 @@ export async function delayedCall<T>(
     return method(...args);
 }
 
+/**
+ * Retrieves the decimals of a token from the given mint address.
+ * 
+ * @param {Connection} connection - The connection to the Solana blockchain.
+ * @param {string} mintAddress - The mint address of the token.
+ * @returns {Promise<number>} - The number of decimals of the token.
+ * @throws {Error} - If unable to fetch token decimals.
+ */
 export async function getTokenDecimals(
     connection: Connection,
     mintAddress: string
@@ -49,6 +65,14 @@ export async function getTokenDecimals(
     throw new Error("Unable to fetch token decimals");
 }
 
+/**
+ * Fetches a quote for a swap transaction between specified tokens with a given amount.
+ * @param {Connection} connection - The connection object for interacting with the Solana blockchain.
+ * @param {string} baseToken - The base token's mint address for the swap transaction.
+ * @param {string} outputToken - The output token's mint address for the swap transaction.
+ * @param {number} amount - The amount of tokens to swap.
+ * @returns {Promise<any>} - A promise that resolves to a Uint8Array representing the swap transaction.
+ */
 export async function getQuote(
     connection: Connection,
     baseToken: string,

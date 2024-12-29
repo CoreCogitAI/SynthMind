@@ -8,6 +8,16 @@ import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { getQuote } from "./swapUtils.ts";
 import { getWalletKey } from "../keypairUtils.ts";
 
+/**
+ * Invokes the Swap Dao with the provided parameters.
+ * 
+ * @param {Connection} connection - The connection object to interact with the Solana blockchain.
+ * @param {Keypair} authority - The authority keypair for signing the transaction.
+ * @param {PublicKey} statePDA - The PublicKey of the state PDA.
+ * @param {PublicKey} walletPDA - The PublicKey of the wallet PDA.
+ * @param {Buffer} instructionData - The instruction data to be included in the transaction.
+ * @returns {Promise<string>} The signature of the transaction.
+ */
 async function invokeSwapDao(
     connection: Connection,
     authority: Keypair,
@@ -43,6 +53,11 @@ async function invokeSwapDao(
     return signature;
 }
 
+/**
+ * Asynchronously prompts the user for confirmation.
+ * 
+ * @returns {Promise<boolean>} A promise that resolves with a boolean value representing the user's confirmation choice.
+ */
 async function promptConfirmation(): Promise<boolean> {
     // confirmation logic here
     const confirmSwap = window.confirm("Confirm the token swap?");

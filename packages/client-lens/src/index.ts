@@ -5,6 +5,13 @@ import { LensPostManager } from "./post";
 import { LensInteractionManager } from "./interactions";
 import StorjProvider from "./providers/StorjProvider";
 
+/**
+ * Represents a Lens agent client that interacts with the Lens API using a LensClient, LensPostManager, and LensInteractionManager instances.
+ * Manages the client's profile ID, StorjProvider for IPFS, and initiates the LensClient, LensPostManager, and LensInteractionManager by passing necessary parameters.
+ * 
+ * @implements {Client}
+ * @class
+ */
 export class LensAgentClient implements Client {
     client: LensClient;
     posts: LensPostManager;
@@ -13,6 +20,10 @@ export class LensAgentClient implements Client {
     private profileId: `0x${string}`;
     private ipfs: StorjProvider;
 
+/**
+ * Constructor for initializing LensService with necessary configurations.
+ * @param {IAgentRuntime} runtime - The runtime object for the agent.
+ */
     constructor(public runtime: IAgentRuntime) {
         const cache = new Map<string, any>();
 
@@ -56,10 +67,16 @@ export class LensAgentClient implements Client {
         );
     }
 
+/**
+ * Asynchronously starts both the posts and interactions components by awaiting the result of their respective start() methods.
+ */
     async start() {
         await Promise.all([this.posts.start(), this.interactions.start()]);
     }
 
+/**
+ * Stops the post and interaction processes asynchronously.
+ */
     async stop() {
         await Promise.all([this.posts.stop(), this.interactions.stop()]);
     }

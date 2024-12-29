@@ -35,6 +35,16 @@ const nftTemplate = `
 # Task: Generate an image to Prompt the  {{agentName}}'s appearance, with the total character count MUST be less than 280.
 `;
 
+/**
+ * Generate NFT metadata for a given token ID in a collection.
+ * @param {Object} params - The parameters for creating the NFT metadata.
+ * @param {IAgentRuntime} params.runtime - The agent runtime.
+ * @param {string} params.collectionName - The name of the NFT collection.
+ * @param {string} params.collectionAdminPublicKey - The admin public key for the collection.
+ * @param {number} params.collectionFee - The fee associated with the collection.
+ * @param {number} params.tokenId - The unique token ID.
+ * @returns {Object | null} - The NFT metadata information or null if there was an error.
+ */
 export async function createNFTMetadata({
     runtime,
     collectionName,
@@ -134,6 +144,17 @@ export async function createNFTMetadata({
     return null;
 }
 
+/**
+ * Creates a new NFT (Non-Fungible Token) by minting it on the Solana blockchain.
+ * @param {Object} params - The parameters for creating the NFT.
+ * @param {IAgentRuntime} params.runtime - The IAgentRuntime instance.
+ * @param {string} params.collectionName - The name of the NFT collection.
+ * @param {string} params.collectionAddress - The address of the NFT collection.
+ * @param {string} params.collectionAdminPublicKey - The public key of the collection admin.
+ * @param {number} params.collectionFee - The fee for creating the NFT.
+ * @param {number} params.tokenId - The token ID of the NFT.
+ * @returns {Promise<Object>} - A promise that resolves with an object containing information about the created NFT, including network, address, link, and NFT info.
+ */
 export async function createNFT({
     runtime,
     collectionName,

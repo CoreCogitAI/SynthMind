@@ -15,6 +15,12 @@ import { verifyNFT } from "./handlers/verifyNFT.ts";
 export * from "./provider/wallet/walletSolana.ts";
 export * from "./api.ts";
 
+/**
+ * Asynchronously sleeps for a specified amount of time.
+ * 
+ * @param {number} ms - The duration of time to sleep in milliseconds. Defaults to 3000 milliseconds.
+ * @returns {Promise<void>} A promise that resolves after the specified time has elapsed.
+ */
 export async function sleep(ms: number = 3000) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);

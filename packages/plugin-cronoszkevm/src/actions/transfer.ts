@@ -21,12 +21,26 @@ import {
     Web3ZKsyncL2,
 } from "web3-plugin-zksync";
 
+/**
+ * Interface for transferring content which extends the Content interface.
+ * @interface
+ * @extends Content
+ * @property {string} tokenAddress - The address of the token.
+ * @property {string} recipient - The recipient of the transfer.
+ * @property {string | number} amount - The amount to be transferred, can be either a string or a number.
+ */
 export interface TransferContent extends Content {
     tokenAddress: string;
     recipient: string;
     amount: string | number;
 }
 
+/**
+ * Check if the input content is a valid TransferContent object.
+ * 
+ * @param {TransferContent} content - The content to be validated
+ * @returns {boolean} - True if the content is a valid TransferContent object, false otherwise
+ */
 export function isTransferContent(
     content: TransferContent
 ): content is TransferContent {

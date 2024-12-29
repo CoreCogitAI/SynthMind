@@ -1,6 +1,11 @@
 import * as fcl from "@onflow/fcl";
 import type { Account } from "@onflow/typedefs";
 
+/**
+* Execute a script
+* @param code Cadence code
+* @param args Cadence arguments
+*/
 export interface IFlowScriptExecutor {
     /**
      * Execute a script

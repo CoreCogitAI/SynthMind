@@ -29,6 +29,13 @@ Object.entries(slackConfig).forEach(([key, value]) => {
     }
 });
 
+/**
+ * Function to run the example code for uploading a file to Slack.
+ * Initializes Slack client, validates connection, sends a test message with an attachment,
+ * processes the uploaded file, and cleans up after completion.
+ *
+ * @returns {Promise<void>} Promise that resolves when the example code finishes running.
+ */
 async function runExample() {
     try {
         console.log("\nInitializing Slack client...");

@@ -1,19 +1,63 @@
+/**
+ * Represents a value that can be used in SQL queries.
+ * Can be a number, string, Uint8Array, or null.
+ */
 type SqlValue = number | string | Uint8Array | null;
+/**
+ * Object type representing key-value pairs where keys are strings and values are of type SqlValue.
+ */
 type ParamsObject = Record<string, SqlValue>;
+/**
+ * Defines a type for a callback function that expects an object of type ParamsObject as its parameter.
+ */
 type ParamsCallback = (obj: ParamsObject) => void;
+/**
+ * Type representing parameters that can be bound to a SQL query.
+ */
+```
 type BindParams = SqlValue[] | ParamsObject | null;
+/**
+ * Interface representing the result of a query execution.
+ * @interface QueryExecResult
+ * @property {string[]} columns - The names of the columns in the result set.
+ * @property {SqlValue[][]} values - The values retrieved from the result set, organized in rows.
+ */
 interface QueryExecResult {
     columns: string[];
     values: SqlValue[][];
 }
 
+/**
+ * Interface for StatementIterator
+ * @interface
+ */
 declare class StatementIterator
     implements Iterator<Statement>, Iterable<Statement>
 {
+/**
+ * Returns an iterator for iterating over statements.
+ * @returns {Iterator<Statement>} An iterator for statements
+ */
     [Symbol.iterator](): Iterator<Statement>;
+/**
+ * Retrieve the remaining SQL query as a string.
+ * 
+ * @returns {string} The remaining SQL query
+ */
     getRemainingSQL(): string;
+/**
+ * Get the next element in the statement iterator.
+ * 
+ * @returns {StatementIteratorResult} The next element in the statement iterator.
+ */
     next(): StatementIteratorResult;
 }
+/**
+ * Represents the result of iterating through statements in a database.
+ * @typedef {Object} StatementIteratorResult
+ * @property {boolean} done - `true` if there are no more available statements
+ * @property {Statement} value - the next available Statement (as returned by `Database.prepare`)
+ */
 interface StatementIteratorResult {
     /** `true` if there are no more available statements */
     done: boolean;

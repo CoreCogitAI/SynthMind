@@ -18,9 +18,17 @@ import { parseEther } from "viem";
 
 export { swapTemplate };
 
+/**
+ * Class representing a Swap Action.
+ */
+
 export class SwapAction {
     private config;
 
+/**
+ * Constructor for creating an instance of a ConfigManager.
+ * @param {WalletProvider} walletProvider - The wallet provider used to retrieve chain configurations.
+ */
     constructor(private walletProvider: WalletProvider) {
         this.config = createConfig({
             integrator: "eliza",
@@ -58,6 +66,11 @@ export class SwapAction {
         });
     }
 
+/**
+ * Executes a swap between two tokens on a specified chain.
+ * @param {SwapParams} params - The parameters for the swap including chain, tokens, amount, and slippage.
+ * @returns {Promise<Transaction>} The transaction object containing hash, from, to, value, data, and chainId.
+ */
     async swap(params: SwapParams): Promise<Transaction> {
         const walletClient = this.walletProvider.getWalletClient(params.chain);
         const [fromAddress] = await walletClient.getAddresses();

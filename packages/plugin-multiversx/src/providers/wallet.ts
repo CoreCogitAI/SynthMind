@@ -34,6 +34,55 @@ const MVX_NETWORK_CONFIG = {
 };
 
 // WalletProvider class handles wallet-related operations, such as signing transactions, retrieving balance, and sending tokens
+/**
+ * Represents a WalletProvider that interacts with the MultiversX network
+ * @constructor
+ * @param {string} privateKey - User's private key for signing transactions
+ * @param {string} network - Target network (mainnet, devnet, or testnet)
+ */
+ 
+/**
+ * Retrieve the wallet address derived from the private key
+ * @returns {Address} Address object
+ */
+ 
+/**
+ * Fetch the wallet's current EGLD balance
+ * @returns {Promise<string>} Promise resolving to the wallet's balance as a string
+ */
+ 
+/**
+ * Sign a transaction using the wallet's private key
+ * @param {Transaction} transaction - The transaction object to sign
+ * @returns {Promise<string>} The transaction signature as a string
+ */
+ 
+/**
+ * Send EGLD tokens to another wallet
+ * @param {Object} params - Parameters for sending EGLD tokens
+ * @param {string} params.receiverAddress - Recipient's wallet address
+ * @param {string} params.amount - Amount of EGLD to send
+ * @returns {Promise<string>} Transaction hash as a string
+ */
+ 
+/**
+ * Send ESDT (eStandard Digital Token) tokens to another wallet
+ * @param {Object} params - Parameters for sending ESDT tokens
+ * @param {string} params.receiverAddress - Recipient's wallet address
+ * @param {string} params.amount - Amount of ESDT to send
+ * @param {string} params.identifier - ESDT token identifier (e.g., PEPE-3eca7c)
+ * @returns {Promise<string>} Transaction hash as a string
+ */
+ 
+/**
+ * Create a new eStandard Digital Token (ESDT).
+ * @param {Object} params - Parameters for creating a new ESDT
+ * @param {string} params.tokenName - The name of the token to be created
+ * @param {string} params.tokenTicker - The ticker symbol for the token
+ * @param {string} params.amount - The initial supply of the token
+ * @param {number} params.decimals - The number of decimal places for the token
+ * @returns {Promise<string>} The transaction hash of the created ESDT
+ */
 export class WalletProvider {
     private signer: UserSigner; // Handles cryptographic signing
     private apiNetworkProvider: ApiNetworkProvider; // Interacts with the MultiversX network
@@ -45,6 +94,13 @@ export class WalletProvider {
      * @param privateKey - User's private key for signing transactions
      * @param network - Target network (mainnet, devnet, or testnet)
      */
+/**
+ * Constructs a new MVXManager instance with the given private key and network.
+ * 
+ * @param {string} privateKey - The user's private key to initialize the signer
+ * @param {string} network - The network to be used for API interactions
+ * @throws {Error} If the network provided is not supported
+ */
     constructor(privateKey: string, network: string) {
         if (!MVX_NETWORK_CONFIG[network]) {
             throw new Error(`Unsupported network: ${network}`); // Validate network

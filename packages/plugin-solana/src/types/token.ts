@@ -1,3 +1,13 @@
+/**
+ * Interface representing token security data.
+ * @typedef {object} TokenSecurityData
+ * @property {string} ownerBalance - The balance of the token owner.
+ * @property {string} creatorBalance - The balance of the token creator.
+ * @property {number} ownerPercentage - The percentage owned by the token owner.
+ * @property {number} creatorPercentage - The percentage owned by the token creator.
+ * @property {string} top10HolderBalance - The balance of the top 10 token holders.
+ * @property {number} top10HolderPercent - The percentage owned by the top 10 token holders.
+ */
 export interface TokenSecurityData {
     ownerBalance: string;
     creatorBalance: string;
@@ -7,6 +17,21 @@ export interface TokenSecurityData {
     top10HolderPercent: number;
 }
 
+/**
+ * Interface representing the token codex for a cryptocurrency.
+ * @interface
+ * @property {string} id - The unique identifier for the token.
+ * @property {string} address - The blockchain address of the token.
+ * @property {number} cmcId - The CoinMarketCap ID for the token.
+ * @property {number} decimals - The number of decimal places for the token.
+ * @property {string} name - The name of the token.
+ * @property {string} symbol - The symbol representing the token.
+ * @property {string} totalSupply - The total supply of the token.
+ * @property {string} circulatingSupply - The circulating supply of the token.
+ * @property {string} imageThumbUrl - The URL to the thumbnail image of the token.
+ * @property {boolean} blueCheckmark - Indicates if the token has a blue checkmark (verified status).
+ * @property {boolean} isScam - Indicates if the token is flagged as a scam.
+ */
 export interface TokenCodex {
     id: string;
     address: string;
@@ -21,6 +46,26 @@ export interface TokenCodex {
     isScam: boolean;
 }
 
+/**
+ * Interface representing token trade data.
+ *
+ * @typedef {object} TokenTradeData
+ * @property {string} address - The address of the token.
+ * @property {number} holder - The number of token holders.
+ * @property {number} market - The market number.
+ * @property {number} last_trade_unix_time - The unix time of the last trade.
+ * @property {string} last_trade_human_time - The human-readable time of the last trade.
+ * @property {number} price - The price of the token.
+ * @property {number} history_30m_price - The price history of the last 30 minutes.
+ * @property {number} price_change_30m_percent - The price change percentage in the last 30 minutes.
+ * @property {number} history_1h_price - The price history of the last hour.
+ * @property {number} price_change_1h_percent - The price change percentage in the last hour.
+ * ...
+ * (Continues for each time interval and data point)
+ * ...
+ * @property {number} volume_sell_24h_change_percent - The volume sell change percentage in the last 24 hours.
+ */
+```
 export interface TokenTradeData {
     address: string;
     holder: number;
@@ -208,11 +253,31 @@ export interface TokenTradeData {
     volume_sell_24h_change_percent: number | null;
 }
 
+/**
+ * Interface representing holder data.
+ * @interface
+ * @property {string} address - The address of the holder.
+ * @property {string} balance - The balance of the holder.
+ */
 export interface HolderData {
     address: string;
     balance: string;
 }
 
+/**
+ * Interface representing processed token data.
+ * @typedef {Object} ProcessedTokenData
+ * @property {TokenSecurityData} security - Security data of the token.
+ * @property {TokenTradeData} tradeData - Trade data of the token.
+ * @property {string} holderDistributionTrend - Trend of holder distribution ('increasing' | 'decreasing' | 'stable').
+ * @property {Array<{holderAddress: string, balanceUsd: string}>} highValueHolders - Array of high value holders.
+ * @property {boolean} recentTrades - Indicates if there have been recent trades.
+ * @property {number} highSupplyHoldersCount - The count of high supply holders.
+ * @property {DexScreenerData} dexScreenerData - Data from Dex Screener.
+ * @property {boolean} isDexScreenerListed - Indicates if listed on Dex Screener.
+ * @property {boolean} isDexScreenerPaid - Indicates if paid on Dex Screener.
+ * @property {TokenCodex} tokenCodex - Codex information of the token.
+ */
 export interface ProcessedTokenData {
     security: TokenSecurityData;
     tradeData: TokenTradeData;
@@ -230,6 +295,38 @@ export interface ProcessedTokenData {
     tokenCodex: TokenCodex;
 }
 
+/**
+ * Interface representing a pair on Dex Screener
+ *
+ * @typedef {Object} DexScreenerPair
+ * @property {string} chainId - The chain ID of the pair
+ * @property {string} dexId - The DEX ID of the pair
+ * @property {string} url - The URL of the pair
+ * @property {string} pairAddress - The address of the pair
+ * @property {Object} baseToken - Information about the base token
+ * @property {string} baseToken.address - The address of the base token
+ * @property {string} baseToken.name - The name of the base token
+ * @property {string} baseToken.symbol - The symbol of the base token
+ * @property {Object} quoteToken - Information about the quote token
+ * @property {string} quoteToken.address - The address of the quote token
+ * @property {string} quoteToken.name - The name of the quote token
+ * @property {string} quoteToken.symbol - The symbol of the quote token
+ * @property {string} priceNative - The price in native currency
+ * @property {string} priceUsd - The price in USD
+ * @property {Object} txns - Transaction information
+ * @property {Object} volume - Volume information
+ * @property {Object} priceChange - Price change information
+ * @property {Object} liquidity - Liquidity information
+ * @property {number} fdv - Fully diluted valuation of the pair
+ * @property {number} marketCap - Market capitalization of the pair
+ * @property {number} pairCreatedAt - Timestamp of when the pair was created
+ * @property {Object} info - Additional information about the pair
+ * @property {string} info.imageUrl - The URL of the pair's image
+ * @property {Array<{label: string, url: string}>} info.websites - Array of website labels and URLs
+ * @property {Array<{type: string, url: string}>} info.socials - Array of social media types and URLs
+ * @property {Object} boosts - Boosts information
+ * @property {number} boosts.active - Number of active boosts for the pair
+ */
 export interface DexScreenerPair {
     chainId: string;
     dexId: string;
@@ -283,17 +380,41 @@ export interface DexScreenerPair {
     };
 }
 
+/**
+ * Interface for DexScreenerData representing the data format expected for the Dex screener.
+ * @typedef {Object} DexScreenerData
+ * @property {string} schemaVersion - The version of the schema.
+ * @property {DexScreenerPair[]} pairs - An array of DexScreenerPair objects representing pairs.
+ */
 export interface DexScreenerData {
     schemaVersion: string;
     pairs: DexScreenerPair[];
 }
 
+/**
+ * Interface representing prices for different cryptocurrencies.
+ * @typedef {object} Prices
+ * @property {object} solana - Object containing the USD price of Solana.
+ * @property {string} solana.usd - The price of Solana in USD.
+ * @property {object} bitcoin - Object containing the USD price of Bitcoin.
+ * @property {string} bitcoin.usd - The price of Bitcoin in USD.
+ * @property {object} ethereum - Object containing the USD price of Ethereum.
+ * @property {string} ethereum.usd - The price of Ethereum in USD.
+ */
 export interface Prices {
     solana: { usd: string };
     bitcoin: { usd: string };
     ethereum: { usd: string };
 }
 
+/**
+ * Interface representing different calculated buy amounts.
+ * @interface
+ * @property {number} none - The buy amount when none is chosen.
+ * @property {number} low - The low buy amount.
+ * @property {number} medium - The medium buy amount.
+ * @property {number} high - The high buy amount.
+ */
 export interface CalculatedBuyAmounts {
     none: 0;
     low: number;

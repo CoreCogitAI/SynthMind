@@ -1,5 +1,12 @@
 import { IAgentRuntime, elizaLogger } from "@elizaos/core";
 
+/**
+ * Validates the EchoChamber configuration settings.
+ * 
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @returns {Promise<void>} A Promise that resolves once the configuration is validated successfully.
+ * @throws {Error} If required settings are missing or if settings are invalid.
+ */
 export async function validateEchoChamberConfig(
     runtime: IAgentRuntime
 ): Promise<void> {

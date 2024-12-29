@@ -2,6 +2,12 @@ import { IAgentRuntime, elizaLogger } from "@elizaos/core";
 import { NeynarAPIClient, isApiErrorResponse } from "@neynar/nodejs-sdk";
 import { NeynarCastResponse, Cast, Profile, FidRequest, CastId } from "./types";
 
+/**
+ * Represents a client for interacting with the Farcaster API.
+ *
+ * @class
+ */
+ */
 export class FarcasterClient {
     runtime: IAgentRuntime;
     neynar: NeynarAPIClient;
@@ -9,6 +15,17 @@ export class FarcasterClient {
     cache: Map<string, any>;
     lastInteractionTimestamp: Date;
 
+/**
+ * Constructor for creating a new instance of the class.
+ * @param {Object} opts - The options object.
+ * @param {IAgentRuntime} opts.runtime - The agent runtime.
+ * @param {string} opts.url - The URL.
+ * @param {boolean} opts.ssl - The SSL flag.
+ * @param {NeynarAPIClient} opts.neynar - The Neynar API client.
+ * @param {string} opts.signerUuid - The signer UUID.
+ * @param {Map<string, any>} opts.cache - The cache map.
+ */
+       
     constructor(opts: {
         runtime: IAgentRuntime;
         url: string;
@@ -24,6 +41,12 @@ export class FarcasterClient {
         this.lastInteractionTimestamp = new Date();
     }
 
+/**
+ * Loads Cast data from Neynar response.
+ * 
+ * @param {any} neynarResponse The Neynar response data to load Cast from.
+ * @returns {Promise<Cast>} The loaded Cast object.
+ */
     async loadCastFromNeynarResponse(neynarResponse: any): Promise<Cast> {
         const profile = await this.getProfile(neynarResponse.author.fid);
         return {
@@ -43,6 +66,16 @@ export class FarcasterClient {
         };
     }
 
+/**
+ * Publishes a new cast with the specified text.
+ * If a parent cast ID is provided, the new cast will be a reply to the parent cast.
+ * Optionally specify the number of times to retry the operation if it fails.
+ * 
+ * @param {string} cast - The text of the cast to publish.
+ * @param {CastId | undefined} parentCastId - The ID of the parent cast, if the new cast is a reply.
+ * @param {number} [retryTimes] - The number of times to retry in case of failure.
+ * @returns {Promise<NeynarCastResponse | undefined>} - A promise resolving to the newly published cast details.
+ */
     async publishCast(
         cast: string,
         parentCastId: CastId | undefined,
@@ -72,6 +105,13 @@ export class FarcasterClient {
         }
     }
 
+/**
+* Retrieves information about a cast based on the provided cast hash.
+* If the cast information is already cached, it returns the cached information.
+* If not cached, it queries the Neynar service to fetch the cast information.
+* @param {string} castHash - The hash representing the cast to fetch.
+* @returns {Promise<Cast>} - A Promise that resolves to the Cast object with the information retrieved.
+*/
     async getCast(castHash: string): Promise<Cast> {
         if (this.cache.has(`farcaster/cast/${castHash}`)) {
             return this.cache.get(`farcaster/cast/${castHash}`);
@@ -106,6 +146,12 @@ export class FarcasterClient {
         return cast;
     }
 
+/**
+ * Retrieves casts for a specific user based on their FID.
+ * 
+ * @param {FidRequest} request - The request object containing the FID and page size.
+ * @returns {Promise<Cast[]>} - A promise that resolves to an array of Cast objects.
+ */
     async getCastsByFid(request: FidRequest): Promise<Cast[]> {
         const timeline: Cast[] = [];
 
@@ -131,6 +177,12 @@ export class FarcasterClient {
         return timeline;
     }
 
+/**
+ * Retrieves mentions and replies for a given FID.
+ * 
+ * @param {FidRequest} request - The FID request object containing the FID to fetch mentions for.
+ * @returns {Promise<Cast[]>} - A promise that resolves with an array of Cast objects representing mentions and replies.
+ */
     async getMentions(request: FidRequest): Promise<Cast[]> {
         const neynarMentionsResponse = await this.neynar.fetchAllNotifications({
             fid: request.fid,
@@ -165,6 +217,15 @@ export class FarcasterClient {
         return mentions;
     }
 
+/**
+ * Asynchronously retrieves a user's profile based on the given fid.
+ * If the profile is found in the cache, it is returned directly.
+ * Otherwise, it fetches the user's profile data using Neynar's fetchBulkUsers method.
+ *
+ * @param {number} fid - The fid of the user whose profile is to be retrieved.
+ * @return {Promise<Profile>} The profile object of the user.
+ * @throws {string} Throws an error if there is an issue fetching the user's profile.
+ */
     async getProfile(fid: number): Promise<Profile> {
         if (this.cache.has(`farcaster/profile/${fid}`)) {
             return this.cache.get(`farcaster/profile/${fid}`) as Profile;
@@ -206,6 +267,11 @@ export class FarcasterClient {
         return profile;
     }
 
+/**
+ * Get a timeline of Cast objects for a given Fid.
+ * @param {FidRequest} request - The request object containing the Fid.
+ * @returns {Promise<{timeline: Cast[]; nextPageToken?: Uint8Array | undefined;}>} - An object containing the timeline of Cast objects and an optional nextPageToken for paging.
+ */
     async getTimeline(request: FidRequest): Promise<{
         timeline: Cast[];
         nextPageToken?: Uint8Array | undefined;

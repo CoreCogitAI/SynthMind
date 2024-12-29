@@ -21,6 +21,13 @@ import {
 
 import { walletProvider } from "../providers/wallet.ts";
 
+/**
+ * Interface for creating and buying content with specified token metadata and buying amount.
+ * @interface CreateAndBuyContent
+ * @extends {Content}
+ * @property {Object} tokenMetadata - Metadata of the token with name, symbol, description, and image description
+ * @property {string | number} buyAmountSol - Amount to buy in either string or number format
+ */
 export interface CreateAndBuyContent extends Content {
     tokenMetadata: {
         name: string;
@@ -31,6 +38,13 @@ export interface CreateAndBuyContent extends Content {
     buyAmountSol: string | number;
 }
 
+/**
+ * Check if the given content is of type CreateAndBuyContent
+ * 
+ * @param {IAgentRuntime} runtime - The runtime object
+ * @param {any} content - The content to check
+ * @returns {boolean} - True if the content is a valid CreateAndBuyContent, false otherwise
+ */
 export function isCreateAndBuyContent(
     runtime: IAgentRuntime,
     content: any

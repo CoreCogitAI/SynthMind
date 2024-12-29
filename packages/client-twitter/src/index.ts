@@ -5,11 +5,22 @@ import { TwitterInteractionClient } from "./interactions.ts";
 import { TwitterPostClient } from "./post.ts";
 import { TwitterSearchClient } from "./search.ts";
 
+/**
+ * TwitterManager class to manage different aspects of interacting with Twitter API.
+ * @constructor
+ * @param {IAgentRuntime} runtime - The runtime environment for the agent
+ * @param {TwitterConfig} twitterConfig - Configuration settings for Twitter API
+ */
 class TwitterManager {
     client: ClientBase;
     post: TwitterPostClient;
     search: TwitterSearchClient;
     interaction: TwitterInteractionClient;
+/**
+ * Constructor for TwitterClient class.
+ * @param {IAgentRuntime} runtime - The runtime for the agent.
+ * @param {TwitterConfig} twitterConfig - The configuration for Twitter.
+ */
     constructor(runtime: IAgentRuntime, twitterConfig:TwitterConfig) {
         this.client = new ClientBase(runtime, twitterConfig);
         this.post = new TwitterPostClient(this.client, runtime);

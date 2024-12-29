@@ -14,6 +14,12 @@ import { encodingForModel, TiktokenModel } from "js-tiktoken";
 const DEFAULT_MAX_WEB_SEARCH_TOKENS = 4000;
 const DEFAULT_MODEL_ENCODING = "gpt-3.5-turbo";
 
+/**
+ * Calculate the total number of tokens in a string based on the specified encoding model.
+ * @param {string} str - The input string to calculate tokens from.
+ * @param {TiktokenModel} [encodingName=DEFAULT_MODEL_ENCODING] - The encoding model to use for token calculation.
+ * @returns {number} The total number of tokens in the input string based on the specified encoding model.
+ */
 function getTotalTokensFromString(
     str: string,
     encodingName: TiktokenModel = DEFAULT_MODEL_ENCODING
@@ -22,6 +28,14 @@ function getTotalTokensFromString(
     return encoding.encode(str).length;
 }
 
+/**
+ * Function that limits the number of tokens in a string to a specified maximum number.
+ * If the total number of tokens in the string exceeds the specified maximum number, it returns a substring up to the maximum number of tokens.
+ *
+ * @param {string} data - The input string containing tokens.
+ * @param {number} maxTokens - The maximum number of tokens allowed (default is DEFAULT_MAX_WEB_SEARCH_TOKENS).
+ * @returns {string} The input string with tokens limited to the specified maximum number.
+ */
 function MaxTokens(
     data: string,
     maxTokens: number = DEFAULT_MAX_WEB_SEARCH_TOKENS

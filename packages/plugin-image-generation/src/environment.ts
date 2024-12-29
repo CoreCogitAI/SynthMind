@@ -27,8 +27,16 @@ export const imageGenEnvSchema = z
         }
     );
 
+/**
+ * Type definition for the configuration of generating images based on imageGenEnvSchema.
+ */
 export type ImageGenConfig = z.infer<typeof imageGenEnvSchema>;
 
+/**
+ * Validates the image generation configuration based on the provided runtime settings.
+ * @param {IAgentRuntime} runtime - The agent runtime object.
+ * @returns {Promise<ImageGenConfig>} The validated image generation configuration.
+ */
 export async function validateImageGenConfig(
     runtime: IAgentRuntime
 ): Promise<ImageGenConfig> {

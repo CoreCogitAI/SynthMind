@@ -15,6 +15,31 @@ import {
     shutdownIntifaceEngine,
 } from "./utils";
 
+/**
+ * Interface for Intiface service functions.
+ * @interface IIntifaceService
+ * @extends {Service}
+ */
+ * @method vibrate
+ * @param {number} strength - The strength of the vibration.
+ * @param {number} duration - The duration of the vibration.
+ * @returns {Promise<void>} Promise that resolves when the vibration is complete.
+ * 
+ * @method rotate?
+ * @param {number} strength - The strength of the rotation.
+ * @param {number} duration - The duration of the rotation.
+ * @returns {Promise<void>} Promise that resolves when the rotation is complete.
+ * 
+ * @method getBatteryLevel?
+ * @returns {Promise<number>} Promise that resolves with the battery level.
+ * 
+ * @method isConnected
+ * @returns {boolean} Whether the device is connected.
+ * 
+ * @method getDevices
+ * @returns {any[]} An array of devices.
+ */
+ * /
 export interface IIntifaceService extends Service {
     vibrate(strength: number, duration: number): Promise<void>;
     rotate?(strength: number, duration: number): Promise<void>;
@@ -23,6 +48,13 @@ export interface IIntifaceService extends Service {
     getDevices(): any[];
 }
 
+/**
+ * Intiface service class that implements IIntifaceService interface.
+ * Manages connection, device handling, vibration, battery level retrieval, and rotation
+ * for Buttplug-compatible devices through Intiface Engine.
+ * @extends Service
+ * @implements IIntifaceService
+ */
 export class IntifaceService extends Service implements IIntifaceService {
     static serviceType: ServiceType = ServiceType.INTIFACE;
     private client: ButtplugClient;
@@ -36,6 +68,12 @@ export class IntifaceService extends Service implements IIntifaceService {
     private rampSteps = 20;
     private preferredDeviceName: string | undefined;
 
+/**
+ * Constructor for initializing a new instance of the class.
+ * - Instantiates a new ButtplugClient with a temporary name.
+ * - Adds event listeners for deviceadded and deviceremoved events to call handleDeviceAdded and handleDeviceRemoved methods respectively.
+ * - Adds cleanup handlers for SIGINT, SIGTERM, and exit signals to call the cleanup method.
+ */
     constructor() {
         super();
         this.client = new ButtplugClient("Temporary Name");
@@ -55,6 +93,9 @@ export class IntifaceService extends Service implements IIntifaceService {
         process.on("exit", this.cleanup.bind(this));
     }
 
+/**
+ * Cleans up the Intiface service by disconnecting the client and shutting down the Intiface Engine.
+ */
     private async cleanup() {
         try {
             if (this.connected) {
@@ -66,10 +107,20 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Returns the current instance of the Intiface Service.
+ * @returns {IIntifaceService} The current instance of the Intiface Service.
+ */
     getInstance(): IIntifaceService {
         return this;
     }
 
+/**
+ * Asynchronously initializes the agent with the provided runtime.
+ * 
+ * @param {IAgentRuntime} runtime The runtime object to initialize the agent with.
+ * @returns {Promise<void>} A promise that resolves when the initialization is complete.
+ */
     async initialize(runtime: IAgentRuntime): Promise<void> {
         this.config = await validateIntifaceConfig(runtime);
         this.preferredDeviceName = this.config.DEVICE_NAME;
@@ -80,6 +131,17 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Asynchronous function to connect to the Intiface server.
+ * If already connected or config not set, no action is taken.
+ * Checks if port 12345 is available, if so starts the Intiface Engine.
+ * Connects to the server using a websocket client connector,
+ * marks as connected and initiates a scan for devices.
+ * Retries the connection if unsuccessful up to 5 times with a 2 second delay.
+ * 
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If connection fails after all retries.
+ */
     async connect() {
         if (this.connected || !this.config) return;
 
@@ -127,6 +189,12 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Asynchronous function to scan for devices using the client.
+ * Starts scanning, waits for 2 seconds, then grabs the devices found.
+ * Devices are added to a map with their names as keys.
+ * If no devices are found, logs a message saying so.
+ */
     private async scanAndGrabDevices() {
         await this.client.startScanning();
         console.log("Scanning for devices...");
@@ -142,6 +210,15 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Ensures that a device is available for communication with the Intiface server.
+ * If not already connected to the server, an error is thrown.
+ * If no devices are currently available, a scan is initiated to discover devices.
+ * If no devices are found after scanning, an error is thrown.
+ * By default, the first available device is returned, unless a preferred device name is specified.
+ * If a preferred device is set but not found, a warning is logged and the first available device is returned.
+ * @returns {Object} The target device available for communication.
+ */
     private async ensureDeviceAvailable() {
         if (!this.connected) {
             throw new Error("Not connected to Intiface server");
@@ -172,6 +249,9 @@ export class IntifaceService extends Service implements IIntifaceService {
         return targetDevice;
     }
 
+/**
+ * Disconnects the client if it is currently connected. Clears the list of devices and sets the connected status to false.
+ */
     async disconnect() {
         if (!this.connected) return;
         await this.client.disconnect();
@@ -179,24 +259,50 @@ export class IntifaceService extends Service implements IIntifaceService {
         this.devices.clear();
     }
 
+/**
+ * Handle when a device is added.
+ * 
+ * @param {any} device - The device being added.
+ */
     private handleDeviceAdded(device: any) {
         this.devices.set(device.name, device);
         console.log(`Device connected: ${device.name}`);
     }
 
+/**
+ * Handles the event when a device is removed.
+ * 
+ * @param {any} device - The device that was removed.
+ */
     private handleDeviceRemoved(device: any) {
         this.devices.delete(device.name);
         console.log(`Device disconnected: ${device.name}`);
     }
 
+/**
+ * Retrieve all devices from the collection.
+ * 
+ * @returns {Array} An array containing all devices.
+ */ 
+       
     getDevices() {
         return Array.from(this.devices.values());
     }
 
+/**
+ * Check if the object is currently connected.
+ * @returns {boolean} True if connected, false if not connected.
+ */
     isConnected() {
         return this.connected;
     }
 
+/**
+ * Adds a VibrateEvent to the vibrateQueue and processes the queue if it is not already being processed.
+ * 
+ * @param {VibrateEvent} event - The VibrateEvent to add to the queue.
+ * @returns {Promise<void>} - A Promise that resolves once the event is added to the queue and processed.
+ */
     private async addToVibrateQueue(event: VibrateEvent) {
         this.vibrateQueue.push(event);
         if (!this.isProcessingQueue) {
@@ -205,6 +311,9 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Process and handle items in the vibrate queue asynchronously.
+ */
     private async processVibrateQueue() {
         while (this.vibrateQueue.length > 0) {
             const event = this.vibrateQueue[0];
@@ -214,6 +323,13 @@ export class IntifaceService extends Service implements IIntifaceService {
         this.isProcessingQueue = false;
     }
 
+/**
+ * Handles the vibrate event by ramping up and down the intensity of the vibration if `rampUpAndDown` is true,
+ * and vibrate at a constant intensity otherwise. 
+ * 
+ * @param event - The VibrateEvent object containing the duration and strength of the vibration.
+ * @returns {Promise<void>} - A promise that resolves once the vibration handling is completed.
+ */
     private async handleVibrate(event: VibrateEvent) {
         const targetDevice = await this.ensureDeviceAvailable();
 
@@ -250,6 +366,13 @@ export class IntifaceService extends Service implements IIntifaceService {
         await targetDevice.stop();
     }
 
+/**
+ * Vibrate the device with specified strength and duration.
+ * 
+ * @param {number} strength - The strength of the vibration.
+ * @param {number} duration - The duration of the vibration.
+ * @returns {Promise<void>} A promise that resolves when the vibration is completed.
+ */
     async vibrate(strength: number, duration: number): Promise<void> {
         const targetDevice = await this.ensureDeviceAvailable();
         await this.addToVibrateQueue({
@@ -259,6 +382,11 @@ export class IntifaceService extends Service implements IIntifaceService {
         });
     }
 
+/**
+ * Asynchronously retrieves the battery level of the device.
+ * 
+ * @returns {Promise<number>} The battery level as a percentage.
+ */
     async getBatteryLevel(): Promise<number> {
         const targetDevice = await this.ensureDeviceAvailable();
 
@@ -274,6 +402,14 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Rotates the device with the specified strength and duration.
+ * 
+ * @param {number} strength - The strength of the rotation.
+ * @param {number} duration - The duration of the rotation.
+ * @returns {Promise<void>} A Promise that resolves when the rotation is complete.
+ * @throws {Error} If the device does not support rotation.
+ */ 
     async rotate(strength: number, duration: number): Promise<void> {
         const targetDevice = await this.ensureDeviceAvailable();
 
@@ -291,6 +427,15 @@ export class IntifaceService extends Service implements IIntifaceService {
         }
     }
 
+/**
+ * Ramp up the rotation strength of a device to a target strength over a specified duration,
+ * hold that strength for a period, then ramp it back down to zero.
+ * 
+ * @param {any} device - The device to rotate.
+ * @param {number} targetStrength - The target strength to ramp up to.
+ * @param {number} duration - The total duration of the ramping process.
+ * @returns {Promise<void>}
+ */
     private async rampedRotate(
         device: any,
         targetStrength: number,
@@ -567,6 +712,12 @@ const batteryAction: Action = {
     ],
 };
 
+/**
+ * Interface representing a vibrate event.
+ * @property {number} duration - The duration of the vibration in milliseconds.
+ * @property {number} strength - The strength of the vibration.
+ * @property {number} [deviceId] - The device ID associated with the vibration event (optional).
+ */
 interface VibrateEvent {
     duration: number;
     strength: number;

@@ -7,6 +7,14 @@ import { FlowAccountBalanceInfo, IFlowScriptExecutor } from "./types";
  * @param owner
  * @param evmContractAddress
  */
+/**
+ * Queries the ERC20 balance of a specific owner on a specific EVM contract address.
+ * 
+ * @param {IFlowScriptExecutor} executor - The flow script executor.
+ * @param {string} owner - The owner address for which to query the balance.
+ * @param {string} evmContractAddress - The address of the EVM contract.
+ * @returns {Promise<bigint>} The balance of the owner as a BigInt value.
+ */
 export async function queryEvmERC20BalanceOf(
     executor: IFlowScriptExecutor,
     owner: string,

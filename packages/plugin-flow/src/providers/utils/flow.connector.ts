@@ -3,15 +3,41 @@ import type { Account, TransactionStatus } from "@onflow/typedefs";
 import { IFlowScriptExecutor } from "../../types";
 import Exception from "../../types/exception";
 
+/**
+ * Define a custom type `NetworkType` which can be either "mainnet", "testnet" or "emulator".
+ */
 export type NetworkType = "mainnet" | "testnet" | "emulator";
 
 let isGloballyInited = false;
 let globallyPromise = null;
 
+/**
+ * FlowConnector class that implements IFlowScriptExecutor interface for interacting with the Flow blockchain
+ * @constructor
+ * @param {object} flowJSON - The JSON configuration object for the Flow blockchain
+ * @param {NetworkType} [network="mainnet"] - The network type to connect to, default is "mainnet"
+ * @param {string} [defaultRpcEndpoint=undefined] - The default RPC endpoint to use
+ * @property {string} rpcEndpoint - The RPC endpoint based on the network type
+ * @method onModuleInit - Initialize the Flow SDK
+ * @method ensureInited - Ensure the Flow SDK is initialized
+ * @method getAccount - Get account information for a given address
+ * @method sendTransaction - General method for sending a transaction
+ * @method getTransactionStatus - Get the status of a transaction
+ * @method getChainId - Get the chain ID
+ * @method onceTransactionSealed - Send a transaction with single authorization
+ * @method getBlockHeaderObject - Get the block header object for a given block ID
+ * @method executeScript - Send and execute a script on the Flow blockchain
+ */
 export class FlowConnector implements IFlowScriptExecutor {
     /**
      * Initialize the Flow SDK
      */
+/**
+ * Constructor for creating a new instance of SomeClass.
+ * @param {object} flowJSON - The flow JSON object to be used.
+ * @param {NetworkType} [network='mainnet'] - The network type to be used, defaults to 'mainnet'.
+ * @param {string} [defaultRpcEndpoint] - The default RPC endpoint to be used, defaults to undefined.
+ */
     constructor(
         private readonly flowJSON: object,
         public readonly network: NetworkType = "mainnet",

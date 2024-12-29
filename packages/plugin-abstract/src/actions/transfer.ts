@@ -25,12 +25,26 @@ const TransferSchema = z.object({
     amount: z.string(),
 });
 
+/**
+ * Interface for transferring content between two parties.
+ * @interface TransferContent
+ * @extends Content
+ * @property {string} tokenAddress - The address of the token being transferred.
+ * @property {string} recipient - The recipient of the transferred content.
+ * @property {string | number} amount - The amount of content being transferred.
+ */
 export interface TransferContent extends Content {
     tokenAddress: string;
     recipient: string;
     amount: string | number;
 }
 
+/**
+ * Checks if the provided content is a valid TransferContent object.
+ * 
+ * @param {TransferContent} content - The content to validate
+ * @returns {boolean} - Returns true if the content is valid TransferContent, false otherwise
+ */
 export function isTransferContent(
     content: TransferContent
 ): content is TransferContent {

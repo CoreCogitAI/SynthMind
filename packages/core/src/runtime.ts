@@ -51,6 +51,54 @@ import { stringToUuid } from "./uuid.ts";
  * Represents the runtime environment for an agent, handling message processing,
  * action registration, and interaction with external services like OpenAI and Supabase.
  */
+/**
+ * Represents the runtime execution environment for the agent.
+ * @interface IAgentRuntime
+ * @property {number} #conversationLength - Default count for recent messages to be kept in memory.
+ * @property {UUID} agentId - The ID of the agent.
+ * @property {string} serverUrl - The base URL of the server where the agent's requests are processed.
+ * @property {IDatabaseAdapter} databaseAdapter - The database adapter used for interacting with the database.
+ * @property {string | null} token - Authentication token used for securing requests.
+ * @property {Action[]} actions - Custom actions that the agent can perform.
+ * @property {Evaluator[]} evaluators - Evaluators used to assess and guide the agent's responses.
+ * @property {Provider[]} providers - Context providers used to provide context for message generation.
+ * @property {Plugin[]} plugins - Plugins for additional functionality.
+ * @property {ModelProviderName} modelProvider - The model to use for generateText.
+ * @property {ModelProviderName} imageModelProvider - The model to use for generateImage.
+ * @property {Function} fetch - Fetch function to use for making requests.
+ * @property {Character} character - The character to use for the agent.
+ * @property {IMemoryManager} messageManager - Manager to store messages sent and received by the agent.
+ * @property {IMemoryManager} descriptionManager - Manager to store and recall descriptions of users based on conversations.
+ * @property {IMemoryManager} loreManager - Manager to manage static information (documents, lore, etc).
+ * @property {IMemoryManager} documentsManager - Manager to hold large documents.
+ * @property {IMemoryManager} knowledgeManager - Manager for searchable document fragments.
+ * @property {Map<ServiceType, Service>} services - Map of service type to service instance.
+ * @property {Map<string, IMemoryManager>} memoryManagers - Map of table name to memory manager.
+ * @property {ICacheManager} cacheManager - Manager for caching.
+ * @property {Record<string, any>} clients - Clients for services.
+ * @method registerMemoryManager - Registers a memory manager with a unique table name.
+ * @method getMemoryManager - Retrieves a memory manager based on the table name.
+ * @method getService - Retrieves a service based on the service type.
+ * @method registerService - Registers a new service.
+ * @method constructor - Creates an instance of AgentRuntime with specified options.
+ * @method initialize - Initializes the AgentRuntime.
+ * @method stop - Stops the AgentRuntime.
+ * @method processCharacterKnowledge - Processes character knowledge for document and fragment memories.
+ * @method getSetting - Retrieves a setting value based on the key.
+ * @method getConversationLength - Retrieves the number of recent messages to keep in memory.
+ * @method registerAction - Registers an action for the agent to perform.
+ * @method registerEvaluator - Registers an evaluator for assessing and guiding responses.
+ * @method registerContextProvider - Registers a context provider for message generation.
+ * @method processActions - Processes actions for a given message.
+ * @method evaluate - Evaluates a message and state using registered evaluators.
+ * @method ensureParticipantExists - Ensures existence of a participant in a room.
+ * @method ensureUserExists - Ensures existence of a user in the database.
+ * @method ensureParticipantInRoom - Ensures a participant is in a room.
+ * @method ensureConnection - Ensures connections between user, agent, and room.
+ * @method ensureRoomExists - Ensures existence of a room between user and agent.
+ * @method composeState - Composes the state of the agent for response generation.
+ * @method updateRecentMessageState - Updates state with recent message data.
+ */
 export class AgentRuntime implements IAgentRuntime {
     /**
      * Default count for recent messages to be kept in memory.

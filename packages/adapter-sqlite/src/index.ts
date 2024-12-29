@@ -17,10 +17,20 @@ import { v4 } from "uuid";
 import { load } from "./sqlite_vec.ts";
 import { sqliteTables } from "./sqliteTables.ts";
 
+/**
+ * Adapter class for interacting with a SQLite database, implementing database cache functionality.
+ * @extends DatabaseAdapter<Database>
+ * @implements IDatabaseCacheAdapter
+ */
 export class SqliteDatabaseAdapter
     extends DatabaseAdapter<Database>
     implements IDatabaseCacheAdapter
 {
+/**
+ * Retrieve the UUID of a room from the database based on the given room ID.
+ * @param {UUID} roomId - The unique identifier of the room to retrieve.
+ * @returns {Promise<UUID | null>} The UUID of the room, or null if the room is not found.
+ */
     async getRoom(roomId: UUID): Promise<UUID | null> {
         const sql = "SELECT id FROM rooms WHERE id = ?";
         const room = this.db.prepare(sql).get(roomId) as
@@ -29,6 +39,12 @@ export class SqliteDatabaseAdapter
         return room ? (room.id as UUID) : null;
     }
 
+/**
+ * Get participants for a specific account user ID.
+ *
+ * @param {UUID} userId - The UUID of the account user.
+ * @returns {Promise<Participant[]>} - A promise that resolves with an array of Participant objects that match the user ID.
+ */
     async getParticipantsForAccount(userId: UUID): Promise<Participant[]> {
         const sql = `
       SELECT p.id, p.userId, p.roomId, p.last_message_read
@@ -39,12 +55,24 @@ export class SqliteDatabaseAdapter
         return rows;
     }
 
+/**
+ * Retrieves the participants for a specific room identified by the roomId.
+ * @param {UUID} roomId - The unique identifier of the room.
+ * @return {Promise<UUID[]>} - A promise that resolves to an array of UUIDs representing the participants.
+ */
     async getParticipantsForRoom(roomId: UUID): Promise<UUID[]> {
         const sql = "SELECT userId FROM participants WHERE roomId = ?";
         const rows = this.db.prepare(sql).all(roomId) as { userId: string }[];
         return rows.map((row) => row.userId as UUID);
     }
 
+/**
+ * Retrieves the user state of a participant in a room. Possible user states are "FOLLOWED", "MUTED" or null if no user state is found.
+ * 
+ * @param {UUID} roomId - The UUID of the room where the participant is located.
+ * @param {UUID} userId - The UUID of the user to retrieve the state for.
+ * @returns {Promise<"FOLLOWED" | "MUTED" | null>} - The user state of the participant in the room.
+ */
     async getParticipantUserState(
         roomId: UUID,
         userId: UUID
@@ -58,6 +86,13 @@ export class SqliteDatabaseAdapter
         return res?.userState ?? null;
     }
 
+/**
+ * Updates the user state for a participant in a room.
+ * @param {UUID} roomId - The ID of the room.
+ * @param {UUID} userId - The ID of the user.
+ * @param {"FOLLOWED" | "MUTED" | null} state - The state to set for the user (either "FOLLOWED", "MUTED", or null).
+ * @returns {Promise<void>} - A Promise that resolves once the user state has been updated.
+ */
     async setParticipantUserState(
         roomId: UUID,
         userId: UUID,
@@ -69,20 +104,35 @@ export class SqliteDatabaseAdapter
         stmt.run(state, roomId, userId);
     }
 
+/**
+ * Constructor for creating a new instance of a class.
+ * @param {Database} db - The database to be used by the instance.
+ */
     constructor(db: Database) {
         super();
         this.db = db;
         load(db);
     }
 
+/**
+ * Asynchronously initializes the database by executing the specified SQLite tables.
+ */
     async init() {
         this.db.exec(sqliteTables);
     }
 
+/**
+ * Asynchronously closes the database connection.
+ */
     async close() {
         this.db.close();
     }
 
+/**
+ * Get account by Id
+ * @param {UUID} userId - The UUID of the user
+ * @returns {Promise<Account | null>} The account object if found, otherwise null
+ */
     async getAccountById(userId: UUID): Promise<Account | null> {
         const sql = "SELECT * FROM accounts WHERE id = ?";
         const account = this.db.prepare(sql).get(userId) as Account;
@@ -97,6 +147,12 @@ export class SqliteDatabaseAdapter
         return account;
     }
 
+/**
+ * Asynchronously creates a new account in the database.
+ * 
+ * @param {Account} account - The account object to be created.
+ * @returns {Promise<boolean>} A Promise that resolves to true if the account was successfully created, otherwise false.
+ */
     async createAccount(account: Account): Promise<boolean> {
         try {
             const sql =
@@ -118,6 +174,12 @@ export class SqliteDatabaseAdapter
         }
     }
 
+/**
+ * Retrieves actor details for a given room ID.
+ * @param {Object} params - The parameters for the function.
+ * @param {string} params.roomId - The UUID of the room to retrieve actor details for.
+ * @returns {Promise<Actor[]>} - A promise that resolves to an array of Actor objects containing details like id, name, username, and parsed details information.
+ */
     async getActorDetails(params: { roomId: UUID }): Promise<Actor[]> {
         const sql = `
       SELECT a.id, a.name, a.username, a.details
@@ -145,6 +207,15 @@ export class SqliteDatabaseAdapter
             .filter((row): row is Actor => row !== null);
     }
 
+/**
+ * Retrieves memories by room IDs from the database.
+ * 
+ * @param {Object} params - The parameters for fetching memories.
+ * @param {UUID} params.agentId - The ID of the agent.
+ * @param {UUID[]} params.roomIds - An array of room IDs to filter memories by.
+ * @param {string} params.tableName - The name of the database table to retrieve memories from.
+ * @returns {Promise<Memory[]>} An array of memories that match the provided room IDs.
+ */
     async getMemoriesByRoomIds(params: {
         agentId: UUID;
         roomIds: UUID[];
@@ -173,6 +244,12 @@ export class SqliteDatabaseAdapter
         }));
     }
 
+/**
+ * Retrieves a memory by its ID from the database.
+ *
+ * @param {UUID} memoryId - The ID of the memory to retrieve.
+ * @returns {Promise<Memory | null>} The memory data if found, or null if not found.
+ */
     async getMemoryById(memoryId: UUID): Promise<Memory | null> {
         const sql = "SELECT * FROM memories WHERE id = ?";
         const stmt = this.db.prepare(sql);
@@ -189,6 +266,13 @@ export class SqliteDatabaseAdapter
         return null;
     }
 
+/**
+ * Create a new memory in the database.
+ * 
+ * @param {Memory} memory - The memory object to be created.
+ * @param {string} tableName - The name of the table in the database.
+ * @returns {Promise<void>} - A promise that resolves when the memory is created.
+ */
     async createMemory(memory: Memory, tableName: string): Promise<void> {
         // Delete any existing memory with the same ID first
         // const deleteSql = `DELETE FROM memories WHERE id = ? AND type = ?`;
@@ -230,6 +314,19 @@ export class SqliteDatabaseAdapter
         );
     }
 
+/**
+ * Asynchronously searches for memories based on the provided parameters.
+ * 
+ * @param {Object} params - The parameters for searching memories.
+ * @param {string} params.tableName - The name of the table to search in.
+ * @param {UUID} params.roomId - The UUID of the room to search memories in.
+ * @param {UUID} [params.agentId] - Optional: The UUID of the agent associated with the memories.
+ * @param {number[]} params.embedding - The embedding vector used for similarity search.
+ * @param {number} params.match_threshold - The threshold for similarity matching.
+ * @param {number} params.match_count - The number of matching memories to return.
+ * @param {boolean} params.unique - Boolean flag to only return unique memories.
+ * @returns {Promise<Memory[]>} - A Promise that resolves to an array of Memory objects matching the search criteria.
+ */
     async searchMemories(params: {
         tableName: string;
         roomId: UUID;
@@ -278,6 +375,18 @@ export class SqliteDatabaseAdapter
         }));
     }
 
+/**
+ * Searches for memories based on the provided embedding and parameters.
+ * @param {number[]} embedding The embedding used for matching memories.
+ * @param {Object} params The search parameters.
+ * @param {number} [params.match_threshold] The threshold for matching similarity.
+ * @param {number} [params.count] The maximum number of memories to return.
+ * @param {string} [params.roomId] The ID of the room to search memories in.
+ * @param {string} params.agentId The ID of the agent associated with the memories.
+ * @param {boolean} [params.unique] Flag to specify if only unique memories should be returned.
+ * @param {string} params.tableName The name of the table to search memories in.
+ * @returns {Promise<Memory[]>} A Promise that resolves to an array of memories matching the criteria.
+ */
     async searchMemoriesByEmbedding(
         embedding: number[],
         params: {
@@ -329,6 +438,18 @@ export class SqliteDatabaseAdapter
         }));
     }
 
+/**
+ * Retrieves cached embeddings based on specified options.
+ * @async
+ * @param {Object} opts - The options for retrieving cached embeddings.
+ * @param {string} opts.query_table_name - The name of the query table.
+ * @param {number} opts.query_threshold - The threshold for the query.
+ * @param {string} opts.query_input - The input for the query.
+ * @param {string} opts.query_field_name - The name of the query field.
+ * @param {string} opts.query_field_sub_name - The sub name of the query field.
+ * @param {number} opts.query_match_count - The number of matches for the query.
+ * @returns {Promise<Object[]>} An array of objects containing the embedding and Levenshtein score.
+ */
     async getCachedEmbeddings(opts: {
         query_table_name: string;
         query_threshold: number;
@@ -387,6 +508,14 @@ export class SqliteDatabaseAdapter
         }));
     }
 
+/**
+ * Update the status of a goal in the database.
+ * 
+ * @param {object} params - The parameters for updating the goal status.
+ * @param {string} params.goalId - The ID of the goal to update.
+ * @param {string} params.status - The new status of the goal.
+ * @returns {Promise<void>} - A promise that resolves when the goal status is updated in the database.
+ */
     async updateGoalStatus(params: {
         goalId: UUID;
         status: GoalStatus;
@@ -395,6 +524,15 @@ export class SqliteDatabaseAdapter
         this.db.prepare(sql).run(params.status, params.goalId);
     }
 
+/**
+ * Logs information into the database.
+ * @param {Object} params - The parameters for logging.
+ * @param {Object.<string, unknown>} params.body - The data to be logged.
+ * @param {UUID} params.userId - The user ID for whom the log is being made.
+ * @param {UUID} params.roomId - The room ID where the log is being made.
+ * @param {string} params.type - The type of log being made.
+ * @returns {Promise<void>}
+ */
     async log(params: {
         body: { [key: string]: unknown };
         userId: UUID;
@@ -413,6 +551,19 @@ export class SqliteDatabaseAdapter
             );
     }
 
+/**
+ * Retrieve memories based on specified parameters.
+ * 
+ * @param {Object} params - The parameters for retrieving memories.
+ * @param {UUID} params.roomId - The ID of the room for which memories are to be retrieved.
+ * @param {number} [params.count] - The number of memories to retrieve.
+ * @param {boolean} [params.unique] - Flag to indicate if only unique memories should be retrieved.
+ * @param {string} params.tableName - The name of the table in which memories are stored.
+ * @param {UUID} params.agentId - The ID of the agent associated with the memories.
+ * @param {number} [params.start] - The starting timestamp for memories to be retrieved.
+ * @param {number} [params.end] - The ending timestamp for memories to be retrieved.
+ * @returns {Promise<Memory[]>} - A promise that resolves to an array of Memory objects.
+ */
     async getMemories(params: {
         roomId: UUID;
         count?: number;
@@ -469,16 +620,37 @@ export class SqliteDatabaseAdapter
         }));
     }
 
+/**
+ * Removes a memory record from the database based on the provided memory ID and table name.
+ * @param {UUID} memoryId - The unique identifier of the memory to be removed.
+ * @param {string} tableName - The name of the table where the memory record is stored.
+ * @returns {Promise<void>} A Promise that resolves once the memory record is successfully removed from the database.
+ */
     async removeMemory(memoryId: UUID, tableName: string): Promise<void> {
         const sql = `DELETE FROM memories WHERE type = ? AND id = ?`;
         this.db.prepare(sql).run(tableName, memoryId);
     }
 
+/**
+ * Removes all memories for a specific room from the database.
+ * @param {UUID} roomId - The ID of the room to remove memories from.
+ * @param {string} tableName - The name of the table where memories are stored.
+ * @returns {Promise<void>} - A promise that resolves once memories are removed.
+ */
     async removeAllMemories(roomId: UUID, tableName: string): Promise<void> {
         const sql = `DELETE FROM memories WHERE type = ? AND roomId = ?`;
         this.db.prepare(sql).run(tableName, roomId);
     }
 
+/**
+ * Count the number of memories in a specified room based on given criteria.
+ * 
+ * @param {UUID} roomId - The unique identifier of the room.
+ * @param {boolean} [unique=true] - Flag indicating if only unique memories should be counted.
+ * @param {string} [tableName=""] - The table name to use in the query.
+ * @returns {Promise<number>} The number of memories matching the specified criteria.
+ * @throws {Error} tableName is required if tableName is not provided.
+ */
     async countMemories(
         roomId: UUID,
         unique = true,
@@ -499,6 +671,16 @@ export class SqliteDatabaseAdapter
             .count;
     }
 
+/**
+ * Retrieves a list of goals based on the provided parameters.
+ * 
+ * @param {Object} params - The parameters for filtering the goals.
+ * @param {UUID} params.roomId - The ID of the room to retrieve goals for.
+ * @param {UUID | null} [params.userId] - Optional. The ID of the user to filter goals by.
+ * @param {boolean} [params.onlyInProgress] - Optional. Whether to only retrieve goals that are in progress.
+ * @param {number} [params.count] - Optional. The maximum number of goals to retrieve.
+ * @returns {Promise<Goal[]>} The list of goals that match the provided parameters.
+ */
     async getGoals(params: {
         roomId: UUID;
         userId?: UUID | null;
@@ -533,6 +715,12 @@ export class SqliteDatabaseAdapter
         }));
     }
 
+/**
+ * Updates a goal in the database with the provided data.
+ * 
+ * @param {Goal} goal - The goal object containing the updated information.
+ * @returns {Promise<void>} - A Promise that resolves when the update is completed.
+ */
     async updateGoal(goal: Goal): Promise<void> {
         const sql =
             "UPDATE goals SET name = ?, status = ?, objectives = ? WHERE id = ?";
@@ -546,6 +734,12 @@ export class SqliteDatabaseAdapter
             );
     }
 
+/**
+ * Creates a new goal in the database
+ * 
+ * @param {Goal} goal - The goal object to be created
+ * @returns {Promise<void>} - A promise that resolves once the goal is created
+ */
     async createGoal(goal: Goal): Promise<void> {
         const sql =
             "INSERT INTO goals (id, roomId, userId, name, status, objectives) VALUES (?, ?, ?, ?, ?, ?)";
@@ -561,16 +755,33 @@ export class SqliteDatabaseAdapter
             );
     }
 
+/**
+ * Removes a goal from the database.
+ * 
+ * @param {UUID} goalId - The ID of the goal to be removed.
+ * @returns {Promise<void>} A Promise that resolves when the goal is successfully removed.
+ */
     async removeGoal(goalId: UUID): Promise<void> {
         const sql = "DELETE FROM goals WHERE id = ?";
         this.db.prepare(sql).run(goalId);
     }
 
+/**
+ * Remove all goals from the database for a specific room.
+ * @param {UUID} roomId - The unique identifier of the room.
+ * @returns {Promise<void>} - A Promise that resolves when the operation is complete.
+ */
     async removeAllGoals(roomId: UUID): Promise<void> {
         const sql = "DELETE FROM goals WHERE roomId = ?";
         this.db.prepare(sql).run(roomId);
     }
 
+/**
+ * Creates a new room with the specified room ID or generates a random UUID if none is provided.
+ * 
+ * @param {UUID} roomId - The ID of the room to create, or undefined to generate a new UUID.
+ * @returns {Promise<UUID>} The UUID of the created room.
+ */
     async createRoom(roomId?: UUID): Promise<UUID> {
         roomId = roomId || (v4() as UUID);
         try {
@@ -582,17 +793,34 @@ export class SqliteDatabaseAdapter
         return roomId as UUID;
     }
 
+/**
+ * Removes a room from the database based on the room ID.
+ * 
+ * @async
+ * @param {UUID} roomId - The ID of the room to be removed.
+ * @returns {Promise<void>}
+ */
     async removeRoom(roomId: UUID): Promise<void> {
         const sql = "DELETE FROM rooms WHERE id = ?";
         this.db.prepare(sql).run(roomId);
     }
 
+/**
+ * Retrieves the rooms associated with a specific participant.
+ * @param {UUID} userId - The identifier of the participant.
+ * @returns {Promise<UUID[]>} An array of room IDs associated with the participant.
+ */
     async getRoomsForParticipant(userId: UUID): Promise<UUID[]> {
         const sql = "SELECT roomId FROM participants WHERE userId = ?";
         const rows = this.db.prepare(sql).all(userId) as { roomId: string }[];
         return rows.map((row) => row.roomId as UUID);
     }
 
+/**
+ * Retrieves a list of room IDs based on the provided array of user IDs.
+ * @param {UUID[]} userIds - An array of UUID strings representing user IDs.
+ * @returns {Promise<UUID[]>} A promise that resolves with an array of room IDs as UUIDs.
+ */
     async getRoomsForParticipants(userIds: UUID[]): Promise<UUID[]> {
         // Assuming userIds is an array of UUID strings, prepare a list of placeholders
         const placeholders = userIds.map(() => "?").join(", ");
@@ -606,6 +834,13 @@ export class SqliteDatabaseAdapter
         return rows.map((row) => row.roomId as UUID);
     }
 
+/**
+ * Add a participant to a room.
+ * 
+ * @param {UUID} userId - The UUID of the user to add as a participant.
+ * @param {UUID} roomId - The UUID of the room to add the user to.
+ * @returns {Promise<boolean>} Returns a promise that resolves to true if the participant was added successfully, false otherwise.
+ */
     async addParticipant(userId: UUID, roomId: UUID): Promise<boolean> {
         try {
             const sql =
@@ -618,6 +853,12 @@ export class SqliteDatabaseAdapter
         }
     }
 
+/**
+ * Removes a participant from a room in the database.
+ * @param {UUID} userId - The unique identifier of the user to be removed.
+ * @param {UUID} roomId - The unique identifier of the room from which the user will be removed.
+ * @returns {Promise<boolean>} - Returns a boolean indicating the success of the removal operation.
+ */
     async removeParticipant(userId: UUID, roomId: UUID): Promise<boolean> {
         try {
             const sql =
@@ -630,6 +871,17 @@ export class SqliteDatabaseAdapter
         }
     }
 
+/**
+ * Asynchronously creates a relationship between two users in the database.
+ * 
+ * @param {Object} params - The parameters for creating the relationship.
+ * @param {UUID} params.userA - The UUID of the first user.
+ * @param {UUID} params.userB - The UUID of the second user.
+ * 
+ * @returns {Promise<boolean>} Returns a Promise that resolves to true if the relationship was successfully created.
+ * 
+ * @throws {Error} If either userA or userB is missing in the parameters.
+ */
     async createRelationship(params: {
         userA: UUID;
         userB: UUID;
@@ -645,6 +897,13 @@ export class SqliteDatabaseAdapter
         return true;
     }
 
+/**
+ * Retrieve a relationship between two users from the database.
+ * @param {Object} params - The parameters for the relationship query.
+ * @param {UUID} params.userA - The UUID of user A.
+ * @param {UUID} params.userB - The UUID of user B.
+ * @returns {Promise<Relationship | null>} A promise that resolves to the relationship between userA and userB, or null if no relationship is found.
+ */
     async getRelationship(params: {
         userA: UUID;
         userB: UUID;
@@ -663,6 +922,12 @@ export class SqliteDatabaseAdapter
         );
     }
 
+/**
+ * Fetches relationships for a specified user ID from the database
+ * @param {Object} params - The parameters for the query
+ * @param {UUID} params.userId - The ID of the user to fetch relationships for
+ * @returns {Promise<Relationship[]>} - A promise that resolves to an array of Relationship objects
+ */
     async getRelationships(params: { userId: UUID }): Promise<Relationship[]> {
         const sql =
             "SELECT * FROM relationships WHERE (userA = ? OR userB = ?)";
@@ -671,6 +936,13 @@ export class SqliteDatabaseAdapter
             .all(params.userId, params.userId) as Relationship[];
     }
 
+/**
+ * Get cache value from the database.
+ * @param {Object} params - The parameters for the cache retrieval.
+ * @param {string} params.key - The key of the cache entry.
+ * @param {UUID} params.agentId - The ID of the agent associated with the cache entry.
+ * @returns {Promise<string | undefined>} The value of the cache entry, or undefined if not found.
+ */
     async getCache(params: {
         key: string;
         agentId: UUID;
@@ -683,6 +955,15 @@ export class SqliteDatabaseAdapter
         return cached?.value ?? undefined;
     }
 
+/**
+ * Asynchronously sets a value in the cache.
+ * 
+ * @param {Object} params - The parameters for setting the cache value.
+ * @param {string} params.key - The key for the cache entry.
+ * @param {UUID} params.agentId - The ID of the agent associated with the cache entry.
+ * @param {string} params.value - The value to be stored in the cache.
+ * @returns {Promise<boolean>} A Promise that resolves to true if the value was successfully set in the cache.
+ */
     async setCache(params: {
         key: string;
         agentId: UUID;
@@ -694,6 +975,14 @@ export class SqliteDatabaseAdapter
         return true;
     }
 
+/**
+ * Deletes cache based on provided key and agentId.
+ * 
+ * @param {Object} params - The parameters for deleting cache.
+ * @param {string} params.key - The key of the cache to be deleted.
+ * @param {UUID} params.agentId - The agentId associated with the cache.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating success or failure of cache deletion.
+ */
     async deleteCache(params: {
         key: string;
         agentId: UUID;

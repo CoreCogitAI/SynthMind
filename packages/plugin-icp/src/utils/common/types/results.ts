@@ -1,11 +1,23 @@
 import { customStringify } from "../data/json";
 
 // Motoko result object
+/**
+ * Represents a result that can either have a success value of type T or an error value of type E.
+ * @template T - The type of the success value
+ * @template E - The type of the error value
+ */
+```
 export type MotokoResult<T, E> =
     | { ok: T; err?: undefined }
     | { ok?: undefined; err: E };
 
 // Rust result object
+/**
+ * Represents a result from a Rust function that can be either a success (Ok) with a value of type T,
+ * or a failure (Err) with a value of type E.
+ * @template T - The type of the success value.
+ * @template E - The type of the error value.
+ */
 export type RustResult<T, E> =
     | { Ok: T; Err?: undefined }
     | { Ok?: undefined; Err: E };

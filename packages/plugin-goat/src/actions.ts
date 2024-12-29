@@ -17,6 +17,12 @@ import {
     generateObject,
 } from "@elizaos/core";
 
+/**
+ * Defines the parameters required for calling the `getOnChainActions` method.
+ * @template TWalletClient - The type of the wallet client used.
+ * @property {TWalletClient} wallet - The wallet client to be used for retrieving on-chain actions.
+ * @property {Plugin<TWalletClient>[]} plugins - An array of plugins associated with the wallet client.
+ */
 type GetOnChainActionsParams<TWalletClient extends WalletClient> = {
     wallet: TWalletClient;
     plugins: Plugin<TWalletClient>[];
@@ -27,6 +33,13 @@ type GetOnChainActionsParams<TWalletClient extends WalletClient> = {
  *
  * @param params
  * @returns
+ */
+/**
+ * Retrieves on-chain actions for the specified wallet client.
+ * 
+ * @template TWalletClient The type of the wallet client being used.
+ * @param {GetOnChainActionsParams<TWalletClient>} params The parameters for getting on-chain actions.
+ * @returns {Promise<Action[]>} The list of on-chain actions as an array of Action objects.
  */
 export async function getOnChainActions<TWalletClient extends WalletClient>({
     wallet,
