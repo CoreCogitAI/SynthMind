@@ -779,7 +779,7 @@
 - fix: memory similarity log & new knowledge ingestion [\#616](https://github.com/elizaOS/eliza/pull/616) ([yoniebans](https://github.com/yoniebans))
 - fix: Update and add Conflux [\#613](https://github.com/elizaOS/eliza/pull/613) ([lalalune](https://github.com/lalalune))
 - fix: Fix buttplug.io integration and merge [\#612](https://github.com/elizaOS/eliza/pull/612) ([lalalune](https://github.com/lalalune))
-- chore\(nvmrc\): update Node.js version from v23.1.0 to v23.3.0 [\#611](https://github.com/elizaOS/eliza/pull/611) ([wolfcito](https://github.com/wolfcito))
+- chore\(nvmrc\): update Node.js version from v20.10.0 to v20.10.0 [\#611](https://github.com/elizaOS/eliza/pull/611) ([wolfcito](https://github.com/wolfcito))
 - fix: add client farcaster templates to character type [\#610](https://github.com/elizaOS/eliza/pull/610) ([bmgalego](https://github.com/bmgalego))
 - fix: knowledge module exporting process [\#609](https://github.com/elizaOS/eliza/pull/609) ([bmgalego](https://github.com/bmgalego))
 - feat: implement coinbase trading [\#608](https://github.com/elizaOS/eliza/pull/608) ([monilpat](https://github.com/monilpat))

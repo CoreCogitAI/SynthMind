@@ -1,3 +1,15 @@
+if (!Promise.withResolvers) {
+    Promise.withResolvers = function <T>() {
+      let resolve: (value: T | PromiseLike<T>) => void;
+      let reject: (reason?: any) => void;
+      const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve: resolve!, reject: reject! };
+    };
+  }
+
 import { PostgresDatabaseAdapter } from "@elizaos/adapter-postgres";
 import { SqliteDatabaseAdapter } from "@elizaos/adapter-sqlite";
 import { AutoClientInterface } from "@elizaos/client-auto";
@@ -70,6 +82,7 @@ import net from "net";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
+
 
 export const wait = (minTime: number = 1000, maxTime: number = 3000) => {
     const waitTime =
