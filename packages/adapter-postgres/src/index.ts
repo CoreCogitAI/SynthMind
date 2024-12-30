@@ -299,7 +299,7 @@ export class PostgresDatabaseAdapter
     async getMemoriesByRoomIds(params: {
         roomIds: UUID[];
         agentId?: UUID;
-        tableName: string;
+        memoryType: string;
     }): Promise<Memory[]> {
         return this.withDatabase(async () => {
             if (params.roomIds.length === 0) return [];
@@ -308,7 +308,7 @@ export class PostgresDatabaseAdapter
                 .join(", ");
 
             let query = `SELECT * FROM memories WHERE type = $1 AND "roomId" IN (${placeholders})`;
-            let queryParams = [params.tableName, ...params.roomIds];
+            let queryParams = [params.memoryType, ...params.roomIds];
 
             if (params.agentId) {
                 query += ` AND "agentId" = $${params.roomIds.length + 2}`;
@@ -473,7 +473,7 @@ export class PostgresDatabaseAdapter
         }, "getMemoryById");
     }
 
-    async createMemory(memory: Memory, tableName: string): Promise<void> {
+    async createMemory(memory: Memory, memoryType: string): Promise<void> {
         return this.withDatabase(async () => {
             elizaLogger.debug("PostgresAdapter createMemory:", {
                 memoryId: memory.id,
@@ -486,7 +486,7 @@ export class PostgresDatabaseAdapter
                 const similarMemories = await this.searchMemoriesByEmbedding(
                     memory.embedding,
                     {
-                        tableName,
+                        memoryType,
                         roomId: memory.roomId,
                         match_threshold: 0.95,
                         count: 1,
@@ -501,7 +501,7 @@ export class PostgresDatabaseAdapter
                 ) VALUES ($1, $2, $3, $4, $5::uuid, $6::uuid, $7::uuid, $8, to_timestamp($9/1000.0))`,
                 [
                     memory.id ?? v4(),
-                    tableName,
+                    memoryType,
                     JSON.stringify(memory.content),
                     memory.embedding ? `[${memory.embedding.join(",")}]` : null,
                     memory.userId,
@@ -515,7 +515,7 @@ export class PostgresDatabaseAdapter
     }
 
     async searchMemories(params: {
-        tableName: string;
+        memoryType: string;
         agentId: UUID;
         roomId: UUID;
         embedding: number[];
@@ -529,7 +529,7 @@ export class PostgresDatabaseAdapter
             agentId: params.agentId,
             roomId: params.roomId,
             unique: params.unique,
-            tableName: params.tableName,
+            memoryType: params.memoryType,
         });
     }
 
@@ -537,19 +537,19 @@ export class PostgresDatabaseAdapter
         roomId: UUID;
         count?: number;
         unique?: boolean;
-        tableName: string;
+        memoryType: string;
         agentId?: UUID;
         start?: number;
         end?: number;
     }): Promise<Memory[]> {
         // Parameter validation
-        if (!params.tableName) throw new Error("tableName is required");
+        if (!params.memoryType) throw new Error("memoryType is required");
         if (!params.roomId) throw new Error("roomId is required");
 
         return this.withDatabase(async () => {
             // Build query
             let sql = `SELECT * FROM memories WHERE type = $1 AND "roomId" = $2`;
-            const values: any[] = [params.tableName, params.roomId];
+            const values: any[] = [params.memoryType, params.roomId];
             let paramCount = 2;
 
             // Add time range filters
@@ -587,7 +587,7 @@ export class PostgresDatabaseAdapter
 
             elizaLogger.debug("Fetching memories:", {
                 roomId: params.roomId,
-                tableName: params.tableName,
+                memoryType: params.memoryType,
                 unique: params.unique,
                 agentId: params.agentId,
                 timeRange:
@@ -938,7 +938,7 @@ export class PostgresDatabaseAdapter
         return this.withDatabase(async () => {
             try {
                 elizaLogger.debug("Fetching cached embeddings:", {
-                    tableName: opts.query_table_name,
+                    memoryType: opts.query_table_name,
                     fieldName: opts.query_field_name,
                     subFieldName: opts.query_field_sub_name,
                     matchCount: opts.query_match_count,
@@ -983,7 +983,7 @@ export class PostgresDatabaseAdapter
 
                 elizaLogger.debug("Retrieved cached embeddings:", {
                     count: rows.length,
-                    tableName: opts.query_table_name,
+                    memoryType: opts.query_table_name,
                     matchCount: opts.query_match_count,
                 });
 
@@ -1016,7 +1016,7 @@ export class PostgresDatabaseAdapter
                 elizaLogger.error("Error in getCachedEmbeddings:", {
                     error:
                         error instanceof Error ? error.message : String(error),
-                    tableName: opts.query_table_name,
+                    memoryType: opts.query_table_name,
                     fieldName: opts.query_field_name,
                 });
                 throw error;
@@ -1088,7 +1088,7 @@ export class PostgresDatabaseAdapter
             agentId?: UUID;
             roomId?: UUID;
             unique?: boolean;
-            tableName: string;
+            memoryType: string;
         }
     ): Promise<Memory[]> {
         return this.withDatabase(async () => {
@@ -1129,7 +1129,7 @@ export class PostgresDatabaseAdapter
                 WHERE type = $2
             `;
 
-            const values: any[] = [vectorStr, params.tableName];
+            const values: any[] = [vectorStr, params.memoryType];
 
             // Log the query for debugging
             elizaLogger.debug("Query debug:", {
@@ -1225,20 +1225,20 @@ export class PostgresDatabaseAdapter
         }, "updateGoalStatus");
     }
 
-    async removeMemory(memoryId: UUID, tableName: string): Promise<void> {
+    async removeMemory(memoryId: UUID, memoryType: string): Promise<void> {
         return this.withDatabase(async () => {
             await this.pool.query(
                 "DELETE FROM memories WHERE type = $1 AND id = $2",
-                [tableName, memoryId]
+                [memoryType, memoryId]
             );
         }, "removeMemory");
     }
 
-    async removeAllMemories(roomId: UUID, tableName: string): Promise<void> {
+    async removeAllMemories(roomId: UUID, memoryType: string): Promise<void> {
         return this.withDatabase(async () => {
             await this.pool.query(
                 `DELETE FROM memories WHERE type = $1 AND "roomId" = $2`,
-                [tableName, roomId]
+                [memoryType, roomId]
             );
         }, "removeAllMemories");
     }
@@ -1246,9 +1246,9 @@ export class PostgresDatabaseAdapter
     async countMemories(
         roomId: UUID,
         unique = true,
-        tableName = ""
+        memoryType = ""
     ): Promise<number> {
-        if (!tableName) throw new Error("tableName is required");
+        if (!memoryType) throw new Error("memoryType is required");
 
         return this.withDatabase(async () => {
             let sql = `SELECT COUNT(*) as count FROM memories WHERE type = $1 AND "roomId" = $2`;
@@ -1256,7 +1256,7 @@ export class PostgresDatabaseAdapter
                 sql += ` AND "unique" = true`;
             }
 
-            const { rows } = await this.pool.query(sql, [tableName, roomId]);
+            const { rows } = await this.pool.query(sql, [memoryType, roomId]);
             return parseInt(rows[0].count);
         }, "countMemories");
     }
