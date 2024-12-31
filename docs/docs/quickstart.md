@@ -79,7 +79,7 @@ pnpm build
     DISCORD_APPLICATION_ID=  # For Discord integration
     DISCORD_API_TOKEN=      # Bot token
     HEURIST_API_KEY=       # Heurist API key for LLM and image generation
-    OPENAI_API_KEY=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      # OpenAI API key
+    OPENAI_API_KEY=     # OpenAI API key
     GROK_API_KEY=          # Grok API key
     ELEVENLABS_XI_API_KEY= # API key from elevenlabs (for voice)
     LIVEPEER_GATEWAY_URL=  # Livepeer gateway URL
